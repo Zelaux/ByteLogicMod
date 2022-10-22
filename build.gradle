@@ -284,6 +284,24 @@ configure([":core", ":tools"].collect{ project(it) }){
         }
     }
 }
+
+task jarAndroid {
+    dependsOn "jar"
+
+    doLast {
+        //collect dependencies needed for desugaring
+        def files = (
+                project(":core").configurations.compileClasspath.asList() +
+                        project(":core").configurations.runtimeClasspath.asList() +
+                        configurations.runtimeClasspath.asList() +
+                        [new File("$sdkRoot/platforms/android-$sdkVersion/android.jar")]
+        )
+        def dependencies = files.collect { "--classpath $it.path" }.join(" ")
+
+        //dex and desugar files - this requires d8 in your PATH
+        doExec("d8 $dependencies --min-api 14 --output ${project.archivesBaseName}Android.jar ${project.archivesBaseName}Desktop.jar")
+    }
+}
 jar{
     dependsOn "core:jar"
     archiveFileName = "${project.archivesBaseName}Desktop.jar"
@@ -308,6 +326,7 @@ jar{
     }
 }
 task deploy(type: Jar){
+    dependsOn jarAndroid
     dependsOn jar
     archiveFileName = "${project.archivesBaseName}.jar"
 
