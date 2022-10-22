@@ -16,7 +16,6 @@ import arc.scene.ui.layout.Collapser;
 import bytelogic.ui.ModStyles;
 import bytelogic.ui.fragments.ModHudFragment;
 import bytelogic.world.blocks.logic.*;
-import bytelogic.world.blocks.logic.LogicBlock.*;
 import mindustry.Vars;
 import mindustry.entities.units.*;
 import mindustry.game.*;
@@ -37,16 +36,26 @@ public class BLUI extends mma.core.ModUI implements Disposable, ApplicationListe
         super();
 
         Vars.schematics = new SchematicsWrapper(Vars.schematics){
-            @Override
-            public Seq<BuildPlan> toPlans(Schematic schem, int x, int y){
+            @Nullable Planet findCampaignPlanet(){
                 if(!Vars.state.isCampaign()){
-                    return super.toPlans(schem, x, y);
+                    return null;
                 }
                 Sector sector = Vars.state.getSector();
-                if(sector == null || sector.planet == null){
-                    return super.toPlans(schem, x, y);
+                if(sector == null){
+                    return null;
                 }
-                ByteLogicBlocks currentPlanetBlocks = ByteLogicBlocks.byteLogicBlocks.find(it -> it.planet == sector.planet);
+                return sector.planet;
+            }
+            @Override
+            public Seq<BuildPlan> toPlans(Schematic schem, int x, int y){
+
+               Planet planet=findCampaignPlanet();
+               if (planet==null){
+                   planet=findPlanetByEnv();
+               }
+               if (planet==null)return super.toPlans(schem, x, y);
+                Planet staticPlanet = planet;
+                ByteLogicBlocks currentPlanetBlocks = ByteLogicBlocks.byteLogicBlocks.find(it -> it.planet == staticPlanet);
                 if(currentPlanetBlocks == null){
                     return super.toPlans(schem, x, y);
                 }
@@ -62,6 +71,12 @@ public class BLUI extends mma.core.ModUI implements Disposable, ApplicationListe
                     return new BuildPlan(t.x + x - schem.width / 2, t.y + y - schem.height / 2, t.rotation, tBlock, t.config).original(t.x, t.y, schem.width, schem.height);
                 })
                 .removeAll(s -> (!s.block.isVisible() && !(s.block instanceof CoreBlock)) || !s.block.unlockedNow()).sort(Structs.comparingInt(s -> -s.block.schematicPriority));
+            }
+
+            Planet findPlanetByEnv(){
+                int env = Vars.state.rules.env;
+                if (Vars.state.rules.hiddenBuildItems.isEmpty())return null;
+                return Vars.content.planets().find(it -> it.defaultEnv == env && it.solarSystem!=it);
             }
         };
     }
