@@ -3,7 +3,7 @@
   "displayName": "Byte Logic Mod",
   "author": "Zelaux",
   "description": "Adds byte logic block from v5",
-  "version": v1,
+  "version": "v1",
   "minGameVersion": 136,
   "main": "bytelogic.ByteLogicMod"
 }
