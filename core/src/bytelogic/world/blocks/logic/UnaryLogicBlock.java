@@ -123,7 +123,7 @@ public abstract class UnaryLogicBlock extends LogicBlock {
             sideRegion.flip(false, inputType == rightInput);
             Draw.rect(base, tile.drawx(), tile.drawy());
 
-            Draw.color(currentSignal() > 0 ? Pal.accent : Color.white);
+            Draw.color(signalColor());
 
             Draw.rect(sideRegion, x, y, drawrot());
 

@@ -37,7 +37,7 @@ public class RelayBlock extends AcceptorLogicBlock{
         @Override
         public void draw(){
             super.draw();
-            Draw.color(currentSignal() > 0 ? Pal.accent : Color.white);
+            Draw.color(signalColor());
             for(Building prox : proximity){
                 if(prox instanceof ByteLogicBuildingc buildingc && buildingc.output(prox.relativeTo(this))){
                     Draw.rect(region, x, y, relativeTo(prox) * 90);

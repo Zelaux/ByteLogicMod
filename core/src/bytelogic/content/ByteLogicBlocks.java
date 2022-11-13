@@ -75,7 +75,7 @@ public class ByteLogicBlocks {
             requirements(blockCategory, bothRequirements.clone());
             this.outputRegionName = ModVars.fullName("boolean-gate-output");
             this.sideOutputRegionName = ModVars.fullName("boolean-gate-output-side");
-            needCompilation=true;
+            needImageCompilation =true;
             ownsCenterRegion=false;
 
             processor = (left, right) -> left & right;
@@ -86,7 +86,7 @@ public class ByteLogicBlocks {
             requirements(blockCategory, bothRequirements.clone());
             this.outputRegionName = ModVars.fullName("boolean-gate-output");
             this.sideOutputRegionName = ModVars.fullName("boolean-gate-output-side");;
-            needCompilation=true;
+            needImageCompilation =true;
             ownsCenterRegion=false;
 
             processor = (left, right) -> left | right;
@@ -97,7 +97,7 @@ public class ByteLogicBlocks {
             requirements(blockCategory, bothRequirements.clone());
             this.outputRegionName = ModVars.fullName("boolean-gate-output");
             this.sideOutputRegionName =  fullName("xor-gate-output-side");;
-            needCompilation=true;
+            needImageCompilation =true;
             ownsCenterRegion=false;
 
             processor = (left, right) -> left ^ right;

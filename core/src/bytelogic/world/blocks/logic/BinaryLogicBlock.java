@@ -8,7 +8,6 @@ import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.Vec2;
-import arc.scene.style.Drawable;
 import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.ImageButton;
@@ -26,14 +25,15 @@ import mindustry.graphics.*;
 import mindustry.ui.Styles;
 import mindustry.world.*;
 import mma.*;
-import mma.core.ModContentLoader;
 import mma.graphics.*;
 import mma.io.ByteReads;
 import mma.io.ByteWrites;
+import mma.type.ImageGenerator;
+import mma.type.pixmap.PixmapProcessor;
 
 import static mindustry.Vars.world;
 
-public abstract class BinaryLogicBlock extends LogicBlock {
+public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenerator {
     protected static final int leftSideIndex = 0;
     protected static final int rightSideIndex = 1;
     public boolean canFlip;
@@ -57,6 +57,7 @@ public abstract class BinaryLogicBlock extends LogicBlock {
         return originalMirror.name + "-center";
     }
 
+
     public BinaryLogicBlock(String name) {
         super(name);
         configurable = true;
@@ -69,32 +70,34 @@ public abstract class BinaryLogicBlock extends LogicBlock {
     }
 
     public TextureRegion[] compiledRegions = new TextureRegion[2];
-    public boolean needCompilation;
+    public boolean needImageCompilation;
 
     @Override
     public void load() {
         super.load();
-        for (int i = 0; needCompilation && i < compiledRegions.length; i++) {
+        for (int i = 0; needImageCompilation && i < compiledRegions.length; i++) {
             compiledRegions[i] = Core.atlas.find(name + "-compiled-" + i);
         }
     }
 
     @Override
-    public void createIcons(MultiPacker packer) {
-        super.createIcons(packer);
-        BLContentRegions.loadRegions(this);
-        if (needCompilation) {
-            Pixmap center = Core.atlas.getPixmap(centerRegion).crop();
-            Pixmap output = Core.atlas.getPixmap(outputsRegion).crop();
-            Pixmap outputSide = Core.atlas.getPixmap(sideOutputsRegion).crop();
+    public Pixmap generate(Pixmap icon, PixmapProcessor processor) {
+        if (!needImageCompilation) return icon;
 
-            Pixmap copy = center.copy();
-            copy.draw(output, true);
-            packer.add(MultiPacker.PageType.main, name + "-compiled-0", copy);
-            Pixmap copy2 = center.copy();
-            copy2.draw(outputSide, true);
-            packer.add(MultiPacker.PageType.main, name + "-compiled-1", copy2);
-        }
+        Pixmap base = processor.get(this.base).copy();
+        base.draw(processor.get(centerRegion), true);
+        Pixmap output = processor.get(outputsRegion);
+        Pixmap outputSide = processor.get(sideOutputsRegion);
+
+        Pixmap compiledOutput = base.copy();
+        compiledOutput.draw(output, true);
+        processor.save(compiledOutput, name + "-compiled-0");
+
+        Pixmap compiledSideOutput = base.copy();
+        compiledSideOutput.draw(outputSide, true);
+        processor.save(compiledSideOutput, name + "-compiled-1");
+        return ImageGenerator.super.generate(icon, processor);
+
     }
 
     @Override
@@ -110,12 +113,12 @@ public abstract class BinaryLogicBlock extends LogicBlock {
     }
 
     protected TextureRegion getOutputsRegion() {
-        if (needCompilation) return compiledRegions[0];
+        if (needImageCompilation) return compiledRegions[0];
         return outputsRegion;
     }
 
     protected TextureRegion getSideOutputsRegion() {
-        if (needCompilation) return compiledRegions[1];
+        if (needImageCompilation) return compiledRegions[1];
         return sideOutputsRegion;
     }
 
@@ -124,24 +127,28 @@ public abstract class BinaryLogicBlock extends LogicBlock {
 
 
         if (!(req.config instanceof byte[] bytes)) {
-//            req.config = bytesOfState(false, 0);
-            super.drawPlanRegion(req, list);
+            req.config = bytesOfState(false, 0);
+            drawPlanRegion(req, list);
             return;
         }
         tmpReads.setBytes(bytes);
-        TextureRegion back = base;
         float scale = req.animScale * Draw.scl;
 
-        Draw.rect(back, req.drawx(), req.drawy(),
-                back.width * scale,
-                back.height * scale,
-                0);
         boolean flipped = tmpReads.bool();
-        Draw.rect(centerRegion, req.drawx(), req.drawy(),
-                region.width * scale,
-                region.height * scale * Mathf.sign(!flipped),
-                !rotate ? 0 : req.rotation * 90);
         int type = tmpReads.i();
+
+
+        if (!needImageCompilation){
+            TextureRegion back = base;
+            Draw.rect(back, req.drawx(), req.drawy(),
+                    back.width * scale,
+                    back.height * scale,
+                    0);
+            Draw.rect(centerRegion, req.drawx(), req.drawy(),
+                    region.width * scale,
+                    region.height * scale * Mathf.sign(!flipped),
+                    !rotate ? 0 : req.rotation * 90);
+        }
         if (type == bothSideInputType) {
             Draw.rect(getOutputsRegion(), req.drawx(), req.drawy(),
                     region.width * scale,
@@ -286,18 +293,19 @@ public abstract class BinaryLogicBlock extends LogicBlock {
         public void draw() {
 
 
-            Draw.rect(base, tile.drawx(), tile.drawy());
-
-            Draw.color(currentSignal() > 0 ? Pal.accent : Color.white);
 //            super.draw(tile);
 
-            if (!needCompilation) {
+            if (!needImageCompilation) {
 
+                Draw.rect(base, tile.drawx(), tile.drawy());
+
+                Draw.color(signalColor());
                 Draw.rect(centerRegion,
                         x, y,
                         region.width * Draw.scl * Draw.xscl, Draw.scl * Draw.yscl * region.height * Mathf.sign(!flippedInputs),
                         this.drawrot());
             }
+            Draw.color(signalColor());
             if (inputType == bothSideInputType) {
                 Draw.rect(getOutputsRegion(),
                         x, y,
@@ -322,6 +330,7 @@ public abstract class BinaryLogicBlock extends LogicBlock {
                 Draw.draw(Layer.overlayUI, this::drawSelect);
             }
         }
+
 
 
         @Override
