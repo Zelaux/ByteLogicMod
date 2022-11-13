@@ -84,8 +84,7 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
     public Pixmap generate(Pixmap icon, PixmapProcessor processor) {
         if (!needImageCompilation) return icon;
 
-        Pixmap base = processor.get(this.base).copy();
-        base.draw(processor.get(centerRegion), true);
+        Pixmap base = processor.get(centerRegion);
         Pixmap output = processor.get(outputsRegion);
         Pixmap outputSide = processor.get(sideOutputsRegion);
 
@@ -138,12 +137,12 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         int type = tmpReads.i();
 
 
+        TextureRegion back = base;
+        Draw.rect(back, req.drawx(), req.drawy(),
+                back.width * scale,
+                back.height * scale,
+                0);
         if (!needImageCompilation){
-            TextureRegion back = base;
-            Draw.rect(back, req.drawx(), req.drawy(),
-                    back.width * scale,
-                    back.height * scale,
-                    0);
             Draw.rect(centerRegion, req.drawx(), req.drawy(),
                     region.width * scale,
                     region.height * scale * Mathf.sign(!flipped),
@@ -295,17 +294,14 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
 
 //            super.draw(tile);
 
+            Draw.rect(base, tile.drawx(), tile.drawy());
+            Draw.color(signalColor());
             if (!needImageCompilation) {
-
-                Draw.rect(base, tile.drawx(), tile.drawy());
-
-                Draw.color(signalColor());
                 Draw.rect(centerRegion,
                         x, y,
                         region.width * Draw.scl * Draw.xscl, Draw.scl * Draw.yscl * region.height * Mathf.sign(!flippedInputs),
                         this.drawrot());
             }
-            Draw.color(signalColor());
             if (inputType == bothSideInputType) {
                 Draw.rect(getOutputsRegion(),
                         x, y,

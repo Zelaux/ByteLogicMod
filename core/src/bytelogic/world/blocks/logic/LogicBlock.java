@@ -181,7 +181,7 @@ public abstract class LogicBlock extends Block {
         }
 
         protected Color signalColor() {
-            return currentSignal() > 0 ? Pal.accent : (currentSignal() < 0 ? Color.scarlet : Color.white);
+            return currentSignal() > 0 ? Pal.accent : (currentSignal() < 0 ? Pal.remove : Color.white);
         }
 
         protected int currentSignal() {
