@@ -173,33 +173,21 @@ public abstract class BinaryLogicBlock extends LogicBlock {
             tmpReads.setBytes(bytes);
             boolean flipped = tmpReads.bool() && canFlip;
             int inputType = tmpReads.i();
-            if (canFlip) {
-                if ((x == (req.rotation % 2 == 0)) != invertFlip) {
-                    if (inputType == 0) req.rotation = Mathf.mod(req.rotation + 2, 4);
-                } else {
-                    flipped = !flipped;
-                }
-            }
-            if ((req.rotation % 2 == 0) != x) {
-                if (inputType != bothSideInputType) {
-                    if (inputType == leftFromBackInputType) {
-                        inputType = rightFromBackInputType;
-                    } else {
-                        inputType = leftFromBackInputType;
-                    }
-                }
-            } else {
+
+            if ((req.rotation % 2 == 0) == x) {
                 req.rotation = Mathf.mod(req.rotation + 2, 4);
-                if (inputType != bothSideInputType) {
-                    if (canFlip) flipped = !flipped;
-                    if (inputType == leftFromBackInputType) {
-                        inputType = rightFromBackInputType;
-                    } else {
-                        inputType = leftFromBackInputType;
-                    }
+            }
+            flipped = !flipped;
+
+            if (inputType != bothSideInputType) {
+                if (inputType == leftFromBackInputType) {
+                    inputType = rightFromBackInputType;
+                } else {
+                    inputType = leftFromBackInputType;
                 }
             }
-            req.config = bytesOfState(flipped, inputType);
+
+            req.config = bytesOfState(flipped && canFlip, inputType);
         } else {
             super.flipRotation(req, x);
         }
