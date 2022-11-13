@@ -10,6 +10,7 @@ import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.Image;
 import arc.scene.ui.layout.Table;
 import arc.util.Align;
+import arc.util.Eachable;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import bytelogic.gen.*;
@@ -41,8 +42,38 @@ public abstract class UnaryLogicBlock extends LogicBlock {
     }
 
     @Override
+    public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list) {
+        if (!(req.config instanceof Integer value && value != backInput)) {
+            super.drawPlanRegion(req, list);
+            return;
+        }
+        TextureRegion back = base;
+        Draw.rect(back, req.drawx(), req.drawy(),
+                back.width * req.animScale * Draw.scl,
+                back.height * req.animScale * Draw.scl,
+                0);
+
+        Draw.rect(sideRegion, req.drawx(), req.drawy(),
+                region.width * req.animScale * Draw.scl,
+                region.height * req.animScale * Draw.scl * Mathf.sign(value == leftInput),
+                req.rotation * 90);
+    }
+
+    @Override
     public void flipRotation(BuildPlan req, boolean x) {
-        super.flipRotation(req, x);
+        if (!(req.config instanceof Integer value && value != backInput)) {
+            super.flipRotation(req, x);
+            return;
+        }
+        if ((req.rotation % 2 == 0) == x) {
+            req.rotation = Mathf.mod(req.rotation + 2, 4);
+        }
+        if (value == leftInput) {
+            req.config = rightInput;
+        } else {
+            req.config = leftInput;
+        }
+
     }
 
     public interface UnaryProcessor {
