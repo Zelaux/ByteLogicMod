@@ -106,16 +106,16 @@ public class SchematicsWrapper extends Schematics{
     public String writeBase64(Schematic schematic){
         return wrapped.writeBase64(schematic);
     }
-
+/*
     @Override
     public void loadAsync(){
         wrapped.loadAsync();
-    }
-
+    }*/
+/*
     @Override
     public String getName(){
         return wrapped.getName();
-    }
+    }*/
 /*
     @Override
     public Seq<AssetDescriptor> getDependencies(){
