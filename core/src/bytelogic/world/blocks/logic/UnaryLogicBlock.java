@@ -28,10 +28,6 @@ public abstract class UnaryLogicBlock extends LogicBlock {
     @Annotations.Load("@nameWithoutPrefix()-side")
     public TextureRegion sideRegion;
 
-    public String nameWithoutPrefix() {
-        if (originalMirror == null) return name;
-        return originalMirror.name;
-    }
 
     public UnaryLogicBlock(String name) {
         super(name);

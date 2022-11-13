@@ -30,6 +30,11 @@ public abstract class LogicBlock extends Block {
     public ByteLogicBlocks byteLogicBlocks;
     protected boolean doOutput = true;
 
+    public String nameWithoutPrefix() {
+        if (originalMirror == null) return name;
+        return originalMirror.name;
+    }
+
     public LogicBlock(String name) {
         super(name);
         rotate = true;
