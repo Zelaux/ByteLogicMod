@@ -99,7 +99,7 @@ public abstract class LogicBlock extends Block {
         super.setBars();
         addBar("signal", (LogicBuild entity) -> new Bar(
                 () -> Core.bundle.format("block.signal", entity.currentSignal()),
-                () -> entity.currentSignal() > 0 ? Pal.accent : Color.darkGray,
+                () -> entity.currentSignal() > 0 ? Pal.accent : (entity.currentSignal() < 0 ? Pal.remove : Color.darkGray),
                 () -> 1f));
     }
 

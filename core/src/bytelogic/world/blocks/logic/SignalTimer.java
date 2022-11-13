@@ -46,7 +46,10 @@ public class SignalTimer extends AcceptorLogicBlock{
                 int amount = currentDelay[0];
                 for(int i = 0; i < amount; i++){
                     int finalI = i;
-                    with.add(new BarPart(() -> build.signalsQueue[Mathf.mod(amount - finalI - 1+build.tickCounter, amount)] > 0f ? Pal.accent : Color.darkGray, () -> 1f));
+                    with.add(new BarPart(() -> {
+                        int signal = build.signalsQueue[Mathf.mod(amount - finalI - 1 + build.tickCounter, amount)];
+                        return signal > 0f ? Pal.accent : (signal < 0 ? Pal.remove : Color.darkGray);
+                    }, () -> 1f));
                 }
             };
             rebuild.run();
