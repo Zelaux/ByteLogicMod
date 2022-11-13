@@ -22,7 +22,7 @@ import static bytelogic.BLVars.*;
 public class ByteLogicMod extends MMAMod {
     public ByteLogicMod() {
         super();
-        disableBlockOutline=true   ;
+        disableBlockOutline = true;
         modLog("Creating start");
 //        TMEntityMapping.init();
 //        TMCall.registerPackets();
@@ -50,8 +50,8 @@ public class ByteLogicMod extends MMAMod {
     protected void modContent(Content content) {
         super.modContent(content);
 //        modLog("Content: @",content);
-        if (content instanceof MappableContent && !headless ) {
-            BLContentRegions.loadRegions((MappableContent)content);
+        if (content instanceof MappableContent && !headless) {
+            BLContentRegions.loadRegions((MappableContent) content);
 //            TMContentRegions.loadRegions((MappableContent) content);
         }
     }
@@ -59,13 +59,14 @@ public class ByteLogicMod extends MMAMod {
     public void init() {
         if (!loaded) return;
         modLog("init start");
+        BLIcons.load();
       /*  for(TechNode techNode : TechTree.all){
             techNode.content.alwaysUnlocked=true  ;
         }*/
 //        Core.atlas.addRegion("logic-base",Core.atlas.find(fullName("logic-base")));
-        if (!headless){
-            ModMetaDialogFinder.onNewListener(d->{
-                if (d instanceof ByteLogicModDialog)return;
+        if (!headless) {
+            ModMetaDialogFinder.onNewListener(d -> {
+                if (d instanceof ByteLogicModDialog) return;
                 d.hide(null);
                 new ByteLogicModDialog().show();
             });

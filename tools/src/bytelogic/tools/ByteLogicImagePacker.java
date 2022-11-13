@@ -7,9 +7,9 @@ import mindustry.ctype.MappableContent;
 import mma.tools.ModImagePacker;
 //import testmod.gen.TMContentRegions;
 
-public class TMImagePacker extends ModImagePacker {
+public class ByteLogicImagePacker extends ModImagePacker {
 
-    public TMImagePacker() {
+    public ByteLogicImagePacker() {
     }
 
     @Override
@@ -28,7 +28,8 @@ public class TMImagePacker extends ModImagePacker {
 
     @Override
     protected void runGenerators() {
-        new TMGenerators();
+        IconRasterizer.main(new String[]{"32","64"});
+        new ByteLogicGenerators();
     }
 
     @Override
@@ -41,7 +42,7 @@ public class TMImagePacker extends ModImagePacker {
     }
 
     public static void main(String[] args) throws Exception {
-        new TMImagePacker();
+        new ByteLogicImagePacker();
     }
 
 }

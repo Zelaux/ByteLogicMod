@@ -5,7 +5,7 @@ buildscript{
         mainPackage = "testmod"
         // v7
         mindustryPath = "com.github.Anuken.Mindustry"
-        mindustryVersionFull = "v137"
+        mindustryVersionFull = "v140.3"
         mindustryVersion = mindustryVersionFull
         mindustryVersionOld =mindustryVersionFull
         arcVersion = mindustryVersion
@@ -24,7 +24,7 @@ buildscript{
         aciVersion = "45ad8cd8ed9"
 
 
-        modCoreVersion = "9203bc5ceb6"
+        modCoreVersion = "2c9d40ffba0"
 
 
         kotlinVersion = "1.6.0"
@@ -241,6 +241,8 @@ project(":tools"){
     dependencies{
         implementation fileTree(dir: 'libs', include: ['*.jar'])
         implementation 'commons-io:commons-io:2.5'
+        implementation("org.apache.xmlgraphics:batik-svgrasterizer:1.9")
+
 
         implementation project(":core")
 
@@ -250,6 +252,7 @@ project(":tools"){
         implementation arcModule("natives:natives-desktop")
         implementation arcModule("natives:natives-freetype-desktop")
         implementation arcModule("backends:backend-headless")
+        implementation arcModule("backends:backend-sdl")
 
 
         implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"

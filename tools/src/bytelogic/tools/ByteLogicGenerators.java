@@ -2,27 +2,79 @@ package bytelogic.tools;
 
 import arc.files.*;
 import arc.graphics.*;
+import arc.graphics.g2d.TextureAtlas.*;
 import arc.struct.*;
+import bytelogic.gen.*;
+import bytelogic.world.blocks.logic.*;
+import mindustry.*;
 import mma.tools.*;
+import mma.type.pixmap.*;
 import org.w3c.dom.*;
 
 import javax.imageio.*;
 import javax.imageio.metadata.*;
 import javax.imageio.stream.*;
-
 import java.awt.image.*;
 import java.io.*;
 import java.nio.*;
 import java.util.*;
 
 import static bytelogic.BLVars.fullName;
-import static mma.tools.gen.MindustryImagePacker.generate;
+import static mma.tools.gen.MindustryImagePacker.*;
 
-public class TMGenerators extends ModGenerators{
+public class ByteLogicGenerators extends ModGenerators{
     @Override
     protected void run(){
+        generate("binary-blocks-staff", this::binaryBlocksStaff);
         super.run();
         generate("animated-logo", this::animatedLogo);
+    }
+
+    private void binaryBlocksStaff(){
+        Seq<BinaryLogicBlock> blocks = Vars.content.blocks().select(it -> it instanceof BinaryLogicBlock).<BinaryLogicBlock>as();
+        for(BinaryLogicBlock block : blocks){
+            block.load();
+            block.loadIcon();
+
+            Pixmap regionPixmap = get(block.region);
+
+            if(!block.outputsRegion.found()){
+                Pixmap copy = regionPixmap.copy();
+                copy.each((x, y) -> {
+                    if(x >= 3 && y >= 3 && x < copy.width - 3 && y < copy.height - 3){
+                        copy.set(x, y, Color.clearRgba);
+                    }
+                });
+                ModImagePacker.save(copy, ((AtlasRegion)block.outputsRegion).name);
+            }
+            if(!block.sideOutputsRegion.found()){
+                Pixmap copy;
+                if(!block.outputsRegion.found()){
+                    copy = regionPixmap.copy();
+                    copy.each((x, y) -> {
+                        if(x >= 3 && y >= 3 && x < copy.width - 3 && y < copy.height - 3){
+                            copy.set(x, y, Color.clearRgba);
+                        }
+                    });
+                }else{
+                    copy = get(block.outputsRegion);
+                }
+                PixmapProcessor.rotatePixmap(copy, 1);
+                ModImagePacker.save(copy, ((AtlasRegion)block.sideOutputsRegion).name);
+            }
+            if(!block.centerRegion.found()){
+                Pixmap copy = regionPixmap.copy();
+                copy.each((x, y) -> {
+                    if(x < 3 || y < 3 || x >= copy.width - 3 || y >= copy.height - 3){
+                        copy.set(x, y, Color.clearRgba);
+                    }
+                });
+                ModImagePacker.save(copy, ((AtlasRegion)block.centerRegion).name);
+            }
+//            BLContentRegions.loadRegions(block);
+//            block.load();
+//            block.loadIcon();
+        }
     }
 
     private void animatedLogo(){
@@ -88,7 +140,7 @@ public class TMGenerators extends ModGenerators{
             for(int i = 0; i < frames.size; i++){
                 Fi.get("../logo/logo-" + i + ".png").writePng(frames.get(i));
             }
-            Fi.get("../"+fullName("logo-info.properties")).writeString("size = "+frames.size);
+            Fi.get("../" + fullName("logo-info.properties")).writeString("size = " + frames.size);
             rootGif.delete();
         }catch(IOException e){
             e.printStackTrace();

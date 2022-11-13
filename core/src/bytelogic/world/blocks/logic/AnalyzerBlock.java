@@ -22,10 +22,10 @@ import mma.*;
 
 import static mindustry.Vars.*;
 
-public class AnalyzerBlock extends LogicBlock{
+public class AnalyzerBlock extends LogicBlock {
     private static final int modeItem = 0, modeLiquid = 1, modePowerBalance = 2, modePowerBattery = 3;
 
-    public AnalyzerBlock(String name){
+    public AnalyzerBlock(String name) {
         super(name);
         configurable = true;
         this.<Integer, AnaylzerBuild>config(Integer.class, (build, value) -> {
@@ -34,11 +34,11 @@ public class AnalyzerBlock extends LogicBlock{
     }
 
 
-    public class AnaylzerBuild extends LogicBuild{
+    public class AnaylzerBuild extends LogicBuild {
         public int analyzeMode;
 
         @Override
-        public void buildConfiguration(Table table){
+        public void buildConfiguration(Table table) {
             Runnable[] rebuild = {null};
             rebuild[0] = () -> {
                 table.clearChildren();
@@ -56,17 +56,17 @@ public class AnalyzerBlock extends LogicBlock{
                 toggler.get(modeItem, new TextureRegionDrawable(Items.copper.fullIcon));
                 toggler.get(modeLiquid, Icon.liquidSmall);
                 toggler.get(modePowerBalance, Icon.powerSmall);
-                toggler.get(modePowerBattery, Core.atlas.drawable(ModVars.fullName("battery-icon-32")));
+                toggler.get(modePowerBattery, BLIcons.Drawables.batteryIcon32);
 //                toggler.get(modePowerBattery, Icon.batterySmall);
                 table.row();
                 Table next = table.table().colspan(4).get();
 
                 int mode = AnalyzeMode.mode(this.analyzeMode);
-                if(mode == modeItem){
+                if (mode == modeItem) {
                     ItemSelection.buildTable(next, Vars.content.items(), () -> Vars.content.item(AnalyzeMode.selection(this.analyzeMode)), item -> {
                         configure(AnalyzeMode.get(modeItem, item == null ? Short.MAX_VALUE : item.id));
                     });
-                }else if(mode == modeLiquid){
+                } else if (mode == modeLiquid) {
                     ItemSelection.buildTable(next, Vars.content.liquids(), () -> Vars.content.liquid(AnalyzeMode.selection(this.analyzeMode)), item -> {
                         configure(AnalyzeMode.get(modeLiquid, item == null ? Short.MAX_VALUE : item.id));
                     });
@@ -79,18 +79,18 @@ public class AnalyzerBlock extends LogicBlock{
         }
 
         @Override
-        public void drawSelect(){
+        public void drawSelect() {
             super.drawSelect();
 
             int mode = AnalyzeMode.mode(analyzeMode);
             int selection = AnalyzeMode.selection(analyzeMode);
             TextureRegion region;
-            switch(mode){
+            switch (mode) {
                 case modeItem, modeLiquid -> {
                     @Nullable UnlockableContent content;
-                    if(mode == modeItem){
+                    if (mode == modeItem) {
                         content = Vars.content.item(selection);
-                    }else{
+                    } else {
                         content = Vars.content.liquid(selection);
                     }
                     region = content == null ? Icon.none.getRegion() : content.fullIcon;
@@ -105,7 +105,7 @@ public class AnalyzerBlock extends LogicBlock{
             }
 //            if(mode != modeItem && mode != modeLiquid) return;
             float dx = x - size * tilesize / 2f, dy = y + size * tilesize / 2f, s = iconSmall / 6f;
-            float regionInvAspect = region.height / (float)region.width;
+            float regionInvAspect = region.height / (float) region.width;
             Draw.mixcol(Color.darkGray, 1f);
             Draw.rect(region, dx, dy - 1, s, s * regionInvAspect);
             Draw.reset();
@@ -113,56 +113,56 @@ public class AnalyzerBlock extends LogicBlock{
         }
 
         //        @Override
-        private int calculateNextSignal(){
+        private int calculateNextSignal() {
             Building back = back();
 
             int mode = AnalyzeMode.mode(this.analyzeMode);
             int selection = AnalyzeMode.selection(this.analyzeMode);
 
-            if(back == null){
+            if (back == null) {
                 return 0;
-            }else if(mode == modePowerBalance && back.block().hasPower){
+            } else if (mode == modePowerBalance && back.block().hasPower) {
                 return Math.round(back.power.graph.getPowerBalance() * 60);
-            }else if(mode == modePowerBattery && back.block().hasPower){
+            } else if (mode == modePowerBattery && back.block().hasPower) {
                 return Math.round(back.power.graph.getBatteryStored());
-            }else if(mode == modeItem && back.block().hasItems){
+            } else if (mode == modeItem && back.block().hasItems) {
                 Item item = Vars.content.item(selection);
                 return item == null ? back.items.total() : back.items.get(item);
-            }else if(mode == modeLiquid && back.block().hasLiquids){
+            } else if (mode == modeLiquid && back.block().hasLiquids) {
                 Liquid liquid = Vars.content.liquid(selection);
-                return liquid == null ? (int)back.liquids.currentAmount() : (int)back.liquids.get(liquid);
+                return liquid == null ? (int) back.liquids.currentAmount() : (int) back.liquids.get(liquid);
             }
 
             return 0;
         }
 
         @Override
-        public void updateSignalState(){
+        public void updateSignalState() {
 
             nextSignal = calculateNextSignal();
             super.updateSignalState();
         }
 
         @Override
-        public void beforeUpdateSignalState(){
-            if(doOutput && output(rotation)){
+        public void beforeUpdateSignalState() {
+            if (doOutput && output(rotation)) {
                 front().<LogicBuild>as().acceptSignal(this, lastSignal);
             }
         }
 
         @Override
-        public Integer config(){
+        public Integer config() {
             return analyzeMode;
         }
 
         @Override
-        public void write(Writes write){
+        public void write(Writes write) {
             super.write(write);
             write.i(analyzeMode);
         }
 
         @Override
-        public void read(Reads read, byte revision){
+        public void read(Reads read, byte revision) {
             super.read(read, revision);
             analyzeMode = read.i();
         }
@@ -170,11 +170,15 @@ public class AnalyzerBlock extends LogicBlock{
     }
 
     @Struct
-    class AnalyzeModeStruct{
-        /** mode of analysis, e.g. power, liquid, item */
+    class AnalyzeModeStruct {
+        /**
+         * mode of analysis, e.g. power, liquid, item
+         */
         @StructField(16)
         int mode;
-        /** mode-specific selection, e.g. liquid/item id or scan mode */
+        /**
+         * mode-specific selection, e.g. liquid/item id or scan mode
+         */
         @StructField(16)
         int selection;
     }

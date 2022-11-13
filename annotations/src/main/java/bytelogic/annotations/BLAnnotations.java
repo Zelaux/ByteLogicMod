@@ -6,6 +6,6 @@ public class BLAnnotations{
 
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.SOURCE)
-    public @interface GeneratesPrefixMirror{
+    public @interface GenerateIconsClass{
     }
 }

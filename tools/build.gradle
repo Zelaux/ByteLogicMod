@@ -151,7 +151,7 @@ task pack(dependsOn: [classes, configurations.runtimeClasspath]) {
         javaexec {
             maxHeapSize = "4048m"
             args("-Xmx4048m")
-            main = "bytelogic.tools.TMImagePacker"
+            main = "bytelogic.tools.ByteLogicImagePacker"
             classpath = sourceSets.main.runtimeClasspath
             workingDir = genFolder
 //            jvmArgs ("-Xmx2024m")
@@ -218,7 +218,7 @@ task badPack(dependsOn: [classes, configurations.runtimeClasspath]) {
         javaexec {
             maxHeapSize = "4048m"
             args("-Xmx4048m")
-            main = "bytelogic.tools.TMImagePacker"
+            main = "bytelogic.tools.ByteLogicImagePacker"
             classpath = sourceSets.main.runtimeClasspath
             workingDir = genFolder
 //            jvmArgs ("-Xmx2024m")
@@ -247,10 +247,24 @@ task badPack(dependsOn: [classes, configurations.runtimeClasspath]) {
         println "Time taken for copieng sprites: ${(System.currentTimeMillis() - ms) / 1000f}"
     }
 }
+task generateIcons(dependsOn: [classes, configurations.runtimeClasspath]) {
+
+    doLast {
+        javaexec {
+            maxHeapSize = "4048m"
+            args("32","64")
+            main = "bytelogic.tools.IconRasterizer"
+            classpath = sourceSets.main.runtimeClasspath
+            workingDir = "../"
+//            jvmArgs ("-Xmx2024m")
+//            systemProperties("-Xmx2024m")
+        }
+    }
+}
 task genSprites(dependsOn: classes, type: JavaExec) {
 //    finalizedBy 'antialiasGen'
 
-    main = "bytelogic.tools.TMImagePacker"
+    main = "bytelogic.tools.ByteLogicImagePacker"
     classpath = sourceSets.main.runtimeClasspath
     jvmArgs("-Djava.awt.headless=true")
     standardInput = System.in
