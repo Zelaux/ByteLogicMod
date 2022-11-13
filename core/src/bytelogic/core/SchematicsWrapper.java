@@ -116,9 +116,9 @@ public class SchematicsWrapper extends Schematics{
     public String getName(){
         return wrapped.getName();
     }
-
+/*
     @Override
     public Seq<AssetDescriptor> getDependencies(){
         return wrapped.getDependencies();
-    }
+    }*/
 }
