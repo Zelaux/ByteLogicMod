@@ -30,9 +30,9 @@ public class ControllerBlock extends UnaryLogicBlock{
         @Override
         public void drawSelect(){
             super.drawSelect();
-            Tile facing = frontTile();
-            if(facing != null && facing.build != null && facing.block().logicConfigurable){
-                Drawf.selected(facing.x, facing.y, facing.block(), Pal.accent);
+            Building facing = front();
+            if(facing != null && facing.block().logicConfigurable){
+                Drawf.selected(facing, Pal.accent);
             }else{
                 Draw.color(Pal.remove);
                 Draw.rect(Icon.cancelSmall.getRegion(), tile.drawx() + Geometry.d4(rotation).x * tilesize, tile.drawy() + Geometry.d4(rotation).y * tilesize);
