@@ -33,7 +33,7 @@ public class SwitchBlock extends LogicBlock{
 
         @Override
         public void tapped(){
-            nextSignal ^= 1;
+            configure(nextSignal ^ 1);
             clickSound.at(tile);
         }
 
