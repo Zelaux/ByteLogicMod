@@ -1,4 +1,5 @@
 # Byte-Logic Mod
+<img src="https://raw.githubusercontent.com/Zelaux/ByteLogicMod/master/core/assets-raw/sprites/logo/logo-gif.gif" alt="Mod logo" width='25%'></img><br>
 Byte Logic is a mod that allows you to create logic circuits from Mindustry blocks.  With these blocks, you can manage your factory the way you would with processors.  This mod contains the content of the original version of Mindustry (byte-logic v5), created by Anuken as the first version of current processors.  This content has been redesigned, improved and adapted for Mindustry v7.
 ## Mod content
 | Block         | Description                                                                                                                                                                           |
