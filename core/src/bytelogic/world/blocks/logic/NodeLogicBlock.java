@@ -10,7 +10,6 @@ import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.world.*;
-import bytelogic.world.blocks.logic.LogicRouter.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.input.*;
@@ -66,7 +65,7 @@ public class NodeLogicBlock extends LogicRouter{
     public boolean linkValid(Tile tile, Building other){
         return other != null && other.block() instanceof NodeLogicBlock
         && Mathf.within(tile.drawx(), tile.drawy(), other.x, other.y, range)
-        && (other.team == tile.team() || !(tile.build instanceof LogicBuild)) && (other.<NodeLogicBuild>as().link != tile.pos());
+        && (other.team == tile.team() || !(tile.build instanceof ByteLogicBuildingc)) && (other.<NodeLogicBuild>as().link != tile.pos());
     }
 
     @Override
@@ -104,8 +103,8 @@ public class NodeLogicBlock extends LogicRouter{
         }
 
         @Override
-        public boolean output(int dir){
-            return super.output(dir) && !linkValid(this, world.build(link));
+        public boolean canOutputSignal(int dir){
+            return super.canOutputSignal(dir) && !linkValid(this, world.build(link));
         }
 
         @Override
@@ -117,8 +116,8 @@ public class NodeLogicBlock extends LogicRouter{
                 lastSignal = 0;
             }else{
                 for(int i = 0; i < 4 && doOutput; i++){
-                    if(output(i)){
-                        nearby(i).<LogicBuild>as().acceptSignal(this, lastSignal);
+                    if(this.canOutputSignal(i)){
+                        nearby(i).<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
                     }
                 }
             }

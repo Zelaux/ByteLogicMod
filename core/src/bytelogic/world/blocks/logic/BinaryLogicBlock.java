@@ -246,8 +246,8 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
 
         @Override
         public void beforeUpdateSignalState() {
-            if (doOutput && output(rotation)) {
-                front().<LogicBuild>as().acceptSignal(this, lastSignal);
+            if (doOutput && canOutputSignal(rotation)) {
+                front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }
         }
 

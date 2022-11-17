@@ -11,6 +11,7 @@ abstract class ByteLogicBuildingComp implements Buildingc, ByteLogicBuildingc{
     public void beforeUpdateSignalState(){
 
     }
-   public abstract boolean output(int dir);
+   public abstract boolean canOutputSignal(int dir);
+   public abstract int currentSignal();
     public abstract boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal);
 }

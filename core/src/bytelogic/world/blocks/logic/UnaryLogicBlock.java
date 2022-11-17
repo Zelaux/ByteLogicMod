@@ -1,7 +1,6 @@
 package bytelogic.world.blocks.logic;
 
 
-import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
@@ -17,9 +16,7 @@ import bytelogic.gen.*;
 import mindustry.annotations.Annotations;
 import mindustry.entities.units.BuildPlan;
 import mindustry.gen.Building;
-import mindustry.graphics.Pal;
 import mindustry.ui.Styles;
-import mma.ModVars;
 
 public abstract class UnaryLogicBlock extends LogicBlock {
     protected /*@NonNull*/ UnaryProcessor processor;
@@ -156,8 +153,8 @@ public abstract class UnaryLogicBlock extends LogicBlock {
 
         @Override
         public void beforeUpdateSignalState() {
-            if (doOutput && output((byte) rotation)) {
-                front().<LogicBuild>as().acceptSignal(this, lastSignal);
+            if (doOutput && canOutputSignal((byte) rotation)) {
+                front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }
         }
 
