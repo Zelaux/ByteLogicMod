@@ -1,7 +1,6 @@
 package bytelogic.world.blocks.logic;
 
-import bytelogic.gen.*;
-import mindustry.gen.*;
+import bytelogic.gen.ByteLogicBuildingc;
 
 public class AcceptorLogicBlock extends LogicBlock{
 
@@ -20,8 +19,8 @@ public class AcceptorLogicBlock extends LogicBlock{
         public void beforeUpdateSignalState(){
 
             for(int i = 0; i < 4; i++){
-                if (output((byte)i)){
-                    nearby(i).<LogicBuild>as().acceptSignal(this,lastSignal);
+                if (canOutputSignal((byte)i)){
+                    nearby(i).<ByteLogicBuildingc>as().acceptSignal(this,lastSignal);
                 }
             }
         }

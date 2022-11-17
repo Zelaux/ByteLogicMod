@@ -26,7 +26,7 @@ public class LogicRouter extends LogicBlock{
         @Override
         public void beforeUpdateSignalState(){
             for(int i = 0; i < sides.length; i++){
-                if(output(i)){
+                if(this.canOutputSignal(i)){
                     nearby(i).<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
                 }
             }
@@ -39,8 +39,8 @@ public class LogicRouter extends LogicBlock{
 
 
         @Override
-        public boolean output(int dir){
-            return super.output(dir) && sides[dir] == 0;
+        public boolean canOutputSignal(int dir){
+            return super.canOutputSignal(dir) && sides[dir] == 0;
         }
 
         @Override

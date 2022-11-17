@@ -3,7 +3,6 @@ package bytelogic.world.blocks.logic;
 
 import arc.graphics.*;
 import arc.math.*;
-import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import bytelogic.gen.*;
@@ -29,7 +28,7 @@ public class SignalBlock extends LogicBlock{
             return  false;
         }
         @Override
-        protected int currentSignal(){
+        public int currentSignal(){
             return nextSignal;
         }
 
@@ -80,8 +79,8 @@ public class SignalBlock extends LogicBlock{
 
         @Override
         public void beforeUpdateSignalState(){
-            if(doOutput && output(rotation)){
-                front().<LogicBuild>as().acceptSignal(this, lastSignal);
+            if(doOutput && canOutputSignal(rotation)){
+                front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }
         }
 

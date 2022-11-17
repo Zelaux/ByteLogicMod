@@ -278,8 +278,8 @@ public class SignalTimer extends AcceptorLogicBlock {
         }
 
         @Override
-        public boolean output(int dir) {
-            return dir == rotation && front() instanceof LogicBuild;
+        public boolean canOutputSignal(int dir) {
+            return dir == rotation && front() instanceof ByteLogicBuildingc;
         }
 
         public void setDelay(int delay) {

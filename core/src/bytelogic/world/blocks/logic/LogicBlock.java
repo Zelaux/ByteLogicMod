@@ -15,7 +15,6 @@ import bytelogic.graphics.BLPal;
 import mindustry.annotations.Annotations.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
-import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.meta.*;
@@ -104,12 +103,15 @@ public abstract class LogicBlock extends Block {
     public void setBars() {
         super.setBars();
         Color[] colors = {BLPal.negativeSignalBarColor, BLPal.zeroSignalBarColor, BLPal.positiveSignalBarColor};
-        addBar("signal", (LogicBuild entity) -> new Bar(
-                () -> Core.bundle.format("block.signal", entity.currentSignal()),
-                () -> {
-                    return colors[Mathf.clamp(entity.currentSignal(),-1,1) + 1];
-                },
-                () -> 1f));
+        addBar("signal", (Building e) -> {
+            ByteLogicBuildingc entity = e.as();
+            return new Bar(
+                    () -> Core.bundle.format("block.signal", entity.currentSignal()),
+                    () -> {
+                        return colors[Mathf.clamp(entity.currentSignal(), -1, 1) + 1];
+                    },
+                    () -> 1f);
+        });
     }
 
     @Override
@@ -130,17 +132,6 @@ public abstract class LogicBlock extends Block {
                 !rotate ? 0 : req.rotation * 90);
     }
 
-    public int getSignal(Building from, Building other) {
-        return !canSignal(from, other) ? 0 : ((LogicBuild) other).lastSignal;
-    }
-
-    public boolean canSignal(Building from, Building tile) {
-        return tile != null && tile instanceof LogicBuild build && build.output(tile.relativeTo(from));
-    }
-
-    public interface CannotOutput {
-
-    }
 
     ;
 
@@ -175,7 +166,7 @@ public abstract class LogicBlock extends Block {
         }
 
         protected Color signalColor() {
-            return switch (Mathf.clamp(currentSignal(),-1,1)) {
+            return switch (Mathf.clamp(currentSignal(), -1, 1)) {
                 case -1 -> BLPal.negativeSignalColor;
                 case 0 -> BLPal.zeroSignalColor;
                 case 1 -> BLPal.positiveSignalColor;
@@ -183,7 +174,8 @@ public abstract class LogicBlock extends Block {
             };
         }
 
-        protected int currentSignal() {
+        @Override
+        public int currentSignal() {
             return lastSignal;
         }
 
@@ -249,11 +241,11 @@ public abstract class LogicBlock extends Block {
             }
         }
 
-        public boolean output(int dir) {
+        public boolean canOutputSignal(int dir) {
             Building nearby = nearby(dir);
-            if (!(nearby instanceof LogicBuild)) return false;
+            if (!(nearby instanceof ByteLogicBuildingc)) return false;
             if (nearby.block.rotate && nearby.front() == this) return false;
-            return !(this instanceof CannotOutput) && (!tile.block().rotate || rotation == dir) && ((LogicBlock) tile.block()).doOutput;
+            return (!LogicBlock.this.rotate || rotation == dir) && LogicBlock.this.doOutput;
         }
     }
 }

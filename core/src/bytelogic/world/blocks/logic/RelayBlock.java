@@ -1,10 +1,8 @@
 package bytelogic.world.blocks.logic;
 
-import arc.graphics.*;
 import arc.graphics.g2d.*;
 import bytelogic.gen.*;
 import mindustry.gen.*;
-import mindustry.graphics.*;
 
 public class RelayBlock extends AcceptorLogicBlock{
 
@@ -29,8 +27,8 @@ public class RelayBlock extends AcceptorLogicBlock{
         }*/
 
         @Override
-        public boolean output(int dir){
-            return super.output(dir);
+        public boolean canOutputSignal(int dir){
+            return super.canOutputSignal(dir);
 //            return dir == rotation && front() instanceof LogicBuild && (!(front().block instanceof RelayBlock) || front().front() != this);
         }
 
@@ -39,7 +37,7 @@ public class RelayBlock extends AcceptorLogicBlock{
             super.draw();
             Draw.color(signalColor());
             for(Building prox : proximity){
-                if(prox instanceof ByteLogicBuildingc buildingc && buildingc.output(prox.relativeTo(this))){
+                if(prox instanceof ByteLogicBuildingc buildingc && buildingc.canOutputSignal(prox.relativeTo(this))){
                     Draw.rect(region, x, y, relativeTo(prox) * 90);
                 }
             }
