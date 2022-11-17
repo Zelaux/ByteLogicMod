@@ -11,6 +11,7 @@ import arc.util.*;
 import arc.util.io.*;
 import bytelogic.content.*;
 import bytelogic.gen.*;
+import bytelogic.graphics.BLPal;
 import mindustry.annotations.Annotations.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
@@ -102,9 +103,12 @@ public abstract class LogicBlock extends Block {
     @Override
     public void setBars() {
         super.setBars();
+        Color[] colors = {BLPal.negativeSignalBarColor, BLPal.zeroSignalBarColor, BLPal.positiveSignalBarColor};
         addBar("signal", (LogicBuild entity) -> new Bar(
                 () -> Core.bundle.format("block.signal", entity.currentSignal()),
-                () -> entity.currentSignal() > 0 ? Pal.accent : (entity.currentSignal() < 0 ? Pal.remove : Color.darkGray),
+                () -> {
+                    return colors[Mathf.clamp(entity.currentSignal(),-1,1) + 1];
+                },
                 () -> 1f));
     }
 
@@ -153,21 +157,6 @@ public abstract class LogicBlock extends Block {
         public void beforeUpdateSignalState() {
         }
 
-        public int sfront() {
-            return getSignal(this, front());
-        }
-
-        public int sback() {
-            return getSignal(this, back());
-        }
-
-        public int sleft() {
-            return getSignal(this, left());
-        }
-
-        public int sright() {
-            return getSignal(this, right());
-        }
 
         public Tile frontTile() {
             return tile.nearby(Geometry.d4x(this.rotation), Geometry.d4y(this.rotation));
@@ -186,7 +175,12 @@ public abstract class LogicBlock extends Block {
         }
 
         protected Color signalColor() {
-            return currentSignal() > 0 ? Pal.accent : (currentSignal() < 0 ? Pal.remove : Color.white);
+            return switch (Mathf.clamp(currentSignal(),-1,1)) {
+                case -1 -> BLPal.negativeSignalColor;
+                case 0 -> BLPal.zeroSignalColor;
+                case 1 -> BLPal.positiveSignalColor;
+                default -> throw new RuntimeException("Illegal value");
+            };
         }
 
         protected int currentSignal() {
