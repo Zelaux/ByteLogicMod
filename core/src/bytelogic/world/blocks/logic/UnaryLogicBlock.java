@@ -163,10 +163,6 @@ public abstract class UnaryLogicBlock extends LogicBlock{
             inputType = read.i();
         }
 
-        @Override
-        public void write(Writes write){
-            super.write(write);
-        }
 
         @Override
         public void customWrite(Writes write){

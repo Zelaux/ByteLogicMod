@@ -7,11 +7,14 @@ import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.scene.ui.*;
+import arc.scene.ui.Button.*;
+import arc.scene.ui.TextButton.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
+import bytelogic.gen.BLIcons.*;
 import bytelogic.ui.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
@@ -176,20 +179,21 @@ public class SignalTimer extends UnaryLogicBlock{
                     it.defaults().width(32f);
 //                it.button("-15", () -> configure(Math.max(0, currentDelay - 15))).disabled(zeroChecker);
 //                it.button("-10", () -> configure(Math.max(0, currentDelay - 10))).disabled(zeroChecker);
-                    TextButton.TextButtonStyle textButtonStyle = Styles.flatBordert;
-                    it.button("-5", textButtonStyle, () -> configure(Math.max(1, currentDelay - 5))).disabled(zeroChecker);
-                    it.button("-1", textButtonStyle, () -> configure(Math.max(1, currentDelay - 1))).disabled(zeroChecker);
+                    TextButtonStyle textButtonStyle = Styles.flatBordert;
+                    it.button("-5", textButtonStyle, () -> configureState(Math.max(1, currentDelay - 5),inputType)).disabled(zeroChecker);
+                    it.button("-1", textButtonStyle, () -> configureState(Math.max(1, currentDelay - 1),inputType)).disabled(zeroChecker);
                     it.label(() -> currentDelay + "").labelAlign(Align.center);
                     it.center();
-                    it.button("+1", textButtonStyle, () -> configure(Math.min(maxDelay, currentDelay + 1))).disabled(maxChecker);
-                    it.button("+5", textButtonStyle, () -> configure(Math.min(maxDelay, currentDelay + 5))).disabled(maxChecker);
+                    it.button("+1", textButtonStyle, () -> configureState(Math.min(maxDelay, currentDelay + 1),inputType)).disabled(maxChecker);
+                    it.button("+5", textButtonStyle, () -> configureState(Math.min(maxDelay, currentDelay + 5),inputType)).disabled(maxChecker);
                 });
                 t.row();
                 t.table(inputButtons -> {
-                    Button.ButtonStyle style = new Button.ButtonStyle(Styles.togglet);
+                    ButtonStyle style = new ButtonStyle(Styles.togglet);
                     ButtonGroup<Button> group = new ButtonGroup<>();
-                    for(int i = 0; i < 3; i++){
-                        int staticI = i;
+                    for(int i : new int[]{leftInput, backInput, rightInput}){
+
+//                        int i = i;
                         float tailOffset = switch(i){
                             case backInput -> 0;
                             case leftInput -> -90;
@@ -199,13 +203,13 @@ public class SignalTimer extends UnaryLogicBlock{
 
                         inputButtons.button(button -> {
                             button.setStyle(style);
-                            Image arrow = new Image(BLIcons.Drawables.unaryInputArrow64);
-                            Image tail = new Image(BLIcons.Drawables.unaryInputBack64);
+                            Image arrow = new Image(Drawables.unaryInputArrow64);
+                            Image tail = new Image(Drawables.unaryInputBack64);
                             button.stack(arrow, tail).update(_n -> {
                                 arrow.setRotationOrigin(rotdeg(), Align.center);
                                 tail.setRotationOrigin(rotdeg() + tailOffset, Align.center);
                             }).size(32f);
-                        }, () -> configureState(currentDelay, staticI)).checked(i == inputType).size(48f).with(group::add);
+                        }, () -> configureState(currentDelay, i)).checked(i == inputType).size(48f).with(group::add);
                     }
                 });
 //                it.button("+10", () -> configure(Math.min(maxDelay, currentDelay + 10))).disabled(maxChecker);
@@ -286,7 +290,7 @@ public class SignalTimer extends UnaryLogicBlock{
 
         @Override
         public byte version(){
-            return (byte)(0x10 * 2 + super.version());
+            return (byte)(0b1001_0000 +/* 0b10000 +*/ 1);
         }
 
         @Override
@@ -302,15 +306,17 @@ public class SignalTimer extends UnaryLogicBlock{
 
         @Override
         public void read(Reads read, byte revision){
-            byte parentRevision = (byte)(revision & 0xF);
+            byte parentRevision = (byte)(revision & (0b0000_1111));
             if(parentRevision == 0){
                 nextSignal = lastSignal = read.i();
             }else{
                 int version = read.i();
-                if(version == 1) return;
-                nextSignal = read.i();
-                lastSignal = read.i();
+                if(version != 2){
+                    nextSignal = read.i();
+                    lastSignal = read.i();
+                }
             }
+            if(revision<0) return;
             revision /= 0x10;
             int tickCounter1 = read.i();
             setDelay(read.i());
