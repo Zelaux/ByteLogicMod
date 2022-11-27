@@ -201,9 +201,7 @@ public abstract class LogicBlock extends Block {
         @Override
         public void write(Writes write) {
             super.write(write);
-            write.i(1);
-            write.i(nextSignal);
-            write.i(lastSignal);
+            write.i(2);
         }
 
         @Override
@@ -213,7 +211,7 @@ public abstract class LogicBlock extends Block {
                 nextSignal = lastSignal = read.i();
             } else {
                 int version = read.i();
-                if (version==1)return;
+                if (version==2)return;
                 nextSignal = read.i();
                 lastSignal = read.i();
             }
