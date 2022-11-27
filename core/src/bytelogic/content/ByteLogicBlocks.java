@@ -37,10 +37,6 @@ public class ByteLogicBlocks {
         signalTimer = new SignalTimer(namePrefix + "signal-timer") {{
             requirements(blockCategory, bothRequirements.clone());
         }};
-        new SignalTimerDeprecated(namePrefix + "signal-timer") {{
-            requirements(blockCategory, bothRequirements.clone());
-            this.timerMirror= (SignalTimer) signalTimer;
-        }};
         switchBlock = new SwitchBlock(namePrefix + "signal-switch-block") {{
             requirements(blockCategory, bothRequirements.clone());
         }};
