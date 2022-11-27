@@ -1,1 +1,1 @@
-{"read":"{\r\n}"}
+{"read":"{\r\n    link = read.i();\r\n}"}

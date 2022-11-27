@@ -198,15 +198,6 @@ public class NodeLogicBlock extends LogicRouter{
             }
             return acceptSignal;
         }
-/*
-        @Override
-        public int signal(){
-            if(linkValid(this)){
-                //when linked, accept signal
-                return super.signal();
-            }
-            return nextSignal;
-        }*/
 
         @Override
         public Point2 config(){
@@ -214,6 +205,10 @@ public class NodeLogicBlock extends LogicRouter{
         }
 
 
+        @Override
+        public byte version(){
+            return super.version();
+        }
 
         @Override
         public void read(Reads read, byte revision){
@@ -230,7 +225,7 @@ public class NodeLogicBlock extends LogicRouter{
 
         @Override
         public void customRead(Reads read){
-            super.customRead(read);
+            link=read.i();
         }
 
         @Override

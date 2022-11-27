@@ -163,7 +163,6 @@ public class AnalyzerBlock extends LogicBlock{
         @Override
         public void write(Writes write){
             super.write(write);
-            write.i(analyzeMode);
         }
 
         @Override
