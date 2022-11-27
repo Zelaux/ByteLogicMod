@@ -1,32 +1,29 @@
 package bytelogic.world.blocks.logic;
 
 
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.TextureRegion;
-import arc.math.Mathf;
-import arc.scene.ui.Button;
-import arc.scene.ui.ButtonGroup;
-import arc.scene.ui.Image;
-import arc.scene.ui.layout.Table;
-import arc.util.Align;
-import arc.util.Eachable;
-import arc.util.io.Reads;
-import arc.util.io.Writes;
+import arc.graphics.g2d.*;
+import arc.math.*;
+import arc.scene.ui.*;
+import arc.scene.ui.layout.*;
+import arc.util.*;
+import arc.util.io.*;
+import bytelogic.game.*;
 import bytelogic.gen.*;
-import mindustry.annotations.Annotations;
-import mindustry.entities.units.BuildPlan;
-import mindustry.gen.Building;
-import mindustry.ui.Styles;
+import mindustry.annotations.*;
+import mindustry.entities.units.*;
+import mindustry.gen.*;
+import mindustry.ui.*;
 
-public abstract class UnaryLogicBlock extends LogicBlock {
-    protected /*@NonNull*/ UnaryProcessor processor;
+public abstract class UnaryLogicBlock extends LogicBlock{
+    protected static final int backInput = 0;
 //    public String sideRegionName = ModVars.fullName("binary-output-0");
-
+    protected static final int leftInput = 1;
+    protected static final int rightInput = 2;
     @Annotations.Load("@nameWithoutPrefix()-side")
     public TextureRegion sideRegion;
+    protected /*@NonNull*/ UnaryProcessor processor;
 
-
-    public UnaryLogicBlock(String name) {
+    public UnaryLogicBlock(String name){
         super(name);
         configurable = true;
         this.<Integer, UnaryLogicBuild>config(Integer.class, (build, value) -> {
@@ -35,59 +32,54 @@ public abstract class UnaryLogicBlock extends LogicBlock {
     }
 
     @Override
-    public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list) {
-        if (!(req.config instanceof Integer value && value != backInput)) {
+    public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list){
+        if(!(req.config instanceof Integer value && value != backInput)){
             super.drawPlanRegion(req, list);
             return;
         }
         TextureRegion back = base;
         Draw.rect(back, req.drawx(), req.drawy(),
-                back.width * req.animScale * Draw.scl,
-                back.height * req.animScale * Draw.scl,
-                0);
+        back.width * req.animScale * Draw.scl,
+        back.height * req.animScale * Draw.scl,
+        0);
 
         Draw.rect(sideRegion, req.drawx(), req.drawy(),
-                region.width * req.animScale * Draw.scl,
-                region.height * req.animScale * Draw.scl * Mathf.sign(value == leftInput),
-                req.rotation * 90);
+        region.width * req.animScale * Draw.scl,
+        region.height * req.animScale * Draw.scl * Mathf.sign(value == leftInput),
+        req.rotation * 90);
     }
 
     @Override
-    public void flipRotation(BuildPlan req, boolean x) {
-        if (!(req.config instanceof Integer value && value != backInput)) {
+    public void flipRotation(BuildPlan req, boolean x){
+        if(!(req.config instanceof Integer value && value != backInput)){
             super.flipRotation(req, x);
             return;
         }
-        if ((req.rotation % 2 == 0) == x) {
+        if((req.rotation % 2 == 0) == x){
             req.rotation = Mathf.mod(req.rotation + 2, 4);
         }
-        if (value == leftInput) {
+        if(value == leftInput){
             req.config = rightInput;
-        } else {
+        }else{
             req.config = leftInput;
         }
 
     }
-
-    public interface UnaryProcessor {
+    public interface UnaryProcessor{
         int process(int signal);
     }
 
-    private static final int backInput = 0;
-    private static final int leftInput = 1;
-    private static final int rightInput = 2;
-
-    public class UnaryLogicBuild extends LogicBuild {
+    public class UnaryLogicBuild extends LogicBuild{
         int inputType = backInput;
 
         @Override
-        public void buildConfiguration(Table table) {
+        public void buildConfiguration(Table table){
             table.table(t -> {
                 Button.ButtonStyle style = new Button.ButtonStyle(Styles.togglet);
                 ButtonGroup<Button> group = new ButtonGroup<>();
-                for (int i = 0; i < 3; i++) {
+                for(int i = 0; i < 3; i++){
                     int staticI = i;
-                    float tailOffset = switch (i) {
+                    float tailOffset = switch(i){
                         case backInput -> 0;
                         case leftInput -> -90;
                         case rightInput -> 90;
@@ -108,8 +100,8 @@ public abstract class UnaryLogicBlock extends LogicBlock {
         }
 
         @Override
-        public void draw() {
-            if (inputType == backInput) {
+        public void draw(){
+            if(inputType == backInput){
                 super.draw();
                 return;
             }
@@ -128,53 +120,67 @@ public abstract class UnaryLogicBlock extends LogicBlock {
         }
 
         @Override
-        public Object config() {
+        public Object config(){
             return inputType;
         }
 
         @Override
-        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal) {
-            Building build = switch (inputType) {
+        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
+            Building build = switch(inputType){
                 case backInput -> back();
                 case leftInput -> left();
                 case rightInput -> right();
                 default -> null;
             };
-            if (build == otherBuilding) return super.acceptSignal(otherBuilding, signal);
+            if(build == otherBuilding) return super.acceptSignal(otherBuilding, signal);
             return false;
         }
 
         @Override
-        public void updateSignalState() {
+        public void updateSignalState(){
             lastSignal = processor.process(nextSignal);
             nextSignal = 0;
 
         }
 
         @Override
-        public void beforeUpdateSignalState() {
-            if (doOutput && canOutputSignal((byte) rotation)) {
+        public void beforeUpdateSignalState(){
+            if(doOutput && canOutputSignal((byte)rotation)){
                 front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }
         }
 
         @Override
-        public byte version() {
-            return (byte) (0x10 * 1 + super.version());
+        public byte version(){
+            return (byte)(0x10 * 2 + super.version());
         }
 
         @Override
-        public void read(Reads read, byte revision) {
-            super.read(read, (byte) (revision & 0xF));
-            revision = (byte) (revision / 0x10);
-            if (revision == 0) return;
+        public void read(Reads read, byte revision){
+            super.read(read, (byte)(revision & 0xF));
+            revision = (byte)(revision / 0x10);
+            if(revision !=1) return;
             inputType = read.i();
         }
 
         @Override
-        public void write(Writes write) {
+        public void write(Writes write){
             super.write(write);
+        }
+
+        @Override
+        public void customWrite(Writes write){
             write.i(inputType);
+        }
+
+        @Override
+        public void customRead(Reads read){
+            inputType = read.i();
+        }
+
+        @Override
+        public short customVersion(){
+            return 0;
         }
         /*
         @Override

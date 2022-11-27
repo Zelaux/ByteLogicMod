@@ -1,5 +1,6 @@
 package bytelogic.world.blocks.logic;
 
+import arc.util.io.*;
 import bytelogic.gen.ByteLogicBuildingc;
 
 public class AcceptorLogicBlock extends LogicBlock{

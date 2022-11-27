@@ -1,2 +1,40 @@
-sourceSets.main.java.srcDirs = ["src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
+sourceSets.main.java.srcDirs = ["$buildDir/src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
 sourceSets.main.resources.srcDirs = ["resources/"]
+def parentBuildDir = buildDir
+def childBuildDir = buildDir
+configure(rootProject.project(":core:original")){
+    childBuildDir = buildDir
+    sourceSets.main.java.srcDirs = ["../src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
+    sourceSets.main.resources.srcDirs = ["../resources/"]
+}
+task copySrc{
+    delete{
+
+        delete(new File(buildDir, "src"))
+    }
+    copy{
+        from(file("src"))
+        into(new File(buildDir, "src"))
+    }
+//    sourceSets.main.java.srcDirs = ["$buildDir/generated/sources/annotationProcessor/java/main"]
+}
+tasks.withType(JavaCompile){
+    println this
+}
+jar{
+//    dependsOn(":core:original:clone")
+    dependsOn(copySrc)
+
+    doLast{
+        delete{
+
+            delete(new File(childBuildDir, "generated"))
+        }
+        copy{
+            from(new File(parentBuildDir, "generated"))
+            into(new File(childBuildDir, "generated"))
+        }
+        sourceSets.main.java.srcDirs = ["src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
+    }
+
+}

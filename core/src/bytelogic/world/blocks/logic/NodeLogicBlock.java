@@ -190,10 +190,10 @@ public class NodeLogicBlock extends LogicRouter{
 
         @Override
         public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
-            if (link==otherBuilding.pos())return false;
+            if(link == otherBuilding.pos()) return false;
             int i = relativeTo(otherBuilding.<Building>as());
             boolean acceptSignal = super.acceptSignal(otherBuilding, signal);
-            if(otherBuilding instanceof NodeLogicBuild nodeLogicBuild && nodeLogicBuild.link==pos()){
+            if(otherBuilding instanceof NodeLogicBuild nodeLogicBuild && nodeLogicBuild.link == pos()){
                 sides[i] = 0;
             }
             return acceptSignal;
@@ -214,17 +214,28 @@ public class NodeLogicBlock extends LogicRouter{
         }
 
 
-        @Override
-        public void write(Writes write){
-            super.write(write);
-            write.i(link);
-        }
 
         @Override
         public void read(Reads read, byte revision){
             super.read(read, revision);
+            revision = (byte)(revision / 0x10);
+            if(revision == 2) return;
             link = read.i();
         }
 
+        @Override
+        public void customWrite(Writes write){
+            write.i(link);
+        }
+
+        @Override
+        public void customRead(Reads read){
+            super.customRead(read);
+        }
+
+        @Override
+        public short customVersion(){
+            return 0;
+        }
     }
 }

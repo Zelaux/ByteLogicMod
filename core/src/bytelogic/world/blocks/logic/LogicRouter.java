@@ -32,33 +32,46 @@ public class LogicRouter extends LogicBlock{
             }
         }
 
-        @Override
-        public byte version(){
-            return (byte)(super.version() +0x10);
-        }
-
 
         @Override
         public boolean canOutputSignal(int dir){
             return super.canOutputSignal(dir) && sides[dir] == 0;
         }
 
+
+
         @Override
-        public void write(Writes write){
-            super.write(write);
-            for(int side : sides){
-                write.i(side);
-            }
+        public byte version(){
+            return (byte)(super.version() +0x20);
         }
 
         @Override
         public void read(Reads read, byte revision){
             super.read(read, (byte)(revision&0xF));
             revision = (byte)(revision / 0x10);
-            if (revision==0)return;
+            if (revision!=1)return;
             for(int i = 0; i < sides.length; i++){
                 sides[i]=read.i();
             }
+        }
+
+        @Override
+        public void customWrite(Writes write){
+            for(int side : sides){
+                write.i(side);
+            }
+        }
+
+        @Override
+        public void customRead(Reads read){
+            for(int i = 0; i < sides.length; i++){
+                sides[i]=read.i();
+            }
+        }
+
+        @Override
+        public short customVersion(){
+            return 0;
         }
     }
 }
