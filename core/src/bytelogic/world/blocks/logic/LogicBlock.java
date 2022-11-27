@@ -243,17 +243,20 @@ public abstract class LogicBlock extends Block {
 
         @Override
         public void customWrite(Writes write){
-
+            write.i(nextSignal);
+            write.i(lastSignal);
         }
 
         @Override
         public void customRead(Reads read){
 
+            nextSignal = read.i();
+            lastSignal = read.i();
         }
 
         @Override
         public short customVersion(){
-            return 0;
+            return 1;
         }
 
         public boolean canOutputSignal(int dir) {
