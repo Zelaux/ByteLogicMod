@@ -161,7 +161,7 @@ public class CustomSavingProc extends ModBaseProcessor{
             String writesObjectName = writeMethod.getParameter(0).getNameAsString();
             for(ReturnStmt stmt : returnStmts){
                 Expression expression = stmt.getExpression().get();
-                String setVersionStatement = Strings.format("@.s(@);", writesObjectName, expression.toString());
+                String setVersionStatement = Strings.format("@.i(@);", writesObjectName, expression.toString());
                 BlockStmt blockStmt = new BlockStmt();
                 blockStmt.addStatement(StaticJavaParser.parseStatement(setVersionStatement));
                 blockStmt.addStatement("break " + labelname + ";");
@@ -171,6 +171,11 @@ public class CustomSavingProc extends ModBaseProcessor{
             BlockStmt writeMethodBody = writeMethod.getBody().get();
             removeFirstSuper(writeMethodBody, writeMethodName);
             writeMethodBody.addStatement(0, new LabeledStmt(labelname, versionBody));
+            if (leaf.parent.parent!=null){
+
+                writeMethodBody.addStatement(0,
+                StaticJavaParser.parseStatement(Strings.format("super.@(@);",writeMethodName, writesObjectName)));
+            }
             writeMethodBody.addStatement(0,
             StaticJavaParser.parseStatement(Strings.format("@.bool(@);", writesObjectName, leaf.parent.parent != null))
             );
@@ -189,7 +194,7 @@ public class CustomSavingProc extends ModBaseProcessor{
             readBlock.addStatement(Strings.format("if (@.bool()) {\n@super.@(read);\n}", readsName, leaf.parent.parent != null ? "" : "//", readMethodName));
 
 
-            readBlock.addStatement("short REV=" + readsName + ".s();");
+            readBlock.addStatement("int REV=" + readsName + ".i();");
 
             SwitchStmt switchStmt = new SwitchStmt();
             switchStmt.setSelector(StaticJavaParser.parseExpression("REV"));
