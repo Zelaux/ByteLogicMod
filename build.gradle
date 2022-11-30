@@ -7,9 +7,9 @@ buildscript{
         mindustryPath = "com.github.Anuken.Mindustry"
         mindustryVersionFull = "v140.3"
         mindustryVersion = mindustryVersionFull
-        mindustryVersionOld =mindustryVersionFull
+        mindustryVersionOld = mindustryVersionFull
         arcVersion = mindustryVersion
-        jparcerVersion="3.22.1"
+        jparcerVersion = "3.24.2"
 //        arcVersion = "916c5a77"
 
 
@@ -24,7 +24,7 @@ buildscript{
         aciVersion = "45ad8cd8ed9"
 
 
-        modCoreVersion = "2c9d40ffba0"
+        modCoreVersion = "v1.0.1"
 
 
         kotlinVersion = "1.6.0"
@@ -146,94 +146,103 @@ configure(subprojects - project(":annotations")){
     }
 }
 
-project(":core"){
-    apply plugin: "java-library"
-    apply plugin: "kotlin"
-    apply plugin: "kotlin-kapt"
+//project(":core")
+[":core:original", ":core"].collect{
+    project(it){
+        apply plugin: "java-library"
+        apply plugin: "kotlin"
+        apply plugin: "kotlin-kapt"
 
-    kapt{
-        javacOptions{
-            option("-source", "16")
-            option("-target", "1.8")
+        kapt{
+            javacOptions{
+                option("-source", "16")
+                option("-target", "1.8")
+            }
         }
-    }
 
-    compileJava.options.fork = true
+        compileJava.options.fork = true
 //
-    task preGen{
-        outputs.upToDateWhen{ false }
+        task preGen{
+            outputs.upToDateWhen{ false }
 //        generateLocales()
 //        writeVersion()
-        writeProcessors()
+            writeProcessors()
 //        writePlugins()
-    }
-    task sourcesJar(type: Jar, dependsOn: classes){
-        archiveClassifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    task assetsJar(type: Jar, dependsOn: ":tools:pack"){
-        archiveClassifier = 'assets'
-        from files("assets"){
-            exclude "config", "cache", "music", "sounds"
         }
-    }
-    artifacts{
-        archives sourcesJar
-        archives assetsJar
-    }
-    dependencies{
-        compileJava.dependsOn(preGen)
+        task sourcesJar(type: Jar, dependsOn: classes){
+            archiveClassifier = 'sources'
+            from sourceSets.main.allSource
+        }
 
-        implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
-        implementation "com.github.Zelaux.ZelauxModCore:utils:$modCoreVersion"
-        implementation "com.github.Zelaux.ZelauxModCore:graphics:$modCoreVersion"
+        task assetsJar(type: Jar, dependsOn: ":tools:pack"){
+            archiveClassifier = 'assets'
+            from files("assets"){
+                exclude "config", "cache", "music", "sounds"
+            }
+        }
+        artifacts{
+            archives sourcesJar
+            archives assetsJar
+        }
+        dependencies{
+            compileJava.dependsOn(preGen)
 
-        compileOnly "org.lz4:lz4-java:1.7.1"
-        compileOnly arcModule("arc-core")
-        compileOnly arcModule("extensions:flabel")
-        compileOnly arcModule("extensions:freetype")
-        compileOnly arcModule("extensions:g3d")
-        compileOnly arcModule("extensions:fx")
-        compileOnly arcModule("extensions:arcnet")
-        compileOnly "$mindustryPath:core:$mindustryVersion"
+            implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
+            implementation "com.github.Zelaux.ZelauxModCore:utils:$modCoreVersion"
+            implementation "com.github.Zelaux.ZelauxModCore:graphics:$modCoreVersion"
+
+            compileOnly "org.lz4:lz4-java:1.7.1"
+            compileOnly arcModule("arc-core")
+            compileOnly arcModule("extensions:flabel")
+            compileOnly arcModule("extensions:freetype")
+            compileOnly arcModule("extensions:g3d")
+            compileOnly arcModule("extensions:fx")
+            compileOnly arcModule("extensions:arcnet")
+            compileOnly "$mindustryPath:core:$mindustryVersion"
 //        implementation "com.github.Zelaux:AdvancedContentInfo:$aciVersion"
 
 
-        annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
+            annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
 
-        compileOnly "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
-        compileOnly project(":annotations")
-        kapt project(":annotations")
+            compileOnly "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
+            compileOnly project(":annotations")
+
+//            println "it is ${project.displayName}"
+            if(project.name=="core"){
+                kapt(
+                        "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion",project(":annotations"))
+//                kapt project(":annotations")
+            }
 //        annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
 
-    }
-
-    afterEvaluate{
-        task mergedJavadoc(type: Javadoc){
-            if(true) return null;
-            def blacklist = [project(":annotations")]
-            if(findProject(":android") != null){
-                blacklist += project(":android")
-            }
-
-            source rootProject.subprojects.collect{ project ->
-                if(!blacklist.contains(project) && project.hasProperty("sourceSets")){
-                    return project.sourceSets.main.allJava
-                }
-            }
-
-            classpath = files(rootProject.subprojects.collect{ project ->
-                if(!blacklist.contains(project) && project.hasProperty("sourceSets")){
-                    return project.sourceSets.main.compileClasspath
-                }
-            })
-            destinationDir = new File(buildDir, 'javadoc')
         }
-    }
-    jar{
-        exclude(mainPackage + "/entities/comp/**")
-        exclude(mainPackage + "/entities/compByAnuke/**")
+
+        afterEvaluate{
+            task mergedJavadoc(type: Javadoc){
+                if(true) return null;
+                def blacklist = [project(":annotations")]
+                if(findProject(":android") != null){
+                    blacklist += project(":android")
+                }
+
+                source rootProject.subprojects.collect{ project ->
+                    if(!blacklist.contains(project) && project.hasProperty("sourceSets")){
+                        return project.sourceSets.main.allJava
+                    }
+                }
+
+                classpath = files(rootProject.subprojects.collect{ project ->
+                    if(!blacklist.contains(project) && project.hasProperty("sourceSets")){
+                        return project.sourceSets.main.compileClasspath
+                    }
+                })
+                destinationDir = new File(buildDir, 'javadoc')
+            }
+        }
+        jar{
+            exclude(mainPackage + "/entities/comp/**")
+            exclude(mainPackage + "/entities/compByAnuke/**")
+        }
     }
 }
 project(":tools"){
@@ -292,10 +301,10 @@ configure([":core", ":tools"].collect{ project(it) }){
     }
 }
 
-task jarAndroid {
+task jarAndroid{
     dependsOn "jar"
 
-    doLast {
+    doLast{
         //collect dependencies needed for desugaring
         def files = (
                 project(":core").configurations.compileClasspath.asList() +
@@ -303,7 +312,7 @@ task jarAndroid {
                         configurations.runtimeClasspath.asList() +
                         [new File("$sdkRoot/platforms/android-$sdkVersion/android.jar")]
         )
-        def dependencies = files.collect { "--classpath $it.path" }.join(" ")
+        def dependencies = files.collect{ "--classpath $it.path" }.join(" ")
 
         //dex and desugar files - this requires d8 in your PATH
         doExec("d8 $dependencies --min-api 14 --output ${project.archivesBaseName}Android.jar ${project.archivesBaseName}Desktop.jar")
@@ -312,7 +321,7 @@ task jarAndroid {
 jar{
     dependsOn "core:jar"
     archiveFileName = "${project.archivesBaseName}Desktop.jar"
-  //  if (!file(rootDir+"/core/assets/sprites").exists())dependsOn "tools:pack"
+    //  if (!file(rootDir+"/core/assets/sprites").exists())dependsOn "tools:pack"
     from{
 //        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
         project(":core").fileTree("build/libs/core.jar").collect{ it.isDirectory() ? it : zipTree(it) }

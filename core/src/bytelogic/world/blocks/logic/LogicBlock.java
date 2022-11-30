@@ -10,6 +10,7 @@ import arc.math.geom.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.content.*;
+import bytelogic.game.*;
 import bytelogic.gen.*;
 import bytelogic.graphics.BLPal;
 import mindustry.annotations.Annotations.*;
@@ -140,7 +141,7 @@ public abstract class LogicBlock extends Block {
      */
 //    public abstract int signal(Tile tile);
 
-    public abstract class LogicBuild extends Building implements ByteLogicBuildingc {
+    public abstract class LogicBuild extends Building implements ByteLogicBuildingc , CustomSaveBuilding{
         public int lastSignal;
         protected int nextSignal;
 
@@ -200,9 +201,7 @@ public abstract class LogicBlock extends Block {
         @Override
         public void write(Writes write) {
             super.write(write);
-            write.i(0);
-            write.i(nextSignal);
-            write.i(lastSignal);
+            write.i(2);
         }
 
         @Override
@@ -212,6 +211,7 @@ public abstract class LogicBlock extends Block {
                 nextSignal = lastSignal = read.i();
             } else {
                 int version = read.i();
+                if (version==2)return;
                 nextSignal = read.i();
                 lastSignal = read.i();
             }
@@ -239,6 +239,24 @@ public abstract class LogicBlock extends Block {
             if (wasAdded != added) {
                 BLGroups.byteLogicBuild.add(this);
             }
+        }
+
+        @Override
+        public void customWrite(Writes write){
+            write.i(nextSignal);
+            write.i(lastSignal);
+        }
+
+        @Override
+        public void customRead(Reads read){
+
+            nextSignal = read.i();
+            lastSignal = read.i();
+        }
+
+        @Override
+        public short customVersion(){
+            return 1;
         }
 
         public boolean canOutputSignal(int dir) {

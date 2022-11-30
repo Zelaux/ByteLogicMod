@@ -3,6 +3,7 @@ package bytelogic.world.blocks.logic;
 import arc.Graphics.*;
 import arc.Graphics.Cursor.*;
 import arc.audio.*;
+import arc.util.io.*;
 import bytelogic.gen.*;
 import mindustry.gen.*;
 
@@ -58,6 +59,7 @@ public class SwitchBlock extends LogicBlock{
                 front().<ByteLogicBuildingc>as().acceptSignal(this,lastSignal);
             }
         }
+
         /*
         @Override
         public int signal(){

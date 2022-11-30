@@ -1,0 +1,1 @@
+{"read":"{\r\n    int tickCounter1 = read.i();\r\n    setDelay(read.i());\r\n    tickCounter = tickCounter1;\r\n    for (int i = 0; i < signalsQueue.length; i++) {\r\n        signalsQueue[i] = read.i();\r\n    }\r\n    inputType = read.i();\r\n}"}

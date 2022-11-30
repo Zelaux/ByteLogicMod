@@ -3,6 +3,7 @@ package bytelogic;
 import arc.*;
 import arc.graphics.g2d.*;
 import bytelogic.async.*;
+import bytelogic.game.*;
 import bytelogic.ui.*;
 import bytelogic.ui.dialogs.*;
 import mindustry.*;
@@ -23,6 +24,7 @@ public class ByteLogicMod extends MMAMod {
     public ByteLogicMod() {
         super();
         disableBlockOutline = true;
+        CustomBuildSaving.register();
         modLog("Creating start");
 //        TMEntityMapping.init();
 //        TMCall.registerPackets();
