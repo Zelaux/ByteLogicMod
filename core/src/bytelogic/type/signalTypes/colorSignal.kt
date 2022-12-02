@@ -4,8 +4,9 @@ package bytelogic.type
 
 import arc.graphics.*
 import arc.util.*
+import mindustry.gen.*
 
-internal object ColorSignalType : DefaultSignalTypeImpl("color-type") {
+internal object ColorSignalType : DefaultSignalTypeImpl("color-type", { Icon.pick }) {
     override fun barColor(signal: Signal): Color {
         return color(signal)
     }

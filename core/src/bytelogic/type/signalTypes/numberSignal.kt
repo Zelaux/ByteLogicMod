@@ -1,10 +1,13 @@
 @file:Suppress("PackageDirectoryMismatch")
+
 package bytelogic.type
 
-import arc.graphics.*
-import bytelogic.graphics.*
+import mindustry.ui.*
 
-internal object NumberSignalType : DefaultSignalTypeImpl("number-type") {
+internal object NumberSignalType : DefaultSignalTypeImpl(
+    "number-type",
+    { Fonts.getGlyph(Fonts.outline, '0') }
+) {
     override fun or(`this&signal`: Signal, signal: Signal) {
         super.or(`this&signal`, signal)
         if (`this&signal`.number == 0L) `this&signal`.type = NilSignalType

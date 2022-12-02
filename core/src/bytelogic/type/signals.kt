@@ -1,8 +1,11 @@
 package bytelogic.type
 
 import arc.graphics.*
+import arc.scene.style.*
+import arc.util.*
 
-abstract class SignalType(val name: String) {
+abstract class SignalType(val name: String, iconInitializer: () -> Drawable) {
+    val icon by lazy(iconInitializer)
     val id: Int = all.size
 
     init {
@@ -41,6 +44,15 @@ abstract class SignalType(val name: String) {
     abstract fun times(`this&signal`: Signal, signal: Signal)
 
     companion object {
+        @JvmStatic
+        fun findByName(name: String): SignalType {
+            return all.find { it.name == name } ?: run {
+                Log.err("Cannot find signal type with name $name")
+                SignalTypes.nilType
+            }
+        }
+
+        @kotlin.jvm.JvmField
         var all = emptyArray<SignalType>()
     }
 }

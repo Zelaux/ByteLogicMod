@@ -12,6 +12,7 @@ import mindustry.gen.*;
 import static mindustry.Vars.*;
 
 public class SignalBlock extends LogicBlock{
+    protected static final Signal tmpSignal = new Signal();
 
     public SignalBlock(String name){
         super(name);
@@ -20,7 +21,6 @@ public class SignalBlock extends LogicBlock{
             Signal.valueOf(build.nextSignal, value);
         });*/
         this.<byte[], SignalLogicBuild>config(byte[].class, (build, bytes) -> {
-
             build.nextSignal.fromBytes(bytes);
         });
     }
@@ -38,8 +38,8 @@ public class SignalBlock extends LogicBlock{
         }
 
         public void configureNumber(long number){
-            Signal.valueOf(nextSignal, number);
-            configure(nextSignal.asBytes());
+            Signal.valueOf(tmpSignal, number);
+            configure(tmpSignal.asBytes());
         }
 
         @Override
@@ -59,9 +59,9 @@ public class SignalBlock extends LogicBlock{
                 Color tmpColor = new Color();
                 tmpColor.set(nextSignal.intNumber());
                 ui.picker.show(tmpColor, true, out -> {
-                    nextSignal.setNumber(out.rgba());
-                    nextSignal.type = SignalTypes.colorType;
-                    configure(nextSignal.asBytes());
+                    tmpSignal.setNumber(out.rgba());
+                    tmpSignal.type = SignalTypes.colorType;
+                    configure(tmpSignal.asBytes());
                 });
             }).size(40f);
         }

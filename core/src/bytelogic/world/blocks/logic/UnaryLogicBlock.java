@@ -16,7 +16,7 @@ import mindustry.ui.*;
 
 public abstract class UnaryLogicBlock extends LogicBlock{
     protected static final int backInput = 0;
-//    public String sideRegionName = ModVars.fullName("binary-output-0");
+    //    public String sideRegionName = ModVars.fullName("binary-output-0");
     protected static final int leftInput = 1;
     protected static final int rightInput = 2;
     @Annotations.Load("@nameWithoutPrefix()-side")
@@ -32,6 +32,12 @@ public abstract class UnaryLogicBlock extends LogicBlock{
     }
 
     @Override
+    public void init(){
+        super.init();
+//        if(processor == null) throw new RuntimeException("Processor for " + name + " is null");
+    }
+
+    @Override
     public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list){
         if(!(req.config instanceof Integer value && value != backInput)){
             super.drawPlanRegion(req, list);
@@ -39,14 +45,14 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         }
         TextureRegion back = base;
         Draw.rect(back, req.drawx(), req.drawy(),
-        back.width * req.animScale * Draw.scl,
-        back.height * req.animScale * Draw.scl,
-        0);
+            back.width * req.animScale * Draw.scl,
+            back.height * req.animScale * Draw.scl,
+            0);
 
         Draw.rect(sideRegion, req.drawx(), req.drawy(),
-        region.width * req.animScale * Draw.scl,
-        region.height * req.animScale * Draw.scl * Mathf.sign(value == leftInput),
-        req.rotation * 90);
+            region.width * req.animScale * Draw.scl,
+            region.height * req.animScale * Draw.scl * Mathf.sign(value == leftInput),
+            req.rotation * 90);
     }
 
     @Override
@@ -65,6 +71,7 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         }
 
     }
+
     public interface UnaryProcessor{
         Signal process(Signal signal);
     }
@@ -159,7 +166,7 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         public void read(Reads read, byte revision){
             super.read(read, (byte)(revision & 0xF));
             revision = (byte)(revision / 0x10);
-            if(revision !=1) return;
+            if(revision != 1) return;
             inputType = read.i();
         }
 

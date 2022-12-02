@@ -87,16 +87,13 @@ class Signal {
     fun read(read: Reads) {
         read.i()//version
 
-        val name = read.str()
-        type = SignalType.all.find { it.name == name } ?: run {
-            Log.err("Cannot find signal type with name $name")
-            SignalTypes.nilType
-        }
+        type=SignalType.findByName(read.str())
 
         number = read.l()
     }
 
     fun asBytes(): ByteArray {
+        tmpWrites.reset()
         write(tmpWrites)
         return tmpWrites.bytes
     }

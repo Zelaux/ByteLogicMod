@@ -3,8 +3,9 @@
 package bytelogic.type
 
 import arc.graphics.*
+import mindustry.gen.*
 
-internal object NilSignalType : DefaultSignalTypeImpl("nil-type") {
+internal object NilSignalType : DefaultSignalTypeImpl("nil-type", { Tex.clear }) {
     override fun barColor(signal: Signal): Color {
 //        return BLPal.zeroSignalBarColor
         return when (signal.compareWithZero()) {

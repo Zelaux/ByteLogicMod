@@ -25,6 +25,8 @@ public class ByteLogicBlocks{
         switchBlock, signalBlock, signalNode, signalRouter, analyzer, controller, relay,
         notGate, andGate, orGate, xorGate,
         adder, subtractor, divider, remainder, multiplier, equalizer, comparator,
+
+    transformer,
         fontSignal, displayBlock;
     public Planet planet;
 
@@ -198,6 +200,11 @@ public class ByteLogicBlocks{
             requirements(blockCategory, displayRequirements.clone());
             size = 2;
         }};
+        transformer = new SignalTransformer(namePrefix + "transformer"){{
+            requirements(blockCategory, displayRequirements.clone());
+            size = 1;
+        }};
+
         fontSignal = new FontSignalBlock(namePrefix + "font-signal"){{
             requirements(blockCategory, bothRequirements.clone());
         }};

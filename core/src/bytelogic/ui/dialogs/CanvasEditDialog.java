@@ -28,20 +28,6 @@ public class CanvasEditDialog extends BaseDialog{
 
     private void setup(){
         var disabledColor = Color.grays(0.2f);
-
-        cont.table(minus -> {
-            minus.bottom();
-            minus.table(Tex.pane, minusTable -> {
-                minusTable.bottom();
-                minusTable.button(button -> {
-                        button.label(() -> {
-                            return build.currentSignal().number() < 0 ? "-" : "+";
-                        });
-                        button.setStyle(Styles.flatt);
-                    }, () -> build.configure(-build.currentSignal().number())
-                ).size(32f);
-            }).size(48f).bottom();
-        }).fillY();
         cont.table(Tex.pane, table -> {
             table.defaults().pad(3);
             long canvasSize = DisplayBlock.canvasSize;

@@ -1,9 +1,10 @@
 package bytelogic.type
 
 import arc.graphics.*
+import arc.scene.style.*
 import bytelogic.graphics.*
 
-open class DefaultSignalTypeImpl(name:String):SignalType(name){
+open class DefaultSignalTypeImpl(name:String, icon: ()->Drawable):SignalType(name, icon){
     override fun barColor(signal: Signal): Color {
         val compareTo = signal.compareWithZero()
         if (compareTo > 0) {
