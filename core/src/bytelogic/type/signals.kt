@@ -48,6 +48,9 @@ abstract class SignalType(val name: String) {
 
 object SignalTypes {
     @JvmField
+    val colorType: SignalType = ColorSignalType
+
+    @JvmField
     val nilType: SignalType = NilSignalType
 
     @JvmField

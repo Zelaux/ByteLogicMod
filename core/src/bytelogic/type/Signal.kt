@@ -3,12 +3,18 @@ package bytelogic.type
 import arc.graphics.*
 import arc.util.*
 import arc.util.io.*
+import mma.io.*
 
 
 typealias NUMBER_TYPE = Long
 
 class Signal {
     companion object {
+        @JvmField
+        val tmpReads: ByteReads = ByteReads()
+
+        @JvmField
+        val tmpWrites: ByteWrites = ByteWrites()
         val nbits: Int = 64
 
         @JvmStatic
@@ -31,7 +37,7 @@ class Signal {
         }
     }
 
-    override fun toString(): String =number.toString()
+    override fun toString(): String = number.toString()
 
     @JvmField
     var type: SignalType = SignalTypes.nilType
@@ -73,6 +79,11 @@ class Signal {
         type.or(this, signal)
     }
 
+    fun fromBytes(bytes: ByteArray) {
+        tmpReads.setBytes(bytes);
+        read(tmpReads)
+    }
+
     fun read(read: Reads) {
         read.i()//version
 
@@ -83,6 +94,11 @@ class Signal {
         }
 
         number = read.l()
+    }
+
+    fun asBytes(): ByteArray {
+        write(tmpWrites)
+        return tmpWrites.bytes
     }
 
     fun write(write: Writes) {
@@ -116,19 +132,22 @@ class Signal {
     }
 
     fun plus(signal: Signal) {
-        type.plus(this,signal)
+        type.plus(this, signal)
     }
 
     fun minus(signal: Signal) {
-        type.minus(this,signal)
+        type.minus(this, signal)
     }
+
     fun div(signal: Signal) {
-        type.div(this,signal)
+        type.div(this, signal)
     }
+
     fun mod(signal: Signal) {
-        type.mod(this,signal)
+        type.mod(this, signal)
     }
+
     fun times(signal: Signal) {
-        type.times(this,signal)
+        type.times(this, signal)
     }
 }
