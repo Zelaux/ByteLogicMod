@@ -1,6 +1,7 @@
 package bytelogic.entities;
 
 import bytelogic.gen.*;
+import bytelogic.type.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 
@@ -12,6 +13,6 @@ abstract class ByteLogicBuildingComp implements Buildingc, ByteLogicBuildingc{
 
     }
    public abstract boolean canOutputSignal(int dir);
-   public abstract int currentSignal();
-    public abstract boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal);
+   public abstract Signal currentSignal();
+    public abstract boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal);
 }

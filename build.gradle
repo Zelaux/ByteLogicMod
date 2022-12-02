@@ -1,6 +1,7 @@
 import java.time.format.DateTimeFormatter
 
 buildscript{
+    ext.kotlin_version = '1.6.0'
     ext{
         mainPackage = "testmod"
         // v7
@@ -48,6 +49,7 @@ buildscript{
         classpath "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
 
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 plugins{
@@ -68,6 +70,7 @@ ext{
 version '1.0'
 allprojects{
     apply plugin: 'groovy'
+    apply plugin: "kotlin"
 
 //    version = 'release'
     group = 'com.github.Zelaux'
@@ -105,6 +108,10 @@ allprojects{
         maven{ url "https://oss.sonatype.org/content/repositories/releases/" }
         maven{ url 'https://jitpack.io' }
     }
+    compileKotlin{
+        sourceCompatibility = JavaVersion.VERSION_16
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
     tasks.withType(JavaCompile){
         targetCompatibility = 8
         sourceCompatibility = JavaVersion.VERSION_16
@@ -123,6 +130,7 @@ dependencies{
     implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
     implementation "com.github.Zelaux.ZelauxModCore:graphics:$modCoreVersion"
     implementation "com.github.Zelaux.ZelauxModCore:utils:$modCoreVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 configure(project(":annotations")){
     tasks.withType(JavaCompile){
@@ -184,6 +192,20 @@ configure(subprojects - project(":annotations")){
             archives sourcesJar
             archives assetsJar
         }
+
+        repositories{
+            mavenCentral()
+        }
+        compileKotlin{
+            kotlinOptions{
+                jvmTarget = "1.8"
+            }
+        }
+        compileTestKotlin{
+            kotlinOptions{
+                jvmTarget = "1.8"
+            }
+        }
         dependencies{
             compileJava.dependsOn(preGen)
 
@@ -213,6 +235,7 @@ configure(subprojects - project(":annotations")){
                         "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion",project(":annotations"))
 //                kapt project(":annotations")
             }
+            implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 //        annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
 
         }
@@ -240,6 +263,7 @@ configure(subprojects - project(":annotations")){
             }
         }
         jar{
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             exclude(mainPackage + "/entities/comp/**")
             exclude(mainPackage + "/entities/compByAnuke/**")
         }
@@ -319,6 +343,7 @@ task jarAndroid{
     }
 }
 jar{
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn "core:jar"
     archiveFileName = "${project.archivesBaseName}Desktop.jar"
     //  if (!file(rootDir+"/core/assets/sprites").exists())dependsOn "tools:pack"
@@ -417,5 +442,18 @@ task mjar(){
         }
         def time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
         println "Build ended at: ${time}"
+    }
+}
+repositories{
+    mavenCentral()
+}
+compileKotlin{
+    kotlinOptions{
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin{
+    kotlinOptions{
+        jvmTarget = "1.8"
     }
 }

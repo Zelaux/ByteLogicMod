@@ -1,0 +1,1 @@
+{"read":"{\r\n    Signal.valueOf(nextSignal, read.i());\r\n    Signal.valueOf(lastSignal, read.i());\r\n}"}

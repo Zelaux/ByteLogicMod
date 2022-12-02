@@ -138,7 +138,7 @@ public class CustomSavingProc extends ModBaseProcessor{
 
 
         Fi revisionsPath = rootDirectory.child("annotations/src/main/resources/build-revisions");
-
+        System.out.println("revisionsPath.absolutePath(): "+revisionsPath.absolutePath());
         ObjectMap<String, IntMap<ClassRevision>> revisions = new ObjectMap<>();
         collectRevisions(revisionsPath, revisions);
 

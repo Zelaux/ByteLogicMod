@@ -9,6 +9,7 @@ import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
+import bytelogic.type.*;
 import bytelogic.world.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -94,7 +95,7 @@ public class NodeLogicBlock extends LogicRouter{
 
                 Building link = world.build(this.link);
                 if(linkValid(this, link)){
-                    Draw.color(currentSignal() != 0 ? Pal.accent : Color.white);
+                    Draw.color(signalColor());
                     Draw.alpha(1f * Core.settings.getInt("lasersopacity") / 100f);
                     Drawf.laser(Core.atlas.find(fullName("logic-laser")), Core.atlas.find(fullName("logic-laser-end")), x, y, link.x, link.y, 0.25f);
                     Draw.reset();
@@ -113,7 +114,7 @@ public class NodeLogicBlock extends LogicRouter{
             if(linkValid(this, link)){
                 NodeLogicBuild other = link.as();
                 other.acceptSignal(this, lastSignal);
-                lastSignal = 0;
+                lastSignal.setZero();
             }else{
                 for(int i = 0; i < 4 && doOutput; i++){
                     if(this.canOutputSignal(i)){
@@ -189,7 +190,7 @@ public class NodeLogicBlock extends LogicRouter{
         }
 
         @Override
-        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
+        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             if(link == otherBuilding.pos()) return false;
             int i = relativeTo(otherBuilding.<Building>as());
             boolean acceptSignal = super.acceptSignal(otherBuilding, signal);

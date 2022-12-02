@@ -27,8 +27,7 @@ public class ControllerBlock extends UnaryLogicBlock {
 
             Building facing = front();
             if (facing != null) {
-                int currentSignal = currentSignal();
-                facing.control(LAccess.enabled, currentSignal, 0, 0, 0);
+                facing.control(LAccess.enabled, currentSignal().compareWithZero(), 0, 0, 0);
             }
         }
 

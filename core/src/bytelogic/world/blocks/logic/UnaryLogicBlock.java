@@ -7,8 +7,8 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
-import bytelogic.game.*;
 import bytelogic.gen.*;
+import bytelogic.type.*;
 import mindustry.annotations.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
@@ -66,7 +66,7 @@ public abstract class UnaryLogicBlock extends LogicBlock{
 
     }
     public interface UnaryProcessor{
-        int process(int signal);
+        Signal process(Signal signal);
     }
 
     public class UnaryLogicBuild extends LogicBuild{
@@ -125,7 +125,7 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         }
 
         @Override
-        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
+        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             Building build = switch(inputType){
                 case backInput -> back();
                 case leftInput -> left();
@@ -138,8 +138,8 @@ public abstract class UnaryLogicBlock extends LogicBlock{
 
         @Override
         public void updateSignalState(){
-            lastSignal = processor.process(nextSignal);
-            nextSignal = 0;
+            lastSignal.set(processor.process(nextSignal));
+            nextSignal.setZero();
 
         }
 

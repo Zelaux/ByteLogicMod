@@ -3,6 +3,7 @@ package bytelogic.world.blocks.logic;
 import arc.math.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
+import bytelogic.type.*;
 import mindustry.gen.*;
 
 public class LogicRouter extends LogicBlock{
@@ -14,10 +15,10 @@ public class LogicRouter extends LogicBlock{
      protected    int[] sides = new int[4];
 
         @Override
-        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
+        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             int i = relativeTo(otherBuilding.<Building>as());
             sides[i] -= 1;
-            if(signal != 0) sides[i] = 2;
+            if(signal.compareWithZero() != 0) sides[i] = 2;
 //                sides[i]=Mathf.clamp(sides[i]+Mathf.sign(signal!=0),0,2);
             sides[i] = Mathf.clamp(sides[i], 0, 2);
             return super.acceptSignal(otherBuilding, signal);

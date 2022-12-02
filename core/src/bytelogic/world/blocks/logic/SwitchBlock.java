@@ -3,8 +3,8 @@ package bytelogic.world.blocks.logic;
 import arc.Graphics.*;
 import arc.Graphics.Cursor.*;
 import arc.audio.*;
-import arc.util.io.*;
 import bytelogic.gen.*;
+import bytelogic.type.*;
 import mindustry.gen.*;
 
 import static mindustry.Vars.player;
@@ -15,11 +15,11 @@ public class SwitchBlock extends LogicBlock{
     public SwitchBlock(String name){
         super(name);
         consumesTap = true;
-        this.<Integer, SwitchBuild>config(Integer.class, (build, value) -> {
-            build.nextSignal = value;
+        this.<Long, SwitchBuild>config(Long.class, (build, value) -> {
+            build.nextSignal.setNumber(value);
         });
     }
-
+protected static final Signal oneSignal=Signal.valueOf(1);
 
     public class SwitchBuild extends LogicBuild{
         @Override
@@ -28,28 +28,29 @@ public class SwitchBlock extends LogicBlock{
         }
 
         @Override
-        public int currentSignal(){
+        public Signal currentSignal(){
             return nextSignal;
         }
 
         @Override
         public void tapped(){
-            configure(nextSignal ^ 1);
+            nextSignal.xor(oneSignal);
+            configure(nextSignal.number());
             clickSound.at(tile);
         }
 
         @Override
-        public Integer config(){
-            return nextSignal;
+        public Long config(){
+            return nextSignal.number();
         }
 
         @Override
         public void updateSignalState(){
-            lastSignal = nextSignal;
+            lastSignal.set(nextSignal);
         }
 
         @Override
-        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
+        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             return  false;
         }
 

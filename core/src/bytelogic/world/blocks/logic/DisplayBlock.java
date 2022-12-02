@@ -27,10 +27,10 @@ public class DisplayBlock extends AcceptorLogicBlock {
             float dw = 2, dh = 2, xs = 2f, ys = 2f;
 
             int w = 5, h = 5;
-            int signal = currentSignal();
+            long signal = currentSignal().number();
             if (signal == 0) return;
             if (signal < 0) Draw.color(Pal.remove);
-            signal &= ~1073741824;
+            signal &= ~0b100_0000_0000_0000_0000_0000_0000_0000;
             if (signal < 0) signal = -signal;
 //            int jjj = 2 * ;
 

@@ -14,6 +14,7 @@ import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
+import bytelogic.type.*;
 import mindustry.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.entities.units.*;
@@ -203,29 +204,29 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
     }
 
     public interface BinaryProcessor{
-        int process(int left, int right);
+        Signal process(Signal left, Signal right);
     }
 
     public class BinaryLogicBuild extends LogicBuild{
-        final int[] sides = {0, 0};
+        final Signal[] sides = {new Signal(),new Signal()};
         boolean flippedInputs = false;
         int inputType = bothSideInputType;
 
         @Override
-        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
+        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             if(right() == otherBuilding && (inputType != rightFromBackInputType)){
-                sides[rightSideIndex] = signal;
+                sides[rightSideIndex].set(signal);
                 return true;
             }
             if(left() == otherBuilding && (inputType != leftFromBackInputType)){
-                sides[leftSideIndex] = signal;
+                sides[leftSideIndex].set(signal);
                 return true;
             }
             if(back() == otherBuilding && inputType != bothSideInputType){
                 if(inputType == leftFromBackInputType){
-                    sides[leftSideIndex] = signal;
+                    sides[leftSideIndex].set(signal);
                 }else{//1
-                    sides[rightSideIndex] = signal;
+                    sides[rightSideIndex].set(signal);
                 }
                 return true;
             }
@@ -236,10 +237,10 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         @Override
         public void updateSignalState(){
 
-            lastSignal = getNextSignal();
-            sides[0] = 0;
-            sides[1] = 0;
-            nextSignal = 0;
+            lastSignal.set(getNextSignal());
+            sides[0].setZero();
+            sides[1].setZero();
+            nextSignal.setZero();
 
         }
 
@@ -251,8 +252,8 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         }
 
         //        @Override
-        public int getNextSignal(){
-            int left, right;
+        public Signal getNextSignal(){
+            Signal left, right;
             if(!flippedInputs){
                 left = sides[leftSideIndex];
                 right = sides[rightSideIndex];
@@ -401,8 +402,9 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
             if(revision == 0 || revision == 4) return;
             flippedInputs = read.bool();
             if(revision == 1) return;
-            sides[leftSideIndex] = read.i();
-            sides[rightSideIndex] = read.i();
+
+            Signal.valueOf(sides[leftSideIndex],read.i());
+            Signal.valueOf(sides[rightSideIndex],read.i());
             if(revision == 2) return;
             inputType = read.i();
             if(revision == 3) return;
@@ -416,22 +418,22 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         @Override
         public void customWrite(Writes write){
             write.bool(flippedInputs);
-            write.i(sides[leftSideIndex]);
-            write.i(sides[rightSideIndex]);
+            sides[leftSideIndex].write(write);
+            sides[rightSideIndex].write(write);
             write.i(inputType);
         }
 
         @Override
         public void customRead(Reads read){
             flippedInputs = read.bool();
-            sides[leftSideIndex] = read.i();
-            sides[rightSideIndex] = read.i();
+            sides[leftSideIndex].read(read);
+            sides[rightSideIndex].read(read);
             inputType = read.i();
         }
 
         @Override
         public short customVersion(){
-            return 0;
+            return 1;
         }
     }
 }

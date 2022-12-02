@@ -10,6 +10,7 @@ import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
+import bytelogic.type.*;
 import mindustry.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
@@ -139,7 +140,7 @@ public class AnalyzerBlock extends LogicBlock{
         @Override
         public void updateSignalState(){
 
-            nextSignal = calculateNextSignal();
+            Signal.valueOf(nextSignal, calculateNextSignal());
             super.updateSignalState();
         }
 
