@@ -16,9 +16,9 @@ public class SignalBlock extends LogicBlock{
     public SignalBlock(String name){
         super(name);
         configurable = true;
-        this.<Long, SignalLogicBuild>config(Long.class, (build, value) -> {
+      /*  this.<Long, SignalLogicBuild>config(Long.class, (build, value) -> {
             Signal.valueOf(build.nextSignal, value);
-        });
+        });*/
         this.<byte[], SignalLogicBuild>config(byte[].class, (build, bytes) -> {
 
             build.nextSignal.fromBytes(bytes);
@@ -37,12 +37,17 @@ public class SignalBlock extends LogicBlock{
             return nextSignal;
         }
 
+        public void configureNumber(long number){
+            Signal.valueOf(nextSignal, number);
+            configure(nextSignal.asBytes());
+        }
+
         @Override
         public void buildConfiguration(Table table){
 
             table.button(Icon.pencilSmall, () -> {
                 ui.showTextInput("@block.editsignal", "", 10, nextSignal + "", true, result -> {
-                    configure(Strings.parseLong(result, 0));
+                    configureNumber(Strings.parseLong(result, 0));
                 });
                 control.input.config.hideConfig();
             }).size(40f);

@@ -88,9 +88,9 @@ public class CanvasEditDialog extends BaseDialog{
                         coloring = !currentColor;
                     }
                     if(coloring){
-                        build.configure(number & ~mask | mask);
+                        build.configureNumber(number & ~mask | mask);
                     }else{
-                        build.configure(number & ~mask);
+                        build.configureNumber(number & ~mask);
                     }
                 }
 
