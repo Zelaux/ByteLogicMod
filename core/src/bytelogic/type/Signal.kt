@@ -1,8 +1,8 @@
 package bytelogic.type
 
 import arc.graphics.*
-import arc.util.*
 import arc.util.io.*
+import mindustry.gen.*
 import mma.io.*
 
 
@@ -31,16 +31,16 @@ class Signal {
             type = if (number != 0L)
                 SignalTypes.numberType
             else
-                SignalTypes.nilType
+                SignalTypes.numberType
 
             this.number = number
         }
     }
 
-    override fun toString(): String = number.toString()
+    override fun toString(): String = type.toString(this)
 
     @JvmField
-    var type: SignalType = SignalTypes.nilType
+    var type: SignalType = SignalTypes.numberType
 
     @get:JvmName("number")
     var number: NUMBER_TYPE = 0L
@@ -87,7 +87,7 @@ class Signal {
     fun read(read: Reads) {
         read.i()//version
 
-        type=SignalType.findByName(read.str())
+        type = SignalType.findByName(read.str())
 
         number = read.l()
     }
@@ -146,5 +146,14 @@ class Signal {
 
     fun times(signal: Signal) {
         type.times(this, signal)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is Signal) return false;
+        return other.number == number && type.id == other.type.id;
+    }
+
+    fun applyControl(building: Building) {
+    type.applyControl(this,building)
     }
 }

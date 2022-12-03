@@ -72,9 +72,7 @@ public class ByteLogicBlocks{
             requirements(blockCategory, bothRequirements.clone());
 
             processor = input -> {
-                if(input.compareWithZero() == 0) return input;
-                input.type = SignalTypes.numberType;
-                input.setNumber(1);
+                Signal.valueOf(input,input.compareWithZero() == 0 ? 1 : 0);
                 return input;
             };
         }};

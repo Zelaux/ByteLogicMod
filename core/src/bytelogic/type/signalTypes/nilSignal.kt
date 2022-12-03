@@ -27,6 +27,7 @@ internal object NilSignalType : DefaultSignalTypeImpl("nil-type", { Tex.clear })
 
     override fun setZero(abstractSignal: Signal) {
         abstractSignal.setNumber(0)
+        abstractSignal.type = NumberSignalType;
     }
 
     override fun or(`this&signal`: Signal, signal: Signal) {

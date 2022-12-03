@@ -3,8 +3,10 @@ package bytelogic.type
 import arc.graphics.*
 import arc.scene.style.*
 import bytelogic.graphics.*
+import mindustry.gen.*
+import mindustry.logic.*
 
-open class DefaultSignalTypeImpl(name:String, icon: ()->Drawable):SignalType(name, icon){
+open class DefaultSignalTypeImpl(name: String, icon: () -> Drawable) : SignalType(name, icon) {
     override fun barColor(signal: Signal): Color {
         val compareTo = signal.compareWithZero()
         if (compareTo > 0) {
@@ -14,6 +16,10 @@ open class DefaultSignalTypeImpl(name:String, icon: ()->Drawable):SignalType(nam
             BLPal.negativeSignalBarColor
         } else BLPal.zeroSignalBarColor
         //        Color[] colors = {BLPal.negativeSignalBarColor, BLPal.zeroSignalBarColor, BLPal.positiveSignalBarColor};
+    }
+
+    override fun applyControl(`this&signal`: Signal, building: Building) {
+        building.control(LAccess.enabled, `this&signal`.compareWithZero().toDouble(), 0.0, 0.0, 0.0);
     }
 
     override fun color(signal: Signal): Color {
@@ -27,7 +33,7 @@ open class DefaultSignalTypeImpl(name:String, icon: ()->Drawable):SignalType(nam
 
     override fun setZero(abstractSignal: Signal) {
         abstractSignal.setNumber(0)
-        abstractSignal.type = NilSignalType
+        abstractSignal.type = NumberSignalType
     }
 
     override fun or(`this&signal`: Signal, signal: Signal) {

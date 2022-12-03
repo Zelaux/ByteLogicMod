@@ -205,7 +205,7 @@ public class CustomSavingProc extends ModBaseProcessor{
 
                 switchEntry.getLabels().add(StaticJavaParser.parseExpression("" + versions));
                 switchEntry.getStatements().add(value.readBlock.clone()
-                .addStatement(new BreakStmt())
+                .addStatement(new ReturnStmt())
                 );
 
                 switchStmt.getEntries().add(switchEntry);

@@ -17,7 +17,14 @@ public class SignalTransformer extends UnaryLogicBlock{
         });*/
         this.<Integer, SignalTransformerBuild>config(Integer.class, (build, id) -> {
             SignalType type = SignalType.all[id];
-            if(type == SignalTypes.nilType) return;
+            if(type == SignalTypes.nilType)
+                type = SignalTypes.numberType;
+            build.selectedType = type;
+        });
+        this.<String, SignalTransformerBuild>config(String.class, (build, typeName) -> {
+            SignalType type = SignalType.findByName(typeName);
+            if(type == SignalTypes.nilType)
+                type = SignalTypes.numberType;
             build.selectedType = type;
         });
         processor = it -> it;
@@ -49,6 +56,7 @@ public class SignalTransformer extends UnaryLogicBlock{
         @Override
         public void beforeUpdateSignalState(){
             if(doOutput && canOutputSignal((byte)rotation)){
+                lastSignal.type = selectedType;
                 front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }
         }
@@ -59,6 +67,11 @@ public class SignalTransformer extends UnaryLogicBlock{
             lastSignal.type = selectedType;
             nextSignal.setZero();
 
+        }
+
+        @Override
+        public Object config(){
+            return selectedType.getName();
         }
 
         @Override

@@ -17,9 +17,9 @@ public class SignalBlock extends LogicBlock{
     public SignalBlock(String name){
         super(name);
         configurable = true;
-      /*  this.<Long, SignalLogicBuild>config(Long.class, (build, value) -> {
+        this.<Integer, SignalLogicBuild>config(Integer.class, (build, value) -> {
             Signal.valueOf(build.nextSignal, value);
-        });*/
+        });
         this.<byte[], SignalLogicBuild>config(byte[].class, (build, bytes) -> {
             build.nextSignal.fromBytes(bytes);
         });

@@ -6,6 +6,7 @@ import arc.math.Mathf;
 import arc.math.geom.*;
 import arc.util.Time;
 import arc.util.Tmp;
+import bytelogic.type.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.logic.*;
@@ -27,7 +28,10 @@ public class ControllerBlock extends UnaryLogicBlock {
 
             Building facing = front();
             if (facing != null) {
-                facing.control(LAccess.enabled, currentSignal().compareWithZero(), 0, 0, 0);
+                Signal signal = currentSignal();
+                signal.applyControl(facing);
+//                if ()
+//                facing.control(LAccess.enabled, signal.compareWithZero(), 0, 0, 0);
             }
         }
 
