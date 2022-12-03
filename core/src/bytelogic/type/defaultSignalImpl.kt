@@ -57,7 +57,7 @@ open class DefaultSignalTypeImpl(name: String, icon: () -> Drawable) : SignalTyp
     }
 
     override fun div(`this&signal`: Signal, signal: Signal) {
-        `this&signal`.setNumber(`this&signal`.number - signal.number)
+        `this&signal`.setNumber(`this&signal`.number / signal.number)
     }
 
     override fun mod(`this&signal`: Signal, signal: Signal) {
