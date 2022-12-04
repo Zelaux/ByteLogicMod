@@ -29,8 +29,8 @@ public class SwitchBlock extends LogicBlock{
 
     @Override
     public void init(){
-        if(blockShowcase == null){
-            blockShowcase = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
+        if(blockPreview == null){
+            blockPreview = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
 
                 world.tile(0, 1).setBlock(this, Team.sharded, 0);
 
@@ -43,7 +43,7 @@ public class SwitchBlock extends LogicBlock{
                 world.tile(3, 1).setBlock(byteLogicBlocks.displayBlock, Team.sharded);
                 return new Point2[]{Tmp.p1.set(0, 1)};
             });
-            blockShowcase.hasNoSwitchMirror(false);
+            blockPreview.hasNoSwitchMirror(false);
         }
         super.init();
     }

@@ -15,15 +15,15 @@ public class WorldLogicContext{
     }
 
     public void inContext(ContextRunnable runnable){
-        Seq<Building> buildings = new Seq<>();
+        ObjectSet<Building> buildings = new ObjectSet<>();
         World prevWorld = Vars.world;
         Vars.world = world;
         GroupSaver.store(groups);
         world.tiles.eachTile(it -> {
-            if(it.build != null && !buildings.contains(it.build)){
+            if(it.build != null && buildings.add(it.build)){
                 it.build.remove();
                 it.build.add();
-                buildings.add(it.build);
+//                buildings.add(it.build);
             }
             ;
         });

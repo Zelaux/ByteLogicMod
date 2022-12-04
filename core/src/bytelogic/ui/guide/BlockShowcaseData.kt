@@ -60,11 +60,11 @@ class SchematicBlockShowcase @JvmOverloads constructor(
             val points = Seq<Point2>()
 
             for (tile in schematic.tiles) {
-                var block=tile.block
-                var config=tile.config
+                var block = tile.block
+                var config = tile.config
                 if (block is PlaceholderBlock) {
                     block = if (config == true) {
-                        points.add(Point2(tile.x+offsetX,tile.y+offsetY))
+                        points.add(Point2(tile.x + offsetX, tile.y + offsetY))
                         blockReference
                     } else {
                         if (isSwitch) {
@@ -182,8 +182,10 @@ open class BlockShowcase(
         return BlockShowcaseData(context, worldElement, table, selectedInfoTable.element, selection)
     }
 
-    open fun buildDemoPage(table: Table): Array<BlockShowcaseData> = blockContext.run {
-        table.labelWrap(Core.bundle[name + ".guide-info", description]).labelAlign(Align.center).fillX().row()
+    open fun buildDemoPage(table: Table, withInfo: Boolean = true): Array<BlockShowcaseData> = blockContext.run {
+        if (withInfo) {
+            table.labelWrap(Core.bundle[name + ".guide-info", description]).labelAlign(Align.center).fillX().row()
+        }
         val first = createPreview(table, true)
         if (!hasNoSwitchMirror) return@run arrayOf(first)
         table.row()

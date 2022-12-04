@@ -18,8 +18,8 @@ public class LogicRouter extends LogicBlock{
 
     @Override
     public void init(){
-        if (blockShowcase==null){
-            blockShowcase=new BlockShowcase(this,5,5,(world,isSwitch)->{
+        if (blockPreview ==null){
+            blockPreview =new BlockShowcase(this,5,5,(world, isSwitch)->{
                 world.tile(0, 2).setBlock(inputBlock(isSwitch), Team.sharded, 0);
 
                 world.tile(1, 2).setBlock(this, Team.sharded, 0);

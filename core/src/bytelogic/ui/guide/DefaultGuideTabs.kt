@@ -24,14 +24,14 @@ object DefaultGuideTabs {
         }
         val globalTable = Table()
         Core.scene.add(globalTable)
-        tabGroup("signal-blocks") {
+        /*tabGroup("signal-blocks") {
             val blocks = ByteLogicBlocks.erekirBlocks
             for (block in blocks.blocks) {
                 tab(block.localizedName) { table ->
-                    block.blockShowcase.buildDemoPage(table)
+                    block.blockPreview.buildDemoPage(table)
                 }
             }
-        }
+        }*/
     }
 
     fun applyConfigTable(table: Table, selected: Building) {

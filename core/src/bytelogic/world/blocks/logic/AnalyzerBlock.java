@@ -39,15 +39,15 @@ public class AnalyzerBlock extends LogicBlock{
 
     @Override
     public void init(){
-        if(blockShowcase == null){
+        if(blockPreview == null){
             Schematic schematic = Schematics.readBase64("bXNjaAF4nF2OwU7EMAxEJ03bLSwCgZAQnPiBHPgexCHbmiVSGlepd6Xy9ThdiZXqg2cyz5YDi86iTn4kPPjkY/il7IRmcR/YDzT3OUwSOAFooz9QnFF9fnV4PixCLvIx9G7kwWWKfsHbJpXs0/zNeaSMlw1LLO7ohfC6AT0nyRyj7rxvUEjTSdwUfU8/HAed2Aeh0c18yj2h09UzLZxxs8ZnDoN+/BHXMrBGpbrX9oS7couSOFkmKtRW2huzDpZqYW2xl1etWt2aqkTNNWo1aqCbjQa2VWdgiqjZabNYcf2PmwtuL3gH/AHP5FIJ");
-            blockShowcase = new SchematicBlockShowcase(
+            blockPreview = new SchematicBlockShowcase(
                 this,
                 schematic,
                 false, schematic.width + 2, schematic.height + 2,
                 new Point2(1, 1)
             );
-            blockShowcase.hasNoSwitchMirror(false);
+            blockPreview.hasNoSwitchMirror(false);
         }
         super.init();
     }

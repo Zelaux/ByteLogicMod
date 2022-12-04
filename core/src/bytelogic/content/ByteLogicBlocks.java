@@ -73,7 +73,7 @@ public class ByteLogicBlocks{
             requirements(blockCategory, bothRequirements.clone());
 
             processor = input -> {
-                Signal.valueOf(input,input.compareWithZero() == 0 ? 1 : 0);
+                Signal.valueOf(input, input.compareWithZero() == 0 ? 1 : 0);
                 return input;
             };
         }};
@@ -199,7 +199,9 @@ public class ByteLogicBlocks{
             requirements(blockCategory, displayRequirements.clone());
             size = 2;
         }};
-        transformer = new SignalTransformer(namePrefix + "transformer"){{
+
+        transformer = new SignalTransformer(namePrefix + "signal-transformer"){{
+            SaveVersion.modContentNameMap.put(fullName(namePrefix + "transformer"), name);
             requirements(blockCategory, displayRequirements.clone());
             size = 1;
         }};

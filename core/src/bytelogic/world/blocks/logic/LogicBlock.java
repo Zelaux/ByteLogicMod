@@ -7,29 +7,20 @@ import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.geom.*;
-import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.*;
 import bytelogic.content.*;
 import bytelogic.game.*;
 import bytelogic.gen.*;
-import bytelogic.tools.WorldLogicContext;
 import bytelogic.type.*;
-import bytelogic.ui.elements.*;
-import bytelogic.ui.elements.WorldElement.*;
 import bytelogic.ui.guide.*;
-import bytelogic.world.blocks.logic.SwitchBlock.*;
 import bytelogic.world.meta.*;
-import kotlin.Unit;
-import kotlin.jvm.internal.Ref.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.core.*;
 import mindustry.entities.units.*;
-import mindustry.game.*;
 import mindustry.gen.*;
-import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.meta.*;
@@ -44,8 +35,8 @@ public abstract class LogicBlock extends Block{
     public String baseName = "logic-base";
     public LogicBlock originalMirror = null;
     public ByteLogicBlocks byteLogicBlocks;
+    public BlockShowcase blockPreview = null;
     protected boolean doOutput = true;
-    public BlockShowcase blockShowcase =null;
 
     public LogicBlock(String name){
         super(name);
@@ -56,20 +47,20 @@ public abstract class LogicBlock extends Block{
 //        controllable = false;
     }
 
-    @Override
-    public void init(){
-
-        super.init();
-        if (blockShowcase==null){
-            blockShowcase= new DefaultBlockShowcase(this);
-        }
-    }
-
     @NotNull
     protected static Intc2 worldFiller(@NotNull World world){
         return (x, y) -> {
             world.tiles.set(x, y, new Tile(x, y, Blocks.metalFloor, Blocks.air, Blocks.air));
         };
+    }
+
+    @Override
+    public void init(){
+
+        super.init();
+        if(blockPreview == null){
+            blockPreview = new DefaultBlockShowcase(this);
+        }
     }
 
     public String nameWithoutPrefix(){
@@ -94,8 +85,12 @@ public abstract class LogicBlock extends Block{
     @Override
     public void setStats(){
         super.setStats();
-        stats.add(BLStat.guide, table -> {
-            table.button("Open guide", BLVars.modUI.guideDialog::show);
+        stats.add(BLStat.preview, table -> {
+            table.row();
+            table.table(innerTable->{
+                blockPreview.buildDemoPage(innerTable,false);
+            }).grow();
+
         });
     }
 
@@ -174,10 +169,8 @@ public abstract class LogicBlock extends Block{
     }
 
 
-
-
     protected Block inputBlock(boolean isSwitch){
-        return isSwitch?byteLogicBlocks.switchBlock :byteLogicBlocks.signalBlock;
+        return isSwitch ? byteLogicBlocks.switchBlock : byteLogicBlocks.signalBlock;
     }
 
     ;

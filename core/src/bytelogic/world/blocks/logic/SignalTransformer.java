@@ -5,10 +5,12 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
+import bytelogic.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.guide.*;
 import bytelogic.world.blocks.logic.SignalBlock.*;
+import bytelogic.world.meta.*;
 import mindustry.game.*;
 import mindustry.ui.*;
 import mindustry.world.*;
@@ -54,8 +56,8 @@ public class SignalTransformer extends UnaryLogicBlock{
 
     @Override
     public void init(){
-        if(blockShowcase == null){
-            blockShowcase = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
+        if(blockPreview == null){
+            blockPreview = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
 
                 world.tile(0, 1).setBlock(byteLogicBlocks.signalBlock, Team.sharded, 0);
 
@@ -73,11 +75,19 @@ public class SignalTransformer extends UnaryLogicBlock{
                     return super.shouldBuildConfiguration(block) || block instanceof SignalTransformer;
                 }
             };
-            blockShowcase.hasNoSwitchMirror(false);
+            blockPreview.hasNoSwitchMirror(false);
         }
         super.init();
     }
 
+    @Override
+    public void setStats(){
+
+        stats.add(BLStat.guide, table -> {
+            table.button("Open guide", BLVars.modUI.guideDialog::show).with(t -> t.getLabel().setWrap(false));
+        });
+        super.setStats();
+    }
 
     static class Container{
         static SignalType selectedType;

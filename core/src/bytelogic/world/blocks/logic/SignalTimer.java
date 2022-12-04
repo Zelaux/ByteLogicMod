@@ -16,12 +16,8 @@ import bytelogic.gen.BLIcons.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.*;
-import bytelogic.ui.elements.WorldElement.*;
 import bytelogic.ui.guide.*;
-import bytelogic.world.blocks.logic.BinaryLogicBlock.*;
-import bytelogic.world.blocks.logic.SignalBlock.*;
 import mindustry.entities.units.*;
-import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
@@ -51,7 +47,7 @@ public class SignalTimer extends UnaryLogicBlock{
 
         super.init();
 
-        blockShowcase = new BlockShowcase(this, 5, 5, blockShowcase.getWorldBuilder()){
+        blockPreview = new BlockShowcase(this, 5, 5, blockPreview.getWorldBuilder()){
             @Override
             public boolean shouldBuildConfiguration(@NotNull Block block){
                 return super.shouldBuildConfiguration(block) || block instanceof SignalTimer;

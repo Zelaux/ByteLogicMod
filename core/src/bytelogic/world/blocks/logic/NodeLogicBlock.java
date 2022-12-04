@@ -76,8 +76,8 @@ public class NodeLogicBlock extends LogicRouter{
     @Override
     public void init(){
         clipSize = range;
-        if (blockShowcase==null){
-            blockShowcase=new BlockShowcase(this,5,5,(world,isSwitch)->{
+        if (blockPreview ==null){
+            blockPreview =new BlockShowcase(this,5,5,(world, isSwitch)->{
 
                 world.tile(0, 3).setBlock(inputBlock(isSwitch), Team.sharded, 1);
 

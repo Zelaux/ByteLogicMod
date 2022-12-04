@@ -3,7 +3,6 @@ package bytelogic.world.blocks.logic;
 
 import arc.graphics.g2d.*;
 import arc.math.*;
-import arc.math.geom.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
@@ -12,10 +11,8 @@ import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.guide.*;
 import mindustry.annotations.*;
-import mindustry.content.*;
 import mindustry.entities.units.*;
 import mindustry.game.*;
-import mindustry.game.Schematic.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
 
@@ -38,8 +35,8 @@ public abstract class UnaryLogicBlock extends LogicBlock{
 
     @Override
     public void init(){
-        if(blockShowcase == null){
-            blockShowcase=new SchematicBlockShowcase(
+        if(blockPreview == null){
+            blockPreview =new SchematicBlockShowcase(
                 this,
                 Schematics.readBase64("bXNjaAF4nF1Ouw7CMAy8Ni0DRUwIqWLhBzLwPYghaa0S4SZRkg79ekiAqWfp/DifZexQCzRWzYTDYlVYZaKY5A3dSHEIxifjLIAdK00cUd8fLa56TSTZTWaQsxulsX5J0rMa6Ol4pIDTZiMQqxX9ZjovnIxnkw2XjRTNZBVLzW544bwRRxN9uZffQsG+UJVzlbkuTQ0BHHPR/iSRoyp9/zV0dpk1BZlWT+8/RIMmS+IDAytMKA==")
             );/*

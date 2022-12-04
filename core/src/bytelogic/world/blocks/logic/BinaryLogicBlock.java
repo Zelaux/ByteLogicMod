@@ -16,7 +16,6 @@ import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.guide.*;
-import bytelogic.world.blocks.logic.SignalBlock.*;
 import mindustry.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.entities.units.*;
@@ -109,8 +108,8 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
 
     @Override
     public void init(){
-        if(blockShowcase == null)
-            blockShowcase=new SchematicBlockShowcase(
+        if(blockPreview == null)
+            blockPreview =new SchematicBlockShowcase(
                 this,
                 Schematics.readBase64("bXNjaAF4nF2MwY7CMAxEpw1dpCI4ISS0l/2BHPgexCFpLbDWTaIkPfTrIak4deZgeebZ6KAUds5MhKNlZ+KiM6WsbziMlIbIIbN3AH7EWJKE9v7o8GeXTFr8kwc9+VGzC3PWQcxALy8jRZw3RCQxC66bdJolcxAuB7+bKvHTGdFW/PCPy6YcOYX6D9ijqkdTR9OvA20P1aAabXFzKlm3AlA1qft1JQ9unixFnZdA76/UrlCF/ABgfUyQ")
             );/*

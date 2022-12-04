@@ -10,6 +10,7 @@ open class GuideTabParent(override val pageName: String, override var pageButton
     @Suppress("LeakingThis")
     override val pageBuilder: (Table) -> Unit = this::buildPage
     val children: Seq<GuideTab> = Seq()
+    @JvmField
     var selectedChild: Int = 0;
     private fun buildPage(pageTable: Table) {
         pageTable.clearChildren();
@@ -38,7 +39,6 @@ open class GuideTabParent(override val pageName: String, override var pageButton
                 it.background = Tex.pane
                 it.table(children[selectedChild].pageBuilder).top().grow()
             }
-            rebuilder()
             rebuilder()
         }.grow()
     }

@@ -4,6 +4,7 @@ import arc.*;
 import arc.graphics.g2d.*;
 import bytelogic.async.*;
 import bytelogic.audio.*;
+import bytelogic.content.*;
 import bytelogic.game.*;
 import bytelogic.gen.*;
 import bytelogic.ui.*;
@@ -31,7 +32,8 @@ public class ByteLogicMod extends MMAMod{
 
         Events.on(ClientLoadEvent.class, (e) -> {
             ModAudio.reload();
-            modUI.guideDialog.show();
+//            Vars.ui.content.show(ByteLogicBlocks.erekirBlocks.analyzer);
+//            modUI.guideDialog.show();
             /*new BaseDialog("test-dialog"){{
                 World world = new World();
                 world.resize(3, 3).each((x, y) -> {
