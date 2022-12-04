@@ -14,9 +14,11 @@ import mindustry.logic.*
 import mindustry.type.*
 import mindustry.world.*
 
-val validTypes: Array<ContentType> = ContentType.all.asList()
-    .filter { !it.name.endsWith("UNUSED") && it != ContentType.bullet }
-    .toTypedArray()
+object ContentSignal {
+    val validTypes: Array<ContentType> = ContentType.all.asList()
+        .filter { !it.name.endsWith("UNUSED") && it != ContentType.bullet }
+        .toTypedArray()
+}
 
 @Suppress("MemberVisibilityCanBePrivate")
 object ContentSignalType : DefaultSignalTypeImpl("content-type", { TextureRegionDrawable(Items.copper.uiIcon) }) {
@@ -36,8 +38,8 @@ object ContentSignalType : DefaultSignalTypeImpl("content-type", { TextureRegion
 
     fun getType(signal: Signal): ContentType? =
         Pack.leftInt(signal.number)
-            .takeIf { it in validTypes.indices }
-            ?.let { validTypes[it] }
+            .takeIf { it in ContentSignal.validTypes.indices }
+            ?.let { ContentSignal.validTypes[it] }
 
     fun getContent(signal: Signal): UnlockableContent? =
         getType(signal)?.let { type -> Vars.content.getByID<Content?>(type, Pack.rightInt(signal.number)) as? UnlockableContent }

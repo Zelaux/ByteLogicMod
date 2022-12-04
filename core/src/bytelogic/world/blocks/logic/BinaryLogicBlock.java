@@ -15,9 +15,12 @@ import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
+import bytelogic.ui.guide.*;
+import bytelogic.world.blocks.logic.SignalBlock.*;
 import mindustry.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.entities.units.*;
+import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
@@ -71,6 +74,7 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         return tmpWrites.getBytes();
     }
 
+
     public String centerRegionName(){
         if(ownsCenterRegion || originalMirror == null) return name + "-center";
         return originalMirror.name + "-center";
@@ -105,6 +109,23 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
 
     @Override
     public void init(){
+        if(blockShowcase == null)
+            blockShowcase = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
+
+                world.tile(0, 1).setBlock(inputBlock(isSwitch), Team.sharded, 1);
+                world.tile(0, 2).setBlock(this, Team.sharded, 0);
+                world.tile(0, 3).setBlock(inputBlock(isSwitch), Team.sharded, 3);
+
+                world.tile(1, 2).setBlock(byteLogicBlocks.relay, Team.sharded, 0);
+                world.tile(2, 2).setBlock(byteLogicBlocks.multiplier, Team.sharded, 0);
+                world.tile(2, 2).build.<BinaryLogicBuild>as().inputType = rightFromBackInputType;
+
+                world.tile(2, 3).setBlock(byteLogicBlocks.signalBlock, Team.sharded, 3);
+                world.tile(2, 3).build.<SignalLogicBuild>as().nextSignal.setNumber(-1);
+                world.tile(3, 2).setBlock(byteLogicBlocks.displayBlock, Team.sharded);
+                return new Point2[]{Tmp.p1.set(0, 2)};
+            });
+
         super.init();
         consumesTap = canFlip;
         if(processor == null){
@@ -143,29 +164,29 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
 
         TextureRegion back = base;
         Draw.rect(back, req.drawx(), req.drawy(),
-        back.width * scale,
-        back.height * scale,
-        0);
+            back.width * scale,
+            back.height * scale,
+            0);
         if(!needImageCompilation){
             Draw.rect(centerRegion, req.drawx(), req.drawy(),
-            region.width * scale,
-            region.height * scale * Mathf.sign(!flipped),
-            !rotate ? 0 : req.rotation * 90);
+                region.width * scale,
+                region.height * scale * Mathf.sign(!flipped),
+                !rotate ? 0 : req.rotation * 90);
         }
         if(type == bothSideInputType){
             Draw.rect(getOutputsRegion(), req.drawx(), req.drawy(),
-            region.width * scale,
-            region.height * scale,
-            !rotate ? 0 : req.rotation * 90);
+                region.width * scale,
+                region.height * scale,
+                !rotate ? 0 : req.rotation * 90);
             return;
         }
 
         TextureRegion sideOutputsRegion = getSideOutputsRegion();
         sideOutputsRegion.flip(false, type == leftFromBackInputType);
         Draw.rect(sideOutputsRegion, req.drawx(), req.drawy(),
-        region.width * scale,
-        region.height * scale,
-        !rotate ? 0 : req.rotation * 90);
+            region.width * scale,
+            region.height * scale,
+            !rotate ? 0 : req.rotation * 90);
         sideOutputsRegion.flip(false, type == leftFromBackInputType);
 
     }
@@ -208,7 +229,7 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
     }
 
     public class BinaryLogicBuild extends LogicBuild{
-        final Signal[] sides = {new Signal(),new Signal()};
+        final Signal[] sides = {new Signal(), new Signal()};
         boolean flippedInputs = false;
         int inputType = bothSideInputType;
 
@@ -298,22 +319,22 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
             Draw.color(signalColor());
             if(!needImageCompilation){
                 Draw.rect(centerRegion,
-                x, y,
-                region.width * Draw.scl * Draw.xscl, Draw.scl * Draw.yscl * region.height * Mathf.sign(!flippedInputs),
-                this.drawrot());
+                    x, y,
+                    region.width * Draw.scl * Draw.xscl, Draw.scl * Draw.yscl * region.height * Mathf.sign(!flippedInputs),
+                    this.drawrot());
             }
             if(inputType == bothSideInputType){
                 Draw.rect(getOutputsRegion(),
-                x, y,
-                region.width * Draw.scl * Draw.xscl, Draw.scl * Draw.yscl * region.height,
-                this.drawrot());
+                    x, y,
+                    region.width * Draw.scl * Draw.xscl, Draw.scl * Draw.yscl * region.height,
+                    this.drawrot());
             }else{
                 TextureRegion sideOutputsRegion = getSideOutputsRegion();
                 sideOutputsRegion.flip(false, inputType == leftFromBackInputType);
                 Draw.rect(sideOutputsRegion,
-                x, y,
-                region.width * Draw.scl * Draw.xscl, Draw.scl * Draw.yscl * region.height,
-                this.drawrot());
+                    x, y,
+                    region.width * Draw.scl * Draw.xscl, Draw.scl * Draw.yscl * region.height,
+                    this.drawrot());
                 sideOutputsRegion.flip(false, inputType == leftFromBackInputType);
             }
 
@@ -338,9 +359,9 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         public void buildConfiguration(Table table){
             super.buildConfiguration(table);
             TextureRegionDrawable[] drawables = {
-            BLIcons.Drawables.binaryInput0_64,
-            BLIcons.Drawables.binaryInput1_64,
-            BLIcons.Drawables.binaryInput2_64
+                BLIcons.Drawables.binaryInput0_64,
+                BLIcons.Drawables.binaryInput1_64,
+                BLIcons.Drawables.binaryInput2_64
             };
 
             table.table(t -> {
@@ -403,8 +424,8 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
             flippedInputs = read.bool();
             if(revision == 1) return;
 
-            Signal.valueOf(sides[leftSideIndex],read.i());
-            Signal.valueOf(sides[rightSideIndex],read.i());
+            Signal.valueOf(sides[leftSideIndex], read.i());
+            Signal.valueOf(sides[rightSideIndex], read.i());
             if(revision == 2) return;
             inputType = read.i();
             if(revision == 3) return;

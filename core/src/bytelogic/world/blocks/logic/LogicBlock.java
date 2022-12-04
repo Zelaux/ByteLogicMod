@@ -3,25 +3,40 @@ package bytelogic.world.blocks.logic;
 //import io.anuke.annotations.Annotations.*;
 
 import arc.*;
+import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.geom.*;
+import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
+import bytelogic.*;
 import bytelogic.content.*;
 import bytelogic.game.*;
 import bytelogic.gen.*;
+import bytelogic.tools.WorldLogicContext;
 import bytelogic.type.*;
+import bytelogic.ui.elements.*;
+import bytelogic.ui.elements.WorldElement.*;
+import bytelogic.ui.guide.*;
+import bytelogic.world.blocks.logic.SwitchBlock.*;
+import bytelogic.world.meta.*;
+import kotlin.Unit;
+import kotlin.jvm.internal.Ref.*;
 import mindustry.annotations.Annotations.*;
+import mindustry.content.*;
+import mindustry.core.*;
 import mindustry.entities.units.*;
+import mindustry.game.*;
 import mindustry.gen.*;
+import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.meta.*;
 import mma.*;
+import org.jetbrains.annotations.*;
 
 import java.lang.reflect.*;
-import java.math.*;
 
 public abstract class LogicBlock extends Block{
     @Load("@baseName()")
@@ -30,6 +45,7 @@ public abstract class LogicBlock extends Block{
     public LogicBlock originalMirror = null;
     public ByteLogicBlocks byteLogicBlocks;
     protected boolean doOutput = true;
+    public BlockShowcase blockShowcase =null;
 
     public LogicBlock(String name){
         super(name);
@@ -38,6 +54,22 @@ public abstract class LogicBlock extends Block{
         update = true;
 //        entityType = LogicBuild::new;
 //        controllable = false;
+    }
+
+    @Override
+    public void init(){
+
+        super.init();
+        if (blockShowcase==null){
+            blockShowcase= new DefaultBlockShowcase(this);
+        }
+    }
+
+    @NotNull
+    protected static Intc2 worldFiller(@NotNull World world){
+        return (x, y) -> {
+            world.tiles.set(x, y, new Tile(x, y, Blocks.metalFloor, Blocks.air, Blocks.air));
+        };
     }
 
     public String nameWithoutPrefix(){
@@ -57,6 +89,14 @@ public abstract class LogicBlock extends Block{
             if(originalMirror.region == null) originalMirror.load();
             region = originalMirror.region;
         }
+    }
+
+    @Override
+    public void setStats(){
+        super.setStats();
+        stats.add(BLStat.guide, table -> {
+            table.button("Open guide", BLVars.modUI.guideDialog::show);
+        });
     }
 
     @Override
@@ -134,6 +174,12 @@ public abstract class LogicBlock extends Block{
     }
 
 
+
+
+    protected Block inputBlock(boolean isSwitch){
+        return isSwitch?byteLogicBlocks.switchBlock :byteLogicBlocks.signalBlock;
+    }
+
     ;
 
     /**
@@ -203,13 +249,13 @@ public abstract class LogicBlock extends Block{
         public void read(Reads read, byte revision){
             super.read(read, revision);
             if(revision == 0){
-                Signal.valueOf(nextSignal,read.i());
+                Signal.valueOf(nextSignal, read.i());
                 lastSignal.set(nextSignal);
             }else{
                 int version = read.i();
                 if(version == 2) return;
-                Signal.valueOf(nextSignal,read.i());
-                Signal.valueOf(lastSignal,read.i());
+                Signal.valueOf(nextSignal, read.i());
+                Signal.valueOf(lastSignal, read.i());
             }
         }
 
@@ -251,7 +297,7 @@ public abstract class LogicBlock extends Block{
 
         @Override
         public short customVersion(){
-            return 2 ;
+            return 2;
         }
 
         public boolean canOutputSignal(int dir){

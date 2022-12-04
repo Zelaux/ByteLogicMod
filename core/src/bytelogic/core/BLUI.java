@@ -1,42 +1,42 @@
 package bytelogic.core;
 
+import arc.*;
+import arc.func.*;
+import arc.graphics.*;
+import arc.input.*;
+import arc.scene.ui.*;
+import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import bytelogic.content.*;
 import bytelogic.gen.*;
-import arc.ApplicationListener;
-import arc.Core;
-import arc.Input;
-import arc.func.Cons;
-import arc.graphics.Color;
-import arc.input.KeyCode;
-import arc.scene.ui.Dialog;
-import arc.scene.ui.TextField;
-import arc.scene.ui.layout.Collapser;
-import bytelogic.ui.ModStyles;
-import bytelogic.ui.fragments.ModHudFragment;
+import bytelogic.ui.*;
+import bytelogic.ui.dialogs.*;
+import bytelogic.ui.fragments.*;
 import bytelogic.world.blocks.logic.*;
-import mindustry.Vars;
+import mindustry.*;
 import mindustry.entities.units.*;
 import mindustry.game.*;
 import mindustry.type.*;
-import mindustry.ui.Styles;
+import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.blocks.storage.*;
-import mma.ui.dialogs.ModColorPicker;
+import mma.ui.dialogs.*;
 
-import static bytelogic.BLVars.*;
+import static bytelogic.BLVars.inTry;
 import static mindustry.Vars.headless;
 
 public class BLUI extends mma.core.ModUI implements Disposable, ApplicationListener{
     public ModColorPicker colorPicker;
+    public GuideDialog guideDialog;
     private boolean inited = false;
 
     public BLUI(){
         super();
 
         Vars.schematics = new SchematicsWrapper(Vars.schematics){
-            @Nullable Planet findCampaignPlanet(){
+            @Nullable
+            Planet findCampaignPlanet(){
                 if(!Vars.state.isCampaign()){
                     return null;
                 }
@@ -46,37 +46,38 @@ public class BLUI extends mma.core.ModUI implements Disposable, ApplicationListe
                 }
                 return sector.planet;
             }
+
             @Override
             public Seq<BuildPlan> toPlans(Schematic schem, int x, int y){
 
-               Planet planet=findCampaignPlanet();
-               if (planet==null){
-                   planet=findPlanetByEnv();
-               }
-               if (planet==null)return super.toPlans(schem, x, y);
+                Planet planet = findCampaignPlanet();
+                if(planet == null){
+                    planet = findPlanetByEnv();
+                }
+                if(planet == null) return super.toPlans(schem, x, y);
                 Planet staticPlanet = planet;
                 ByteLogicBlocks currentPlanetBlocks = ByteLogicBlocks.byteLogicBlocks.find(it -> it.planet == staticPlanet);
                 if(currentPlanetBlocks == null){
                     return super.toPlans(schem, x, y);
                 }
                 return schem.tiles.map(t -> {
-                    Block tBlock = t.block;
-                    if(tBlock instanceof LogicBlock block && block.byteLogicBlocks!=null){
-                        ByteLogicBlocks current = block.byteLogicBlocks;
-                        int index = current.blocks.indexOf(block);
-                        if (index>=0 && index<currentPlanetBlocks.blocks.size){
-                            tBlock = currentPlanetBlocks.blocks.get(index);
+                        Block tBlock = t.block;
+                        if(tBlock instanceof LogicBlock block && block.byteLogicBlocks != null){
+                            ByteLogicBlocks current = block.byteLogicBlocks;
+                            int index = current.blocks.indexOf(block);
+                            if(index >= 0 && index < currentPlanetBlocks.blocks.size){
+                                tBlock = currentPlanetBlocks.blocks.get(index);
+                            }
                         }
-                    }
-                    return new BuildPlan(t.x + x - schem.width / 2, t.y + y - schem.height / 2, t.rotation, tBlock, t.config).original(t.x, t.y, schem.width, schem.height);
-                })
-                .removeAll(s -> (!s.block.isVisible() && !(s.block instanceof CoreBlock)) || !s.block.unlockedNow()).sort(Structs.comparingInt(s -> -s.block.schematicPriority));
+                        return new BuildPlan(t.x + x - schem.width / 2, t.y + y - schem.height / 2, t.rotation, tBlock, t.config).original(t.x, t.y, schem.width, schem.height);
+                    })
+                           .removeAll(s -> (!s.block.isVisible() && !(s.block instanceof CoreBlock)) || !s.block.unlockedNow()).sort(Structs.comparingInt(s -> -s.block.schematicPriority));
             }
 
             Planet findPlanetByEnv(){
                 int env = Vars.state.rules.env;
-                if (Vars.state.rules.hiddenBuildItems.isEmpty())return null;
-                return Vars.content.planets().find(it -> it.defaultEnv == env && it.solarSystem!=it);
+                if(Vars.state.rules.hiddenBuildItems.isEmpty()) return null;
+                return Vars.content.planets().find(it -> it.defaultEnv == env && it.solarSystem != it);
             }
         };
     }
@@ -193,6 +194,7 @@ public class BLUI extends mma.core.ModUI implements Disposable, ApplicationListe
         inTry(ModHudFragment::init);
 
         colorPicker = new ModColorPicker();
+        guideDialog = new GuideDialog();
 //        radiusRenderer =new RadiusRenderer();
     }
 

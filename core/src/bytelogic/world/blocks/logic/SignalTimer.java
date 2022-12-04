@@ -16,11 +16,18 @@ import bytelogic.gen.BLIcons.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.*;
+import bytelogic.ui.elements.WorldElement.*;
+import bytelogic.ui.guide.*;
+import bytelogic.world.blocks.logic.BinaryLogicBlock.*;
+import bytelogic.world.blocks.logic.SignalBlock.*;
 import mindustry.entities.units.*;
+import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
+import mindustry.world.*;
 import mma.io.*;
+import org.jetbrains.annotations.*;
 
 public class SignalTimer extends UnaryLogicBlock{
     protected static final ByteReads tmpRead = new ByteReads();
@@ -37,6 +44,19 @@ public class SignalTimer extends UnaryLogicBlock{
             build.setDelay(tmpRead.i());
             build.inputType = tmpRead.i();
         });
+    }
+
+    @Override
+    public void init(){
+
+        super.init();
+
+        blockShowcase = new BlockShowcase(this, 5, 5, blockShowcase.getWorldBuilder()){
+            @Override
+            public boolean shouldBuildConfiguration(@NotNull Block block){
+                return super.shouldBuildConfiguration(block) || block instanceof SignalTimer;
+            }
+        };
     }
 
     public static byte[] stateToBytes(int delay, int inputType){
@@ -120,6 +140,7 @@ public class SignalTimer extends UnaryLogicBlock{
             region.height * req.animScale * Draw.scl * Mathf.sign(Container.inputType == leftInput),
             req.rotation * 90);
     }
+
 
     @Override
     public void flipRotation(BuildPlan req, boolean x){

@@ -6,11 +6,14 @@ import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.struct.*;
+import arc.util.Nullable;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
+import bytelogic.ui.guide.*;
 import bytelogic.world.*;
+import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.input.*;
@@ -36,6 +39,7 @@ public class NodeLogicBlock extends LogicRouter{
             tile.link = Point2.pack(point.x + tile.tileX(), point.y + tile.tileY());
         });
     }
+
 
     @Override
     public void drawPlace(int x, int y, int rotation, boolean valid){
@@ -65,13 +69,31 @@ public class NodeLogicBlock extends LogicRouter{
 
     public boolean linkValid(Tile tile, Building other){
         return other != null && other.block() instanceof NodeLogicBlock
-        && Mathf.within(tile.drawx(), tile.drawy(), other.x, other.y, range)
-        && (other.team == tile.team() || !(tile.build instanceof ByteLogicBuildingc)) && (other.<NodeLogicBuild>as().link != tile.pos());
+                   && Mathf.within(tile.drawx(), tile.drawy(), other.x, other.y, range)
+                   && (other.team == tile.team() || !(tile.build instanceof ByteLogicBuildingc)) && (other.<NodeLogicBuild>as().link != tile.pos());
     }
 
     @Override
     public void init(){
         clipSize = range;
+        if (blockShowcase==null){
+            blockShowcase=new BlockShowcase(this,5,5,(world,isSwitch)->{
+
+                world.tile(0, 3).setBlock(inputBlock(isSwitch), Team.sharded, 1);
+
+                world.tile(0, 4).setBlock(this, Team.sharded, 1);
+                world.tile(0, 4).build.<NodeLogicBuild>as().link = world.tile(4, 0).pos();
+                world.tile(4, 0).setBlock(this, Team.sharded, 1);
+
+                world.tile(4, 1).setBlock(byteLogicBlocks.relay, Team.sharded, 1);
+                world.tile(4, 2).setBlock(byteLogicBlocks.relay, Team.sharded, 2);
+                world.tile(3, 2).setBlock(byteLogicBlocks.relay, Team.sharded, 1);
+                world.tile(3, 3).setBlock(byteLogicBlocks.relay, Team.sharded, 2);
+                world.tile(4, 3).setBlock(byteLogicBlocks.relay, Team.sharded, 1);
+                world.tile(4, 4).setBlock(byteLogicBlocks.relay, Team.sharded, 2);
+                return new Point2[]{Tmp.p1.set(0, 4), Tmp.p2.set(4, 0)};
+            });
+        }
         super.init();
     }
 
@@ -226,7 +248,7 @@ public class NodeLogicBlock extends LogicRouter{
 
         @Override
         public void customRead(Reads read){
-            link=read.i();
+            link = read.i();
         }
 
         @Override

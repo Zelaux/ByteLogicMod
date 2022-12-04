@@ -3,14 +3,19 @@ package bytelogic.world.blocks.logic;
 
 import arc.graphics.g2d.*;
 import arc.math.*;
+import arc.math.geom.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
+import bytelogic.ui.guide.*;
+import bytelogic.world.blocks.logic.BinaryLogicBlock.*;
+import bytelogic.world.blocks.logic.SignalBlock.*;
 import mindustry.annotations.*;
 import mindustry.entities.units.*;
+import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
 
@@ -33,6 +38,20 @@ public abstract class UnaryLogicBlock extends LogicBlock{
 
     @Override
     public void init(){
+        if(blockShowcase == null){
+            blockShowcase = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
+                world.tile(0, 1).setBlock(inputBlock(isSwitch), Team.sharded, 0);
+
+                world.tile(1, 1).setBlock(this, Team.sharded, 0);
+                world.tile(2, 1).setBlock(byteLogicBlocks.multiplier, Team.sharded, 0);
+                world.tile(2, 1).build.<BinaryLogicBuild>as().inputType = 1;
+
+                world.tile(2, 2).setBlock(byteLogicBlocks.signalBlock, Team.sharded, 3);
+                world.tile(2, 2).build.<SignalLogicBuild>as().nextSignal.setNumber(-1);
+                world.tile(3, 1).setBlock(byteLogicBlocks.displayBlock, Team.sharded);
+                return new Point2[]{Tmp.p1.set(1, 1)};
+            });
+        }
         super.init();
 //        if(processor == null) throw new RuntimeException("Processor for " + name + " is null");
     }
@@ -77,7 +96,7 @@ public abstract class UnaryLogicBlock extends LogicBlock{
     }
 
     public class UnaryLogicBuild extends LogicBuild{
-        int inputType = backInput;
+        public int inputType = backInput;
 
         @Override
         public void buildConfiguration(Table table){

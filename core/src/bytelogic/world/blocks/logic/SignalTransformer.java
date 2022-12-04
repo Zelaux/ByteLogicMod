@@ -1,11 +1,19 @@
 package bytelogic.world.blocks.logic;
 
+import arc.math.geom.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
+import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
+import bytelogic.ui.elements.WorldElement.*;
+import bytelogic.ui.guide.*;
+import bytelogic.world.blocks.logic.SignalBlock.*;
+import mindustry.game.*;
 import mindustry.ui.*;
+import mindustry.world.*;
+import org.jetbrains.annotations.*;
 
 public class SignalTransformer extends UnaryLogicBlock{
     protected static final Signal tmpSignal = new Signal();
@@ -29,6 +37,34 @@ public class SignalTransformer extends UnaryLogicBlock{
         });
         processor = it -> it;
     }
+
+
+    @Override
+    public void init(){
+        if(blockShowcase == null){
+            blockShowcase = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
+
+                world.tile(0, 1).setBlock(byteLogicBlocks.signalBlock, Team.sharded, 0);
+
+                world.tile(1, 1).setBlock(this, Team.sharded, 0);
+                world.tile(2, 1).setBlock(byteLogicBlocks.relay, Team.sharded, 0);
+//        world.tile(2, 1).build.<BinaryLogicBuild>as().inputType = 1;
+
+                world.tile(2, 2).setBlock(byteLogicBlocks.signalBlock, Team.sharded, 0);
+                world.tile(2, 2).build.<SignalLogicBuild>as().nextSignal.setNumber(-1);
+                world.tile(3, 1).setBlock(byteLogicBlocks.displayBlock, Team.sharded);
+                return new Point2[]{Tmp.p1.set(1, 1)};
+            }){
+                @Override
+                public boolean shouldBuildConfiguration(@NotNull Block block){
+                    return super.shouldBuildConfiguration(block) || block instanceof SignalTransformer;
+                }
+            };
+            blockShowcase.hasNoSwitchMirror(false);
+        }
+        super.init();
+    }
+
 
     public class SignalTransformerBuild extends UnaryLogicBuild{
         SignalType selectedType = SignalTypes.numberType;

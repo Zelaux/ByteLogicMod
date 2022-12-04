@@ -10,7 +10,7 @@ import mindustry.io.*;
 
 public class DisplayBlock extends AcceptorLogicBlock{
 
-    public static long canvasSize = 7L;
+    public static long canvasSize = 8L;
 
     public DisplayBlock(String name){
         super(name);
