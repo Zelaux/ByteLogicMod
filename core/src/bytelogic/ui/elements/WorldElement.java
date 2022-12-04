@@ -10,7 +10,7 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import bytelogic.gen.*;
-import bytelogic.tools.WorldLogicContext;
+import bytelogic.tools.*;
 import bytelogic.ui.fragments.*;
 import kotlin.*;
 import kotlin.jvm.functions.*;
@@ -28,13 +28,15 @@ public class WorldElement extends Table{
     public float selectionThickness = 4f;
     public Cons<Tile> tileClickListener = it -> {
     };
-    BorderImage selectionImage = new BorderImage();
+    BorderImage selectionImage = new BorderImage(){{
+        borderColor = new Color();
+    }};
 
     public WorldElement(WorldLogicContext context){
-        this(context, context.world.width() * 32);
+        this(context, 32);
     }
 
-    public WorldElement(WorldLogicContext context, float size){
+    public WorldElement(WorldLogicContext context, float tileScale){
         this.context = context;
 
         worldFragment = new WorldFragment(context);
@@ -45,7 +47,7 @@ public class WorldElement extends Table{
                 Tile tile = context.world.tile(Tmp.p1.x, Tmp.p1.y);
                 if(tile == null) return super.touchDown(event, x, y, pointer, button);
                 TileSelection selection = tileSelections.find(it -> tile.x == (short)it.x && tile.y == (short)it.y);
-                if(selection == null || selection.clickListener == null){
+                if(selection == null || selection.clickListener == null || !selection.enabled){
                     tileClickListener.get(tile);
                     return true;
                 }
@@ -102,7 +104,7 @@ public class WorldElement extends Table{
 
                 image.setPosition(Tmp.v1.x, Tmp.v1.y, Align.bottomLeft);
             });
-        })).size(size);
+        })).size(tileScale * context.world.width(), tileScale * context.world.height());
     }
 
     @Override

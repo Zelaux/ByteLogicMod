@@ -7,27 +7,34 @@ import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
-import bytelogic.ui.elements.WorldElement.*;
 import bytelogic.ui.guide.*;
 import bytelogic.world.blocks.logic.SignalBlock.*;
 import mindustry.game.*;
 import mindustry.ui.*;
 import mindustry.world.*;
+import mma.io.*;
 import org.jetbrains.annotations.*;
 
 public class SignalTransformer extends UnaryLogicBlock{
     protected static final Signal tmpSignal = new Signal();
+    protected static final ByteWrites tmpWrites = new ByteWrites();
+    protected static final ByteReads tmpRead = new ByteReads();
 
     public SignalTransformer(String name){
         super(name);
         /*this.<byte[], SignalTransformerBuild>config(byte[].class, (build, bytes) -> {
             build.selectedTypeSignal.fromBytes(bytes);
         });*/
-        this.<Integer, SignalTransformerBuild>config(Integer.class, (build, id) -> {
+     /*   this.<Integer, SignalTransformerBuild>config(Integer.class, (build, id) -> {
             SignalType type = SignalType.all[id];
             if(type == SignalTypes.nilType)
                 type = SignalTypes.numberType;
             build.selectedType = type;
+        });*/
+        this.<byte[], SignalTransformerBuild>config(byte[].class, (build, bytes) -> {
+            Container.set(bytes);
+            build.selectedType = Container.selectedType;
+            build.inputType = Container.inputType;
         });
         this.<String, SignalTransformerBuild>config(String.class, (build, typeName) -> {
             SignalType type = SignalType.findByName(typeName);
@@ -38,6 +45,12 @@ public class SignalTransformer extends UnaryLogicBlock{
         processor = it -> it;
     }
 
+    protected static byte[] stateAsBytes(SignalType selectedType, int inputType){
+        tmpWrites.reset();
+        tmpWrites.str(selectedType.getName());
+        tmpWrites.i(inputType);
+        return tmpWrites.getBytes();
+    }
 
     @Override
     public void init(){
@@ -66,6 +79,24 @@ public class SignalTransformer extends UnaryLogicBlock{
     }
 
 
+    static class Container{
+        static SignalType selectedType;
+        static int inputType;
+
+        static void set(byte[] bytes){
+            tmpRead.setBytes(bytes);
+            selectedType = SignalType.findByName(tmpRead.str());
+            if(selectedType == SignalTypes.nilType){
+                selectedType = SignalTypes.numberType;
+            }
+            inputType = tmpRead.i();
+        }
+
+        public static byte[] bytes(){
+            return stateAsBytes(selectedType, inputType);
+        }
+    }
+
     public class SignalTransformerBuild extends UnaryLogicBuild{
         SignalType selectedType = SignalTypes.numberType;
 
@@ -77,7 +108,7 @@ public class SignalTransformer extends UnaryLogicBlock{
                 for(SignalType type : SignalType.all){
                     if(type == SignalTypes.nilType) continue;
                     t.button(type.getIcon(), Styles.squareTogglei, () -> {
-                        configure(type.getId());
+                        configure(stateAsBytes(type, inputType));
                     }).size(48f).checked(selectedType == type).group(group);
                     i++;
                     if(i % 4 == 0){
@@ -107,7 +138,7 @@ public class SignalTransformer extends UnaryLogicBlock{
 
         @Override
         public Object config(){
-            return selectedType.getName();
+            return stateAsBytes(selectedType, inputType);
         }
 
         @Override

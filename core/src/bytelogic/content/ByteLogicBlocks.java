@@ -4,6 +4,7 @@ import arc.struct.*;
 import arc.util.*;
 import bytelogic.type.*;
 import bytelogic.world.blocks.logic.*;
+import bytelogic.world.blocks.sandbox.*;
 import mindustry.content.*;
 import mindustry.io.*;
 import mindustry.type.*;
@@ -217,6 +218,7 @@ public class ByteLogicBlocks{
     }
 
     public static void load(){
+        new PlaceholderBlock("input-placeholder");
         SaveVersion.fallback.put(fullName("switch-block"), fullName("signal-switch-block"));
         //region logic
         if(ModVars.packSprites){

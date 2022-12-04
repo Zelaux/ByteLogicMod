@@ -6,11 +6,13 @@ import arc.math.*
 import arc.math.geom.*
 import arc.scene.actions.*
 import arc.scene.ui.layout.*
+import arc.struct.*
 import arc.util.*
 import bytelogic.tools.*
 import bytelogic.ui.elements.*
 import bytelogic.ui.elements.WorldElement.*
 import bytelogic.world.blocks.logic.*
+import bytelogic.world.blocks.sandbox.*
 import mindustry.content.*
 import mindustry.core.*
 import mindustry.game.*
@@ -31,6 +33,56 @@ class DefaultBlockShowcase(val block: LogicBlock) : BlockShowcase(block, block.s
     }
 }
 
+
+class SchematicBlockShowcase @JvmOverloads constructor(
+    val blockReference: LogicBlock,
+    val schematic: Schematic,
+    square: Boolean = true,
+    worldWidth: Int = -1,
+    worldHeight: Int = -1,
+    schematicOffset: Point2 = Point2(0, 0),
+) :
+    BlockShowcase(
+        blockReference,
+        if (square) Math.max(schematic.width, schematic.height) else worldWidth,
+        if (square) Math.max(schematic.width, schematic.height) else worldHeight,
+        { world, isSwitch ->
+
+            var (offsetX, offsetY) = schematicOffset.x to schematicOffset.y
+            if (square) {
+                if (schematic.height < schematic.width) {
+                    offsetY += (schematic.width - schematic.height) / 2
+                }
+                if (schematic.width < schematic.height) {
+                    offsetX += (schematic.height - schematic.width) / 2
+                }
+            }
+            val points = Seq<Point2>()
+
+            for (tile in schematic.tiles) {
+                var block=tile.block
+                var config=tile.config
+                if (block is PlaceholderBlock) {
+                    block = if (config == true) {
+                        points.add(Point2(tile.x+offsetX,tile.y+offsetY))
+                        blockReference
+                    } else {
+                        if (isSwitch) {
+                            blockReference.byteLogicBlocks.switchBlock
+                        } else {
+                            blockReference.byteLogicBlocks.signalBlock
+                        }
+                    }
+                    config = null
+                }
+                world.tile(tile.x + offsetX, tile.y + offsetY)
+                    .setBlock(block, Team.sharded, tile.rotation.toInt())
+                world.tile(tile.x + offsetX, tile.y + offsetY).build.configured(null, config)
+            }
+            points.toArray(Point2::class.java)
+        }
+    )
+
 open class BlockShowcase(
     val blockContext: LogicBlock,
     val worldWidth: Int,
@@ -45,7 +97,9 @@ open class BlockShowcase(
         val context = WorldLogicContext(world)
         val points = ObjectRef<Array<Point2>>()
         context.inContext {
+            world.isGenerating = true;
             world.resize(worldWidth, worldHeight).each(worldFiller(world))
+            world.isGenerating = false
             points.element = worldBuilder(world, isSwitch)
         }
         return context to points.element
@@ -59,7 +113,7 @@ open class BlockShowcase(
 
         val (context, points) = createWorldContext(isSwitch)
         val world = context.world
-        val worldElement = WorldElement(context, world.width() * 64f)
+        val worldElement = WorldElement(context, 64f)
         for (tilePos in points) {
             val selection = TileSelection(tilePos.x, tilePos.y)
             selection.color.set(Pal.heal)
@@ -88,9 +142,9 @@ open class BlockShowcase(
 
         var wasShown = false
         table.table { selectedInfo ->
-            selectedInfo.isTransform=true;
+            selectedInfo.isTransform = true;
             selectedInfoTable.element = selectedInfo
-            val duration = 10/Time.toSeconds
+            val duration = 10 / Time.toSeconds
             worldElement.tileClickListener = Cons tileClickListener@{ tile: Tile? ->
 
                 if (tile?.build == null || selection.x == tile.x.toInt() && selection.y == tile.y.toInt()) {
@@ -124,7 +178,7 @@ open class BlockShowcase(
                     tile.build.buildConfiguration(selectedInfo.table().get())
                 }
             }
-        }.minWidth(256f*1.5f)
+        }.minWidth(256f * 1.5f)
         return BlockShowcaseData(context, worldElement, table, selectedInfoTable.element, selection)
     }
 
