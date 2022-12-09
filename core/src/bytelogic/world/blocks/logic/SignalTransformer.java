@@ -47,10 +47,11 @@ public class SignalTransformer extends UnaryLogicBlock{
         processor = it -> it;
     }
 
-    protected static byte[] stateAsBytes(SignalType selectedType, int inputType){
+    protected static byte[] stateAsBytes(SignalType selectedType, byte inputType){
         tmpWrites.reset();
+        tmpWrites.str("V_1");
         tmpWrites.str(selectedType.getName());
-        tmpWrites.i(inputType);
+        tmpWrites.b(inputType);
         return tmpWrites.getBytes();
     }
 
@@ -91,15 +92,25 @@ public class SignalTransformer extends UnaryLogicBlock{
 
     static class Container{
         static SignalType selectedType;
-        static int inputType;
+        static byte inputType;
 
         static void set(byte[] bytes){
             tmpRead.setBytes(bytes);
-            selectedType = SignalType.findByName(tmpRead.str());
+            String name = tmpRead.str();
+            int version = 0;
+            if(name.matches("(V_)[\\d]+")){
+                version = Integer.parseInt(name.substring("V_".length()));
+                name = tmpRead.str();
+            }
+            selectedType = SignalType.findByName(name);
             if(selectedType == SignalTypes.nilType){
                 selectedType = SignalTypes.numberType;
             }
-            inputType = tmpRead.i();
+            if(version == 0){
+                inputType = updateInputType(tmpRead.i());
+            }else{
+                inputType = tmpRead.b();
+            }
         }
 
         public static byte[] bytes(){
@@ -128,6 +139,11 @@ public class SignalTransformer extends UnaryLogicBlock{
             });
             table.row();
             super.buildConfiguration(table);
+        }
+
+        @Override
+        protected void configureInputType(byte inputType){
+            configure(stateAsBytes(selectedType, inputType));
         }
 
         @Override

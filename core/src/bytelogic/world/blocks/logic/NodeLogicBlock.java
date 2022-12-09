@@ -6,7 +6,6 @@ import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.struct.*;
-import arc.util.Nullable;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
@@ -18,6 +17,7 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.input.*;
 import mindustry.world.*;
+import mma.type.pixmap.*;
 
 import static mindustry.Vars.*;
 import static mma.ModVars.fullName;
@@ -38,8 +38,23 @@ public class NodeLogicBlock extends LogicRouter{
         config(Point2.class, (NodeLogicBuild tile, Point2 point) -> {
             tile.link = Point2.pack(point.x + tile.tileX(), point.y + tile.tileY());
         });
+        config(byte[].class, (NodeLogicBuild tile, byte[] bytes) -> {
+            tile.isolatedSides = bytes[1];
+            tile.link = Point2.pack(getInt(bytes, 2) + tile.tileX(), getInt(bytes, 2 + 4) + tile.tileY());
+        });
     }
 
+    private static int getInt(byte[] bytes, int offset){
+        return bytes[offset] + bytes[offset + 1] << 8 + bytes[offset + 2] << 16 + bytes[offset + 3] << 24;
+    }
+
+    @Override
+    public Pixmap generate(Pixmap icon, PixmapProcessor processor){
+
+        Pixmap generated = super.generate(icon, processor);
+        processor.save(generated, name);
+        return generated;
+    }
 
     @Override
     public void drawPlace(int x, int y, int rotation, boolean valid){
@@ -76,8 +91,8 @@ public class NodeLogicBlock extends LogicRouter{
     @Override
     public void init(){
         clipSize = range;
-        if (blockPreview ==null){
-            blockPreview =new BlockPreview(this,5,5,(world, isSwitch)->{
+        if(blockPreview == null){
+            blockPreview = new BlockPreview(this, 5, 5, (world, isSwitch) -> {
 
                 world.tile(0, 3).setBlock(inputBlock(isSwitch), Team.sharded, 1);
 
@@ -223,8 +238,22 @@ public class NodeLogicBlock extends LogicRouter{
         }
 
         @Override
-        public Point2 config(){
-            return Point2.unpack(link).sub(tile.x, tile.y);
+        public byte[] config(){
+            Point2 unpack = Point2.unpack(link);
+            int x = unpack.x - tile.x;
+            int y = unpack.y - tile.y;
+            return new byte[]{
+                0,
+                isolatedSides,
+                (byte)(x & 0xFF),
+                (byte)(x >>> 8 & 0xFF),
+                (byte)(x >>> 16 & 0xFF),
+                (byte)(x >>> 24 & 0xFF),
+                (byte)(y & 0xFF),
+                (byte)(y >>> 8 & 0xFF),
+                (byte)(y >>> 16 & 0xFF),
+                (byte)(y >>> 24 & 0xFF),
+            };
         }
 
 

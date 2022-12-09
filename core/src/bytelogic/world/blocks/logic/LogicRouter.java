@@ -175,7 +175,7 @@ public class LogicRouter extends LogicBlock implements ImageGenerator{
 
         @Override
         public Object config(){
-            return super.config();
+            return isolatedSides;
         }
 
         @Override

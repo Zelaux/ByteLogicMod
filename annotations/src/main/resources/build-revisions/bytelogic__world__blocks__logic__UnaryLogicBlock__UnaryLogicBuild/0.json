@@ -1,1 +1,1 @@
-{"read":"{\r\n    inputType = read.i();\r\n}"}
+{"read":"{\r\n    int i = read.i();\r\n    setOldInput(i);\r\n}"}

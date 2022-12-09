@@ -1,0 +1,1 @@
+{"read":"{\r\n    inputType = read.b();\r\n    boolean any = false;\r\n    for (int i = 0; i < sideMasks.length && !any; i++) {\r\n        if ((inputType & sideMasks[i]) != 0)\r\n            any = true;\r\n    }\r\n    if (!any) {\r\n        inputType = unarySideState(false, true, false);\r\n    }\r\n}"}
