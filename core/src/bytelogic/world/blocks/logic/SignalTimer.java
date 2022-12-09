@@ -47,7 +47,7 @@ public class SignalTimer extends UnaryLogicBlock{
 
         super.init();
 
-        blockPreview = new BlockShowcase(this, 5, 5, blockPreview.getWorldBuilder()){
+        blockPreview = new BlockPreview(this, 5, 5, blockPreview.getWorldBuilder()){
             @Override
             public boolean shouldBuildConfiguration(@NotNull Block block){
                 return super.shouldBuildConfiguration(block) || block instanceof SignalTimer;

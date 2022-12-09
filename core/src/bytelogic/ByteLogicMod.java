@@ -33,34 +33,6 @@ public class ByteLogicMod extends MMAMod{
         Events.on(ClientLoadEvent.class, (e) -> {
             ModAudio.reload();
 //            Vars.ui.content.show(ByteLogicBlocks.erekirBlocks.analyzer);
-//            modUI.guideDialog.show();
-            /*new BaseDialog("test-dialog"){{
-                World world = new World();
-                world.resize(3, 3).each((x, y) -> {
-                    world.tiles.set(x, y, new Tile(x, y, Blocks.metalFloor, Blocks.air, Blocks.air));
-                });
-                WorldContext context = new WorldContext(world);
-
-                ByteLogicBlocks blocks = ByteLogicBlocks.erekirBlocks;
-
-                context.inContext(builds -> {
-                    world.tile(0, 0).setBlock(blocks.relay, Team.sharded, 1);
-                    world.tile(0, 1).setBlock(blocks.relay, Team.sharded, 0);
-                    world.tile(1, 1).setBlock(blocks.relay, Team.sharded, 3);
-                    world.tile(1, 0).setBlock(blocks.notGate, Team.sharded, 2);
-
-                    world.tile(1, 0).build.<UnaryLogicBuild>as().inputType = 2;
-
-
-                    world.tile(2, 0).setBlock(Blocks.itemSource, Team.sharded);
-                    world.tile(2, 0).build.<ItemSourceBuild>as().outputItem = Items.copper;
-
-                    world.tile(2, 1).setBlock(Blocks.conveyor, Team.sharded, 1);
-                    world.tile(2, 2).setBlock(Blocks.itemVoid, Team.sharded);
-                });
-                cont.add(new WorldElement(context));
-                addCloseListener();
-            }}.show();*/
         });
 
         BLGroups.init();

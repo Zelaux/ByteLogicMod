@@ -21,7 +21,7 @@ public abstract class UnaryLogicBlock extends LogicBlock{
     //    public String sideRegionName = ModVars.fullName("binary-output-0");
     protected static final int leftInput = 1;
     protected static final int rightInput = 2;
-    @Annotations.Load("@nameWithoutPrefix()-side")
+    @Annotations.Load("@realName()-side")
     public TextureRegion sideRegion;
     protected /*@NonNull*/ UnaryProcessor processor;
 
@@ -36,7 +36,7 @@ public abstract class UnaryLogicBlock extends LogicBlock{
     @Override
     public void init(){
         if(blockPreview == null){
-            blockPreview =new SchematicBlockShowcase(
+            blockPreview =new SchematicBlockPreview(
                 this,
                 Schematics.readBase64("bXNjaAF4nF1Ouw7CMAy8Ni0DRUwIqWLhBzLwPYghaa0S4SZRkg79ekiAqWfp/DifZexQCzRWzYTDYlVYZaKY5A3dSHEIxifjLIAdK00cUd8fLa56TSTZTWaQsxulsX5J0rMa6Ol4pIDTZiMQqxX9ZjovnIxnkw2XjRTNZBVLzW544bwRRxN9uZffQsG+UJVzlbkuTQ0BHHPR/iSRoyp9/zV0dpk1BZlWT+8/RIMmS+IDAytMKA==")
             );/*

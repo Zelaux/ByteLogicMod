@@ -3,13 +3,11 @@ package bytelogic.world.blocks.logic;
 //import io.anuke.annotations.Annotations.*;
 
 import arc.*;
-import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.geom.*;
 import arc.util.*;
 import arc.util.io.*;
-import bytelogic.*;
 import bytelogic.content.*;
 import bytelogic.game.*;
 import bytelogic.gen.*;
@@ -17,25 +15,23 @@ import bytelogic.type.*;
 import bytelogic.ui.guide.*;
 import bytelogic.world.meta.*;
 import mindustry.annotations.Annotations.*;
-import mindustry.content.*;
-import mindustry.core.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.meta.*;
 import mma.*;
-import org.jetbrains.annotations.*;
 
 import java.lang.reflect.*;
 
 public abstract class LogicBlock extends Block{
+
     @Load("@baseName()")
     public TextureRegion base;
     public String baseName = "logic-base";
     public LogicBlock originalMirror = null;
     public ByteLogicBlocks byteLogicBlocks;
-    public BlockShowcase blockPreview = null;
+    public BlockPreview blockPreview = null;
     protected boolean doOutput = true;
 
     public LogicBlock(String name){
@@ -47,23 +43,16 @@ public abstract class LogicBlock extends Block{
 //        controllable = false;
     }
 
-    @NotNull
-    protected static Intc2 worldFiller(@NotNull World world){
-        return (x, y) -> {
-            world.tiles.set(x, y, new Tile(x, y, Blocks.metalFloor, Blocks.air, Blocks.air));
-        };
-    }
-
     @Override
     public void init(){
 
         super.init();
         if(blockPreview == null){
-            blockPreview = new DefaultBlockShowcase(this);
+            blockPreview = new DefaultBlockPreview(this);
         }
     }
 
-    public String nameWithoutPrefix(){
+    public String realName(){
         if(originalMirror == null) return name;
         return originalMirror.name;
     }

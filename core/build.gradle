@@ -1,15 +1,31 @@
-sourceSets.main.kotlin.srcDirs = ["$buildDir/src/","$buildDir/generated/sources/annotationProcessor/java/main"]
+import arc.files.Fi
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+sourceSets.main.kotlin.srcDirs = ["$buildDir/src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
 sourceSets.main.java.srcDirs = ["$buildDir/src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
 sourceSets.main.resources.srcDirs = ["resources/"]
 def parentBuildDir = buildDir
 def childBuildDir = buildDir
 configure(rootProject.project(":core:original")){
     childBuildDir = buildDir
-    sourceSets.main.kotlin.srcDirs = ["../src/","$buildDir/generated/sources/annotationProcessor/java/main"]
+    sourceSets.main.kotlin.srcDirs = ["../src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
     sourceSets.main.java.srcDirs = ["../src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
     sourceSets.main.resources.srcDirs = ["../resources/"]
 }
 task copySrc{
+    /*
+     println "executing: "+ compileJava.state.executing
+     println "actionable: "+ compileJava.state.actionable
+     println "configurable: "+ compileJava.state.configurable
+     println "didWork: "+ compileJava.state.didWork
+     println "executed: "+ compileJava.state.executed
+     println "upToDate: "+ compileJava.state.upToDate
+
+    println "localState: "+ compileJava.localState
+    println "localState: "+ compileJava*/
+
     delete{
 
         delete(new File(buildDir, "src"))
@@ -18,14 +34,27 @@ task copySrc{
         from(file("src"))
         into(new File(buildDir, "src"))
     }
+    def file = new Fi(file("src/bytelogic/mma/InternalCounter.java"))
+    if (!file.exists()){
+        file.writeString("package bytelogic.mma;class InternalCounter{ long localField=0L;}")
+    }
+
+    def string = file.readString()
+    def matcher = Pattern.compile("(localField\\s?=\\s?)\\d+(L)").matcher(string)
+    matcher.find()
+    file.writeString( matcher.replaceAll(
+            matcher.group(0).replaceAll("[\\d]+",(Long.parseLong(matcher.group(0).replaceAll("\\D",""))+1)+"")
+    ))
 //    sourceSets.main.java.srcDirs = ["$buildDir/generated/sources/annotationProcessor/java/main"]
 }
 tasks.withType(JavaCompile){
     println this
 }
 jar{
-//    dependsOn(":core:original:clone")
+
     dependsOn(copySrc)
+//    dependsOn(":core:original:clone")
+
 
     doLast{
         delete{

@@ -79,13 +79,12 @@ public class WorldElement extends Table{
                     if(!selection.enabled) continue;
                     float dx = selection.x * width / context.world.width() + x;
                     float dy = selection.y * height / context.world.height() + y;
-                    float rectSize = worldFragment.localTileSize();
+                    float rectSize = worldFragment.localTileSize()*selection.size;
                     float stroke = selectionThickness;
                     float hs = stroke / 2f;
-
                     Draw.color(selection.color);
                     Lines.stroke(stroke);
-                    Lines.rect(dx, dy, rectSize, rectSize, hs, hs);
+                    Lines.rect(dx, dy, rectSize, rectSize, stroke, stroke);
 
                 }
             });
@@ -121,6 +120,7 @@ public class WorldElement extends Table{
         public Runnable clickListener;
         public boolean enabled = true;
         public Color color = new Color(0xFFFFFFFF);
+        public int size=1;
 
         public TileSelection(int x, int y, Color color){
             this.x = x;

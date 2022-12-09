@@ -30,7 +30,7 @@ public class SwitchBlock extends LogicBlock{
     @Override
     public void init(){
         if(blockPreview == null){
-            blockPreview = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
+            blockPreview = new BlockPreview(this, 5, 5, (world, isSwitch) -> {
 
                 world.tile(0, 1).setBlock(this, Team.sharded, 0);
 

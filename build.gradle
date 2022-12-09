@@ -25,7 +25,7 @@ buildscript{
         aciVersion = "45ad8cd8ed9"
 
 
-        modCoreVersion = "v1.0.1"
+        modCoreVersion = "d4e2a51ade1"
 
 
         kotlinVersion = "1.6.0"
@@ -171,7 +171,9 @@ configure(subprojects - project(":annotations")){
         compileJava.options.fork = true
 //
         task preGen{
+
             outputs.upToDateWhen{ false }
+
 //        generateLocales()
 //        writeVersion()
             writeProcessors()

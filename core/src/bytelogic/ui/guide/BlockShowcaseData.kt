@@ -24,7 +24,7 @@ fun worldFiller(world: World): Intc2 {
     return Intc2 { x: Int, y: Int -> world.tiles[x, y] = Tile(x, y, Blocks.metalFloor, Blocks.air, Blocks.air) }
 }
 
-class DefaultBlockShowcase(val block: LogicBlock) : BlockShowcase(block, block.size, block.size, { world, _ ->
+class DefaultBlockPreview(val block: LogicBlock) : BlockPreview(block, block.size, block.size, { world, _ ->
     world.tile(0, 0).setBlock(block, Team.sharded)
     arrayOf(Tmp.p1.set(0, 0))
 }) {
@@ -34,7 +34,7 @@ class DefaultBlockShowcase(val block: LogicBlock) : BlockShowcase(block, block.s
 }
 
 
-class SchematicBlockShowcase @JvmOverloads constructor(
+class SchematicBlockPreview @JvmOverloads constructor(
     val blockReference: LogicBlock,
     val schematic: Schematic,
     square: Boolean = true,
@@ -42,7 +42,7 @@ class SchematicBlockShowcase @JvmOverloads constructor(
     worldHeight: Int = -1,
     schematicOffset: Point2 = Point2(0, 0),
 ) :
-    BlockShowcase(
+    BlockPreview(
         blockReference,
         if (square) Math.max(schematic.width, schematic.height) else worldWidth,
         if (square) Math.max(schematic.width, schematic.height) else worldHeight,
@@ -83,7 +83,7 @@ class SchematicBlockShowcase @JvmOverloads constructor(
         }
     )
 
-open class BlockShowcase(
+open class BlockPreview(
     val blockContext: LogicBlock,
     val worldWidth: Int,
     val worldHeight: Int,
@@ -125,6 +125,7 @@ open class BlockShowcase(
             }
             val selection = TileSelection(it.x.toInt(), it.y.toInt())
             selection.color.set(Pal.lancerLaser)
+            selection.size = 1;
             if (isSwitch && it.block() is SwitchBlock) {
                 selection.clickListener = Runnable {
                     worldElement.onNextUpdate {
@@ -147,7 +148,7 @@ open class BlockShowcase(
             val duration = 10 / Time.toSeconds
             worldElement.tileClickListener = Cons tileClickListener@{ tile: Tile? ->
 
-                if (tile?.build == null || selection.x == tile.x.toInt() && selection.y == tile.y.toInt()) {
+                if (tile?.build == null || selection.x == tile.centerX() && selection.y == tile.centerY()) {
                     if (wasShown) {
                         selectedInfo.clearActions()
                         selectedInfo.actions(
@@ -169,8 +170,11 @@ open class BlockShowcase(
                     )
                 }
                 selection.enabled = true
-                selection.x = tile.x.toInt()
-                selection.y = tile.y.toInt()
+                selection.x = tile.centerX()
+                selection.y = tile.centerY()
+                selection.size = tile.block().size
+
+
                 tile.build.display(selectedInfo.table().get())
                 selectedInfo.row()
                 wasShown = true;

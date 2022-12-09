@@ -24,7 +24,7 @@ public class ControllerBlock extends UnaryLogicBlock{
     public void init(){
         if(blockPreview == null){
             Schematic schematic = Schematics.readBase64("bXNjaAF4nG2PUUvEMBCEJ03bq54IJ4Lgk38gD/4e8SHXrmcgzZZ076D+ejetKBzuw8wwXxaysOgs6uRHwqHnJJljpOyEZnGv2A809zlMEjgBaKM/UpxRvb13eDwuQi7yKfRu5MFlin7B81Ur2af5g/NIGU9XLLG4kxfCyxUIaTqLm6Lv6ZPj8M+qTz4uXwr2QWh0M59zT+j0ggstnHGz1hcOg377gL8xsEatuld5wF05mZI4WSYq1FaqjVkflmlhbYm3BrV6tbZVqZqfqt2qBrrZaLKtJgNTTMNOxW64/sXNhtsN74BvCO5SGQ==");
-            blockPreview = new SchematicBlockShowcase(
+            blockPreview = new SchematicBlockPreview(
                 this,
                 schematic,
                 false, schematic.width + 2, schematic.height + 2,
