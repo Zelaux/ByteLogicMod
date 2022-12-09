@@ -46,7 +46,7 @@ public class SignalBlock extends LogicBlock{
         public void buildConfiguration(Table table){
 
             table.button(Icon.pencilSmall, () -> {
-                ui.showTextInput("@block.editsignal", "", 10, nextSignal + "", true, result -> {
+                ui.showTextInput("@block.editsignal", "", 10, nextSignal.number() + "", true, result -> {
                     configureNumber(Strings.parseLong(result, 0));
                 });
                 control.input.config.hideConfig();
