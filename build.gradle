@@ -377,6 +377,17 @@ task deploy(type: Jar){
         delete{ delete "$buildDir/libs/${project.archivesBaseName}Android.jar" }
     }
 }
+task resolveDependencies{
+    doLast{
+        rootProject.allprojects{ project ->
+            Set<Configuration> configurations = project.buildscript.configurations + project.configurations
+            configurations.findAll{ c -> c.canBeResolved }.forEach{ c -> c.resolve() }
+        }
+    }
+}
+publishToMavenLocal{
+    dependsOn("jar")
+}
 
 def os(){ //Returns OS name
     String s = System.getProperty("os.name");
