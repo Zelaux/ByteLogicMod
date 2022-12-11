@@ -1,42 +1,41 @@
 package bytelogic.tools;
 
-import arc.Application;
-import arc.Core;
 import arc.Graphics;
-import arc.backend.sdl.SdlGL20;
+import arc.*;
+import arc.backend.sdl.SdlApplication.*;
+import arc.backend.sdl.*;
 import arc.files.*;
-import arc.graphics.*;
 import arc.graphics.Color;
+import arc.graphics.*;
 import arc.graphics.g2d.*;
-import arc.graphics.gl.FrameBuffer;
-import arc.math.geom.Vec2;
-import arc.mock.MockApplication;
-import arc.mock.MockGraphics;
-import arc.struct.*;
+import arc.graphics.gl.*;
+import arc.mock.*;
 import arc.util.*;
-import bytelogic.tools.shapes.Square;
-import bytelogic.tools.shapes.Tri;
-import org.apache.batik.transcoder.*;
-import org.apache.batik.transcoder.image.*;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.*;
-import java.io.*;
-import java.util.Arrays;
+import java.util.*;
 
 import static arc.Core.batch;
 
-public class IconRasterizer {
+public class IconRasterizer{
     Graphics2D out = null;
     BufferedImage outImage = null;
     float width, height;
 
-    public static void main(String[] inputArgs) {
+    public static void main(String[] inputArgs){
+        try{
+            executeMain(inputArgs);
+        }catch(SdlError error){
+            Log.warn("Cannot run " + IconRasterizer.class.getSimpleName() + ", reason: @", Strings.getStackTrace(error));
+        }
+    }
+
+    private static void executeMain(String[] inputArgs){
         int[] sizes = new int[Structs.count(inputArgs, Strings::canParseInt)];
 
-        for (int i = 0,sizeI=0; i < inputArgs.length; i++) {
-            if (!Strings.canParseInt(inputArgs[i])) continue;
+        for(int i = 0, sizeI = 0; i < inputArgs.length; i++){
+            if(!Strings.canParseInt(inputArgs[i])) continue;
             sizes[sizeI++] = Strings.parseInt(inputArgs[i]);
         }
         System.out.println("sizes: " + Arrays.toString(sizes));
@@ -49,7 +48,7 @@ public class IconRasterizer {
         5. Take the font (ttf) from the zip, open it in FontForge, and merge it into font.woff and icon.ttf. Usually, you would do view -> go to (the 0x unicode index).
         **/
         Fi rootDirectory = Fi.get("../../../assets-raw");
-        if (Core.atlas == null) {
+        if(Core.atlas == null){
             rootDirectory = Fi.get("core/assets-raw");
         }
 //        System.out.println(rootDirectory.file().getAbsoluteFile().getAbsoluteFile().getAbsolutePath());
@@ -81,14 +80,14 @@ public class IconRasterizer {
 //        Fill.rect(0, 0, 1, 1);
         Reflect.set(Batch.class, batch, "lastTexture", Core.atlas.white().texture);
         System.out.println(rootDirectory.child("list::").absolutePath());
-        for (Fi img : list) {
+        for(Fi img : list){
             System.out.println(img);
-            if (img.extension().equals("png")) {
+            if(img.extension().equals("png")){
 //                Fi dst = iconsFolder.child(img.nameWithoutExtension().replace("icon-", "") + ".svg");
                 String fileName = img.nameWithoutExtension()/*.replace("icon-", "")*/;
 //                dst.copyTo(iconsPartFolder.child(dst.name()));
                 //dst.copyTo(svgOutputFolder.child(dst.name()));
-                for (int size : sizes) {
+                for(int size : sizes){
                     new IconRasterizer().convert(new Pixmap(img), size, svgOutputFolder.child(fileName + "-" + size + ".png"));
                     /*Main main = new Main(new String[]{
 //                    "-d",svgOutputFolder.absolutePath()+"/"+dst.nameWithoutExtension()+"-"+size+".png",
@@ -105,7 +104,7 @@ public class IconRasterizer {
 
         Fi svgIcons = rootDirectory.sibling("assets/sprites/ui/svg-icons");
         svgIcons.deleteDirectory();
-        for (Fi fi : svgOutputFolder.list()) {
+        for(Fi fi : svgOutputFolder.list()){
             fi.copyTo(svgIcons.child(fi.name()));
         }
 
@@ -118,11 +117,11 @@ public class IconRasterizer {
 //        System.exit(0);
     }
 
-    void convert(Pixmap pixmap, int size, Fi output) {
+    void convert(Pixmap pixmap, int size, Fi output){
         boolean[][] grid = new boolean[pixmap.width][pixmap.height];
 
-        for (int x = 0; x < pixmap.width; x++) {
-            for (int y = 0; y < pixmap.height; y++) {
+        for(int x = 0; x < pixmap.width; x++){
+            for(int y = 0; y < pixmap.height; y++){
                 grid[x][pixmap.height - 1 - y] = !pixmap.empty(x, y);
             }
         }
@@ -143,28 +142,28 @@ public class IconRasterizer {
 //        float scaleY = outImage.getHeight() / height;
 //        Draw.scl(scaleX, scaleY);
         Draw.proj(0, 0, width, height);
-        for (int x = -1; x < pixmap.width; x++) {
-            for (int y = -1; y < pixmap.height; y++) {
+        for(int x = -1; x < pixmap.width; x++){
+            for(int y = -1; y < pixmap.height; y++){
                 int index = index(x, y, pixmap.width, pixmap.height, grid);
 
                 float leftx = x * xscl, boty = y * yscl, rightx = x * xscl + xscl, topy = y * xscl + yscl,
-                        midx = x * xscl + xscl / 2f, midy = y * yscl + yscl / 2f;
+                    midx = x * xscl + xscl / 2f, midy = y * yscl + yscl / 2f;
 
-                switch (index) {
+                switch(index){
                     case 0:
                         break;
                     case 1:
                         tri(
-                                leftx, midy,
-                                leftx, topy,
-                                midx, topy
+                            leftx, midy,
+                            leftx, topy,
+                            midx, topy
                         );
                         break;
                     case 2:
                         tri(
-                                midx, topy,
-                                rightx, topy,
-                                rightx, midy
+                            midx, topy,
+                            rightx, topy,
+                            rightx, midy
                         );
                         break;
                     case 3:
@@ -172,9 +171,9 @@ public class IconRasterizer {
                         break;
                     case 4:
                         tri(
-                                midx, boty,
-                                rightx, boty,
-                                rightx, midy
+                            midx, boty,
+                            rightx, boty,
+                            rightx, midy
                         );
                         break;
                     case 5:
@@ -182,16 +181,16 @@ public class IconRasterizer {
 
                         //7
                         tri(
-                                leftx, midy,
-                                midx, midy,
-                                midx, boty
+                            leftx, midy,
+                            midx, midy,
+                            midx, boty
                         );
 
                         //13
                         tri(
-                                midx, topy,
-                                midx, midy,
-                                rightx, midy
+                            midx, topy,
+                            midx, midy,
+                            rightx, midy
                         );
 
                         rect(leftx, midy, scl / 2f, scl / 2f);
@@ -204,9 +203,9 @@ public class IconRasterizer {
                     case 7:
                         //invert triangle
                         tri(
-                                leftx, midy,
-                                midx, midy,
-                                midx, boty
+                            leftx, midy,
+                            midx, midy,
+                            midx, boty
                         );
 
                         //3
@@ -216,9 +215,9 @@ public class IconRasterizer {
                         break;
                     case 8:
                         tri(
-                                leftx, boty,
-                                leftx, midy,
-                                midx, boty
+                            leftx, boty,
+                            leftx, midy,
+                            midx, boty
                         );
                         break;
                     case 9:
@@ -229,16 +228,16 @@ public class IconRasterizer {
 
                         //11
                         tri(
-                                midx, boty,
-                                midx, midy,
-                                rightx, midy
+                            midx, boty,
+                            midx, midy,
+                            rightx, midy
                         );
 
                         //14
                         tri(
-                                leftx, midy,
-                                midx, midy,
-                                midx, topy
+                            leftx, midy,
+                            midx, midy,
+                            midx, topy
                         );
 
                         rect(midx, midy, scl / 2f, scl / 2f);
@@ -249,9 +248,9 @@ public class IconRasterizer {
                         //invert triangle
 
                         tri(
-                                midx, boty,
-                                midx, midy,
-                                rightx, midy
+                            midx, boty,
+                            midx, midy,
+                            rightx, midy
                         );
 
                         //3
@@ -266,9 +265,9 @@ public class IconRasterizer {
                         //invert triangle
 
                         tri(
-                                midx, topy,
-                                midx, midy,
-                                rightx, midy
+                            midx, topy,
+                            midx, midy,
+                            rightx, midy
                         );
 
                         //12
@@ -280,9 +279,9 @@ public class IconRasterizer {
                         //invert triangle
 
                         tri(
-                                leftx, midy,
-                                midx, midy,
-                                midx, topy
+                            leftx, midy,
+                            midx, midy,
+                            midx, topy
                         );
 
                         //12
@@ -306,14 +305,14 @@ public class IconRasterizer {
 //        output.writeString(out.toString());
     }
 
-    public Pixmap toPixmap(FrameBuffer buffer) {
+    public Pixmap toPixmap(FrameBuffer buffer){
         buffer.begin();
         int h = buffer.getHeight();
         int w = buffer.getWidth();
         byte[] lines = ScreenUtils.getFrameBufferPixels(0, 0, w, h, true);
         buffer.end();
 
-        for (int i = 0; i < lines.length; i += 4) {
+        for(int i = 0; i < lines.length; i += 4){
 //            lines[i + 3] = (byte) 255;
         }
         Pixmap fullPixmap = new Pixmap(w, h);
@@ -321,17 +320,17 @@ public class IconRasterizer {
         return fullPixmap;
     }
 
-    void square(float x, float y, float size) {
+    void square(float x, float y, float size){
         rect(x - size / 2f, y - size / 2f, size, size);
     }
 
-    void tri(float x1, float y1, float x2, float y2, float x3, float y3) {
+    void tri(float x1, float y1, float x2, float y2, float x3, float y3){
 //        float scaleX = outImage.getWidth() / width;
 //        float scaleY = outImage.getHeight() / height;
         Fill.tri(
-                x1 + 0.5f, flip(y1 + 0.5f),
-                x2 + 0.5f, flip(y2 + 0.5f),
-                x3 + 0.5f, flip(y3 + 0.5f)
+            x1 + 0.5f, flip(y1 + 0.5f),
+            x2 + 0.5f, flip(y2 + 0.5f),
+            x3 + 0.5f, flip(y3 + 0.5f)
         );
        /* Tri tri = new Tri(
                 new Vec2(x1 + 0.5f, flip(y1 + 0.5f)).scl(scaleX, scaleY),
@@ -342,15 +341,15 @@ public class IconRasterizer {
         /*out.draw(tri);*/
     }
 
-    void rect(float x1, float y1, float width, float height) {
+    void rect(float x1, float y1, float width, float height){
 //        Fill.quad(x1 + 0.5f, flip(y1 + 0.5f), width, height);
         float x = x1 + 0.5f;
         float y = flip(y1 + 0.5f);
         Fill.quad(
-                x, y,
-                x + width, y,
-                x + width, y + height,
-                x, y + height
+            x, y,
+            x + width, y,
+            x + width, y + height,
+            x, y + height
         );
         /*float scaleX = outImage.getWidth() / width;
         float scaleY = outImage.getHeight() / height;
@@ -364,11 +363,11 @@ public class IconRasterizer {
         out.draw(square);*/
     }
 
-    float flip(float y) {
+    float flip(float y){
         return y;
     }
 
-    int index(int x, int y, int w, int h, boolean[][] grid) {
+    int index(int x, int y, int w, int h, boolean[][] grid){
         int botleft = sample(grid, x, y);
         int botright = sample(grid, x + 1, y);
         int topright = sample(grid, x + 1, y + 1);
@@ -376,7 +375,7 @@ public class IconRasterizer {
         return (botleft << 3) | (botright << 2) | (topright << 1) | topleft;
     }
 
-    int sample(boolean[][] grid, int x, int y) {
+    int sample(boolean[][] grid, int x, int y){
         return (x < 0 || y < 0 || x >= grid.length || y >= grid[0].length) ? 0 : grid[x][y] ? 1 : 0;
     }
 }
