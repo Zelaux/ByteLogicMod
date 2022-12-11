@@ -319,7 +319,7 @@ project(":annotations"){
         implementation "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
     }
 }
-configure([":core"].collect{ project(it) }){
+configure([project(":core")]){
     java{
         withJavadocJar()
         withSourcesJar()

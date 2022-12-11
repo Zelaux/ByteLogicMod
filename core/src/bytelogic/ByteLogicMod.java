@@ -4,14 +4,15 @@ import arc.*;
 import arc.graphics.g2d.*;
 import bytelogic.async.*;
 import bytelogic.audio.*;
-import bytelogic.content.*;
 import bytelogic.game.*;
 import bytelogic.gen.*;
 import bytelogic.ui.*;
 import bytelogic.ui.dialogs.*;
+import bytelogic.world.blocks.logic.*;
 import mindustry.*;
 import mindustry.ctype.*;
 import mindustry.game.EventType.*;
+import mindustry.world.*;
 import mma.*;
 import mma.annotations.*;
 
@@ -20,10 +21,12 @@ import static mindustry.Vars.headless;
 
 @ModAnnotations.ModAssetsAnnotation
 public class ByteLogicMod extends MMAMod{
+    private static boolean registered = false;
+
     public ByteLogicMod(){
         super();
+        registerSmall();
         disableBlockOutline = true;
-        CustomBuildSaving.register();
         modLog("Creating start");
 //        TMEntityMapping.init();
 //        TMCall.registerPackets();
@@ -34,13 +37,44 @@ public class ByteLogicMod extends MMAMod{
             ModAudio.reload();
 //            Vars.ui.content.show(ByteLogicBlocks.erekirBlocks.analyzer);
         });
+        modLog("Creating end");
+    }
+
+    public static boolean registerSmall(){
+        if(registered){
+            return false;
+        }
+        registered = true;
+        registerMain();
+        ClientLauncher clientLauncher = (ClientLauncher)Core.app.getListeners().find(it -> it instanceof ClientLauncher);
+        if(!headless) clientLauncher.add(new ApplicationListener(){
+            @Override
+            public void init(){
+                for(Block block : Vars.content.blocks()){
+                    if(block instanceof LogicBlock){
+                        BLContentRegions.loadRegions(block);
+                    }
+                }
+            }
+        });
+
+
+        Events.on(ClientLoadEvent.class, (e) -> {
+            ModAudio.reload();
+//            Vars.ui.content.show(ByteLogicBlocks.erekirBlocks.analyzer);
+        });
+
+        return true;
+    }
+
+    private static void registerMain(){
+        CustomBuildSaving.register();
 
         BLGroups.init();
         Events.on(ResetEvent.class, e -> {
             BLGroups.clear();
         });
         Vars.asyncCore.processes.add(new BlockStateUpdater());
-        modLog("Creating end");
     }
 
     public static TextureRegion getIcon(){
