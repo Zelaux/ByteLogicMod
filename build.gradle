@@ -164,17 +164,17 @@ configure(subprojects - project(":annotations")){
         apply plugin: "kotlin"
         apply plugin: "kotlin-kapt"
 
-        if(it == ":core"){
-            kapt{
-                javacOptions{
-                    option("-source", "16")
-                    option("-target", "1.8")
-                }
+
+        kapt{
+            javacOptions{
+                option("-source", "16")
+                option("-target", "1.8")
             }
-
-            compileJava.options.fork = true
-
         }
+
+        compileJava.options.fork = true
+
+
         task preGen{
 
             outputs.upToDateWhen{ false }
@@ -185,13 +185,13 @@ configure(subprojects - project(":annotations")){
 //        writePlugins()
         }
         task sourcesJar(type: Jar, dependsOn: classes){
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             archiveClassifier = 'sources'
             from sourceSets.main.allSource
         }
 
         task assetsJar(type: Jar, dependsOn: ":tools:pack"){
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             archiveClassifier = 'assets'
             from files("assets"){
                 exclude "config", "cache", "music", "sounds"
