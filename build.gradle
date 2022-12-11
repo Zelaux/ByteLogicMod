@@ -366,6 +366,7 @@ jar{
     }
 }
 task deploy(type: Jar){
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn jarAndroid
     dependsOn jar
     archiveFileName = "${project.archivesBaseName}.jar"

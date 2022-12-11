@@ -51,7 +51,7 @@ tasks.withType(JavaCompile){
     println this
 }
 jar{
-
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn(copySrc)
 //    dependsOn(":core:original:clone")
 
