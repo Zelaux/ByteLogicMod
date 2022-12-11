@@ -389,6 +389,7 @@ task resolveDependencies{
     }
 }
 publishToMavenLocal{
+    dependsOn("tools:pack")
     dependsOn("jar")
 }
 
