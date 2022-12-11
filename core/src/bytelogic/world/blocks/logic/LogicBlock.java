@@ -6,9 +6,11 @@ import arc.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.geom.*;
+import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.content.*;
+import bytelogic.core.*;
 import bytelogic.game.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
@@ -21,19 +23,28 @@ import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.meta.*;
 import mma.*;
+import mma.type.*;
+import mma.type.pixmap.*;
+import mma.utils.*;
 
 import java.lang.reflect.*;
 
-public abstract class LogicBlock extends Block{
+public abstract class LogicBlock extends Block implements LogicBlockI, ImageGenerator{
 
+    /**
+     * @return signal to send next frame.
+     */
+//    public abstract int signal(Tile tile);
+    private static final EventSender blLogicTileTapped = new EventSender("bl-logic-tile-tapped");
     @Load("@baseName()")
     public TextureRegion base;
+    @Load("@baseName()-top")
+    public TextureRegion topMask;
     public String baseName = "logic-base";
     public LogicBlock originalMirror = null;
     public ByteLogicBlocks byteLogicBlocks;
     public BlockPreview blockPreview = null;
     protected boolean doOutput = true;
-
     public LogicBlock(String name){
         super(name);
         rotate = true;
@@ -41,6 +52,31 @@ public abstract class LogicBlock extends Block{
         update = true;
 //        entityType = LogicBuild::new;
 //        controllable = false;
+    }
+
+    private static boolean canDrawSelect(LogicBuild logicBuild){
+        return SettingManager.enabledLogicNetSelection.get();
+    }
+
+    @Override
+    public Pixmap generate(Pixmap icon, PixmapProcessor processor){
+        if(region.found()) applyMask(region, processor);
+
+        return ImageGenerator.super.generate(icon, processor);
+    }
+
+    protected Pixmap applyMask(TextureRegion region, PixmapProcessor processor){
+        Pixmap targetPixmap = processor.get(region);
+        Pixmap pixmap = processor.get(topMask);
+
+        for(int x = 0; x < pixmap.width; x++){
+            for(int y = 0; y < pixmap.height; y++){
+                if(pixmap.getA(x, y) == 0 || !targetPixmap.in(x, y)) continue;
+                targetPixmap.set(x, y,Color.clearRgba);
+            }
+        }
+        processor.replaceAbsolute(region,targetPixmap);
+        return targetPixmap;
     }
 
     @Override
@@ -76,8 +112,8 @@ public abstract class LogicBlock extends Block{
         super.setStats();
         stats.add(BLStat.preview, table -> {
             table.row();
-            table.table(innerTable->{
-                blockPreview.buildDemoPage(innerTable,false);
+            table.table(innerTable -> {
+                blockPreview.buildDemoPage(innerTable, false);
             }).grow();
 
         });
@@ -144,6 +180,8 @@ public abstract class LogicBlock extends Block{
         return !ModVars.packSprites ? new TextureRegion[]{fullIcon} : new TextureRegion[]{base, region};
     }
 
+    ;
+
     @Override
     public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list){
         TextureRegion back = base;
@@ -157,26 +195,42 @@ public abstract class LogicBlock extends Block{
             !rotate ? 0 : req.rotation * 90);
     }
 
-
     protected Block inputBlock(boolean isSwitch){
         return isSwitch ? byteLogicBlocks.switchBlock : byteLogicBlocks.signalBlock;
     }
-
-    ;
-
-    /**
-     * @return signal to send next frame.
-     */
-//    public abstract int signal(Tile tile);
 
     public abstract class LogicBuild extends Building implements ByteLogicBuildingc, CustomSaveBuilding{
         public final Signal lastSignal = new Signal();
         protected final Signal nextSignal = new Signal();
 
         @Override
+        public void nextBuildings(IntSeq positions){
+
+        }
+
+        @Override
+        public int tickAmount(){
+            return 1;
+        }
+
+        @Override
+        public void tapped(){
+            blLogicTileTapped.setParameter("build", this);
+            blLogicTileTapped.fire(true);
+        }
+
+        public boolean canDrawSelect(){
+            return LogicBlock.canDrawSelect(this);
+        }
+
+        @Override
         public void beforeUpdateSignalState(){
         }
 
+        @Override
+        public void drawSelect(){
+            super.drawSelect();
+        }
 
         public Tile frontTile(){
             return tile.nearby(Geometry.d4x(this.rotation), Geometry.d4y(this.rotation));

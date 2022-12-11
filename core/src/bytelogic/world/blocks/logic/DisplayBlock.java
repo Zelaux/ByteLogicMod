@@ -35,6 +35,11 @@ public class DisplayBlock extends AcceptorLogicBlock{
         }
 
         @Override
+        public boolean canOutputSignal(int dir){
+            return false;
+        }
+
+        @Override
         public void draw(){
             super.draw();
             //TODO buffer

@@ -199,6 +199,11 @@ public class SignalTimer extends UnaryLogicBlock{
         public Signal[] signalsQueue;
         private int currentDelay = 1;
 
+        @Override
+        public int tickAmount(){
+            return currentDelay;
+        }
+
         {
             setDelay(1);
         }

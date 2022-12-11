@@ -80,6 +80,7 @@ public class BLUI extends mma.core.ModUI implements Disposable, ApplicationListe
                 return Vars.content.planets().find(it -> it.defaultEnv == env && it.solarSystem != it);
             }
         };
+
     }
 
     public static void showExceptionDialog(Throwable t){
@@ -195,6 +196,10 @@ public class BLUI extends mma.core.ModUI implements Disposable, ApplicationListe
 
         colorPicker = new ModColorPicker();
         guideDialog = new GuideDialog();
+
+        Vars.ui.settings.graphics.checkPref(SettingManager.enabledLogicNetSelection.key,SettingManager.enabledLogicNetSelection.def(),bool->{
+
+        });
 //        radiusRenderer =new RadiusRenderer();
     }
 

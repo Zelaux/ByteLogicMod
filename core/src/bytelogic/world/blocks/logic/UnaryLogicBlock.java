@@ -1,10 +1,12 @@
 package bytelogic.world.blocks.logic;
 
 
+import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
+import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.annotations.BLAnnotations.*;
@@ -17,6 +19,8 @@ import mindustry.entities.units.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
+import mindustry.world.*;
+import mma.type.pixmap.*;
 
 public abstract class UnaryLogicBlock extends LogicBlock{
 
@@ -59,42 +63,19 @@ public abstract class UnaryLogicBlock extends LogicBlock{
     }
 
     @Override
+    public Pixmap generate(Pixmap icon, PixmapProcessor processor){
+        icon = super.generate(icon, processor);
+        applyMask(sideRegion,processor);
+        return icon;
+    }
+
+    @Override
     public void init(){
         if(blockPreview == null){
             blockPreview = new SchematicBlockPreview(
                 this,
                 Schematics.readBase64("bXNjaAF4nF1Ouw7CMAy8Ni0DRUwIqWLhBzLwPYghaa0S4SZRkg79ekiAqWfp/DifZexQCzRWzYTDYlVYZaKY5A3dSHEIxifjLIAdK00cUd8fLa56TSTZTWaQsxulsX5J0rMa6Ol4pIDTZiMQqxX9ZjovnIxnkw2XjRTNZBVLzW544bwRRxN9uZffQsG+UJVzlbkuTQ0BHHPR/iSRoyp9/zV0dpk1BZlWT+8/RIMmS+IDAytMKA==")
-            );/*
-            blockShowcase = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
-                Schematic schematic = Schematics
-                                          .readBase64("bXNjaAF4nH2Ou24CQQxF775IQURPEwnRIbnI9yCK2V1rM8Lz0HhWaL+ezCZQwrFc2Dq+MjrUDVpvHONz9iYtlFkzfWM7sg7JxmyDB7AR07Mo6vOlw6lfMpOEyQ7kwkjKKc4SSO3kjZDebB5+qJcwXPHhWNVMjMOLIzdLtlEsJxzf5/4Hfr2QRqtRzFJ+7bBS40lVCm3ppl63u6dSoSlztc77P3HrZ9dzorxEvj9o2mIVfgFGtFTY");
-                int offsetY = 0;
-                if(schematic.height < 5){
-                    offsetY++;
-                }
-                Point2[] points = schematic.tiles
-                                       .select(it -> it.block == Blocks.message)
-                                       .map(it -> new Point2(it.x, it.y))
-                                       .toArray(Point2.class);
-                for(Stile tile : schematic.tiles){
-                    if(tile.block == Blocks.message){
-                        tile.block = this;
-                    }
-                    world.tile(tile.x, tile.y + offsetY).setBlock(tile.block, Team.sharded, tile.rotation);
-                    world.tile(tile.x, tile.y + offsetY).build.configured(null, tile.config);
-                }*//*
-
-                world.tile(0, 1).setBlock(inputBlock(isSwitch), Team.sharded, 0);
-
-                world.tile(1, 1).setBlock(this, Team.sharded, 0);
-                world.tile(2, 1).setBlock(byteLogicBlocks.multiplier, Team.sharded, 0);
-                world.tile(2, 1).build.<BinaryLogicBuild>as().inputType = 1;
-
-                world.tile(2, 2).setBlock(byteLogicBlocks.signalBlock, Team.sharded, 3);
-                world.tile(2, 2).build.<SignalLogicBuild>as().nextSignal.setNumber(-1);
-                world.tile(3, 1).setBlock(byteLogicBlocks.displayBlock, Team.sharded);*//*
-                return points;
-            });*/
+            );
         }
         super.init();
 //        if(processor == null) throw new RuntimeException("Processor for " + name + " is null");
@@ -192,6 +173,12 @@ public abstract class UnaryLogicBlock extends LogicBlock{
 
         protected void configureInputType(byte inputType){
             configure(inputType);
+        }
+
+        @Override
+        public void nextBuildings(IntSeq positions){
+            Tile front = frontTile();
+            if(front != null) positions.add(front.array());
         }
 
         @Override

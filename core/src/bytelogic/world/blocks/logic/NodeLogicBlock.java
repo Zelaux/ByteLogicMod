@@ -12,6 +12,7 @@ import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.guide.*;
 import bytelogic.world.*;
+import mindustry.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -126,6 +127,15 @@ public class NodeLogicBlock extends LogicRouter{
         public int link = Pos.invalid;
 
         @Override
+        public void nextBuildings(IntSeq positions){
+            if(!linkValid(this)){
+                super.nextBuildings(positions);
+                return;
+            }
+            positions.add(world.tile(link).array());
+        }
+
+        @Override
         public void draw(){
             super.draw();
             Draw.draw(Layer.power, () -> {
@@ -163,7 +173,7 @@ public class NodeLogicBlock extends LogicRouter{
 
         @Override
         public void drawSelect(){
-            super.drawSelect();
+            if (!canDrawSelect())return;
 
             Lines.stroke(1f);
 

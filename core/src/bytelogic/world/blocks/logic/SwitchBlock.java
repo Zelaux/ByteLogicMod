@@ -4,6 +4,7 @@ import arc.Graphics.*;
 import arc.Graphics.Cursor.*;
 import arc.audio.*;
 import arc.math.geom.*;
+import arc.struct.*;
 import arc.util.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
@@ -12,6 +13,7 @@ import bytelogic.world.blocks.logic.BinaryLogicBlock.*;
 import bytelogic.world.blocks.logic.SignalBlock.*;
 import mindustry.game.*;
 import mindustry.gen.*;
+import mindustry.world.*;
 
 import static mindustry.Vars.player;
 
@@ -61,9 +63,19 @@ public class SwitchBlock extends LogicBlock{
 
         @Override
         public void tapped(){
+            if(!canDrawSelect()){
+                super.tapped();
+                return;
+            }
             nextSignal.xor(oneSignal);
             configure(nextSignal.number());
             clickSound.at(tile);
+        }
+
+        @Override
+        public void nextBuildings(IntSeq positions){
+            Tile front = frontTile();
+            if(front != null) positions.add(front.array());
         }
 
         @Override

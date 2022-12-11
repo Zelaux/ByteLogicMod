@@ -54,7 +54,7 @@ public class ControllerBlock extends UnaryLogicBlock{
 
         @Override
         public void drawSelect(){
-            super.drawSelect();
+            if (!canDrawSelect())return;
             Building facing = front();
             if(facing != null){
                 float sin = Mathf.absin(Time.time + 48, 14f, 0.25f);

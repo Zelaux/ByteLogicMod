@@ -11,6 +11,7 @@ import arc.math.geom.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
+import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
@@ -89,11 +90,16 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
 
     @Override
     public Pixmap generate(Pixmap icon, PixmapProcessor processor){
+        icon = super.generate(icon, processor);
         if(!needImageCompilation) return icon;
 
         Pixmap base = processor.get(centerRegion);
-        Pixmap output = processor.get(outputsRegion);
-        Pixmap outputSide = processor.get(sideOutputsRegion);
+
+
+
+        Pixmap output = applyMask(outputsRegion,processor);
+        Pixmap outputSide = applyMask(sideOutputsRegion,processor);
+
 
         Pixmap compiledOutput = base.copy();
         compiledOutput.draw(output, true);
@@ -102,14 +108,14 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         Pixmap compiledSideOutput = base.copy();
         compiledSideOutput.draw(outputSide, true);
         processor.save(compiledSideOutput, name + "-compiled-1");
-        return ImageGenerator.super.generate(icon, processor);
+        return icon;
 
     }
 
     @Override
     public void init(){
         if(blockPreview == null)
-            blockPreview =new SchematicBlockPreview(
+            blockPreview = new SchematicBlockPreview(
                 this,
                 Schematics.readBase64("bXNjaAF4nF2MwY7CMAxEpw1dpCI4ISS0l/2BHPgexCFpLbDWTaIkPfTrIak4deZgeebZ6KAUds5MhKNlZ+KiM6WsbziMlIbIIbN3AH7EWJKE9v7o8GeXTFr8kwc9+VGzC3PWQcxALy8jRZw3RCQxC66bdJolcxAuB7+bKvHTGdFW/PCPy6YcOYX6D9ijqkdTR9OvA20P1aAabXFzKlm3AlA1qft1JQ9unixFnZdA76/UrlCF/ABgfUyQ")
             );/*
@@ -237,6 +243,12 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         int inputType = bothSideInputType;
 
         @Override
+        public void nextBuildings(IntSeq positions){
+            Tile front = frontTile();
+            if(front != null) positions.add(front.array());
+        }
+
+        @Override
         public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             if(right() == otherBuilding && (inputType != rightFromBackInputType)){
                 sides[rightSideIndex].set(signal);
@@ -291,7 +303,7 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
 
         @Override
         public void drawSelect(){
-            super.drawSelect();
+            if(!canDrawSelect()) return;
 
             Tile left = tile.nearby((rotation + 1) % 4);
             Tile right = tile.nearby((rotation + 4 - 1) % 4);

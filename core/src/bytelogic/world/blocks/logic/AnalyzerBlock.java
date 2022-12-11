@@ -98,7 +98,7 @@ public class AnalyzerBlock extends LogicBlock{
 
         @Override
         public void drawSelect(){
-            super.drawSelect();
+            if (!canDrawSelect())return;
 
             int mode = AnalyzeMode.mode(analyzeMode);
             int selection = AnalyzeMode.selection(analyzeMode);

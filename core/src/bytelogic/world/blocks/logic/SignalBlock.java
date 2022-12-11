@@ -3,11 +3,13 @@ package bytelogic.world.blocks.logic;
 
 import arc.graphics.*;
 import arc.scene.ui.layout.*;
+import arc.struct.*;
 import arc.util.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.dialogs.*;
 import mindustry.gen.*;
+import mindustry.world.*;
 
 import static mindustry.Vars.*;
 
@@ -30,6 +32,12 @@ public class SignalBlock extends LogicBlock{
         @Override
         public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             return false;
+        }
+
+        @Override
+        public void nextBuildings(IntSeq positions){
+            Tile front = frontTile();
+            if(front != null) positions.add(front.array());
         }
 
         @Override

@@ -7,6 +7,7 @@ import arc.math.*;
 import arc.math.geom.*;
 import arc.scene.ui.ImageButton.*;
 import arc.scene.ui.layout.*;
+import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.annotations.BLAnnotations.*;
@@ -41,8 +42,13 @@ public class LogicRouter extends LogicBlock implements ImageGenerator{
 
     @Override
     public Pixmap generate(Pixmap icon, PixmapProcessor processor){
-        Pixmap center = processor.get(centerRegion);
-        Pixmap rotate = processor.get(rotateRegion);
+        icon = super.generate(icon, processor);
+
+
+        Pixmap center = applyMask(centerRegion,processor);
+        Pixmap rotate = applyMask(rotateRegion,processor);
+
+
         Pixmap base = processor.get(this.base);
         icon.draw(base);
         icon.draw(center, true);
@@ -50,7 +56,7 @@ public class LogicRouter extends LogicBlock implements ImageGenerator{
             icon.draw(rotate, true);
             PixmapProcessor.rotatePixmap(rotate, 1);
         }
-        return ImageGenerator.super.generate(icon, processor);
+        return icon;
     }
 
     @Override
@@ -109,6 +115,15 @@ public class LogicRouter extends LogicBlock implements ImageGenerator{
             return super.acceptSignal(otherBuilding, signal);
         }
 
+        @Override
+        public void nextBuildings(IntSeq positions){
+            for(int i = 0; i < 4; i++){
+                if(canOutputSignal(i)){
+                    Tile nearby = tile.nearby(i);
+                    if(nearby != null) positions.add(nearby.array());
+                }
+            }
+        }
         @Override
         public void beforeUpdateSignalState(){
             for(int i = 0; i < sides.length; i++){
