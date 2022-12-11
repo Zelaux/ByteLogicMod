@@ -6,5 +6,5 @@ before_install:
   - jshell --version
 install:
   - chmod +x gradlew
-  - ./gradlew publishToMavenLocal
+  - ./gradlew publishToMavenLocal --stacktrace
   - echo -n > gradle.properties #zero out gradle.properties
