@@ -47,16 +47,25 @@ task copySrc{
     ))
 //    sourceSets.main.java.srcDirs = ["$buildDir/generated/sources/annotationProcessor/java/main"]
 }
-tasks.withType(JavaCompile){
-    println this
+task copyGenerated{
+    delete{
+
+        delete(new File(childBuildDir, "generated"))
+    }
+    copy{
+        from(new File(parentBuildDir, "generated"))
+        into(new File(childBuildDir, "generated"))
+    }
+//    sourceSets.main.java.srcDirs = ["src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
 }
+project(":core:original").tasks.findByName("compileJava").dependsOn(copyGenerated)
 jar{
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     dependsOn(copySrc)
 //    dependsOn(":core:original:clone")
 
 
-    doLast{
+    doLast{/*
         delete{
 
             delete(new File(childBuildDir, "generated"))
@@ -65,7 +74,7 @@ jar{
             from(new File(parentBuildDir, "generated"))
             into(new File(childBuildDir, "generated"))
         }
-        sourceSets.main.java.srcDirs = ["src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
+        sourceSets.main.java.srcDirs = ["src/", "$buildDir/generated/sources/annotationProcessor/java/main"]*/
     }
 
 }
