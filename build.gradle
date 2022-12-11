@@ -185,13 +185,13 @@ configure(subprojects - project(":annotations")){
 //        writePlugins()
         }
         task sourcesJar(type: Jar, dependsOn: classes){
-//            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             archiveClassifier = 'sources'
             from sourceSets.main.allSource
         }
 
         task assetsJar(type: Jar, dependsOn: ":tools:pack"){
-//            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             archiveClassifier = 'assets'
             from files("assets"){
                 exclude "config", "cache", "music", "sounds"
