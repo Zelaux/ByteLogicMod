@@ -6,6 +6,7 @@ import arc.struct.ObjectMap.*;
 import bytelogic.annotations.*;
 import bytelogic.annotations.BLAnnotations.*;
 import com.github.javaparser.*;
+import com.github.javaparser.ParserConfiguration.*;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.nodeTypes.*;
@@ -22,6 +23,7 @@ import java.util.stream.*;
 public class FilePostprocessor extends ModBaseProcessor{
     @Override
     public void process(RoundEnvironment env) throws Exception{
+        StaticJavaParser.getConfiguration().setLanguageLevel(LanguageLevel.JAVA_16);
         ObjectMap<String, CompilationUnit> toRemove = new ObjectMap<>();
         for(Selement element : elements(RemoveFromCompilation.class)){
             TreePath treePath = trees.getPath(element.e);
