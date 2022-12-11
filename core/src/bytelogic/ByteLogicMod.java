@@ -25,7 +25,7 @@ public class ByteLogicMod extends MMAMod{
 
     public ByteLogicMod(){
         super();
-        registerSmall();
+        registerMain();
         disableBlockOutline = true;
         modLog("Creating start");
 //        TMEntityMapping.init();
