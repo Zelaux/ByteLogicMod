@@ -164,15 +164,17 @@ configure(subprojects - project(":annotations")){
         apply plugin: "kotlin"
         apply plugin: "kotlin-kapt"
 
-        kapt{
-            javacOptions{
-                option("-source", "16")
-                option("-target", "1.8")
+        if(it == ":core"){
+            kapt{
+                javacOptions{
+                    option("-source", "16")
+                    option("-target", "1.8")
+                }
             }
-        }
 
-        compileJava.options.fork = true
-//
+            compileJava.options.fork = true
+
+        }
         task preGen{
 
             outputs.upToDateWhen{ false }
@@ -237,9 +239,9 @@ configure(subprojects - project(":annotations")){
             compileOnly project(":annotations")
 
 //            println "it is ${project.displayName}"
-            if(project.name=="core"){
+            if(project.name == "core"){
                 kapt(
-                        "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion",project(":annotations"))
+                        "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion", project(":annotations"))
 //                kapt project(":annotations")
             }
             implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
