@@ -7,6 +7,7 @@ import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
 import mindustry.io.*;
+import mma.type.pixmap.*;
 
 public class DisplayBlock extends AcceptorLogicBlock{
 
@@ -20,6 +21,12 @@ public class DisplayBlock extends AcceptorLogicBlock{
     @Override
     public TextureRegion[] icons(){
         return new TextureRegion[]{Core.atlas.find(name)};
+    }
+
+    @Override
+    protected Pixmap applyMask(TextureRegion region, PixmapProcessor processor){
+        return processor.get(region);
+//        return super.applyMask(region, processor);
     }
 
     public class DisplayBuild extends AcceptorLogicBuild{

@@ -7,16 +7,48 @@ import bytelogic.type.*;
 import bytelogic.world.meta.*;
 import mindustry.gen.*;
 
-import java.math.*;
-
 public class FontSignalBlock extends UnaryLogicBlock{
     protected IntMap<Signal> font = IntMap.of(
-        65, signal(33095217), 66, signal(16317999), 67, signal(32539711), 68, signal(16303663), 69, signal(32554047), 70, signal(32554017),
-        71, signal(32568895), 72, signal(18415153), 73, signal(32641183), 74, signal(15863975), 75, signal(9604265), 76, signal(1082415),
-        77, signal(18732593), 78, signal(18470705), 79, signal(33080895), 80, signal(33094689), 81, signal(33081151), 82, signal(33094961),
-        83, signal(32570911), 84, signal(32641156), 85, signal(18400831), 86, signal(18393412), 87, signal(18405233), 88, signal(18157905),
-        89, signal(18157700), 90, signal(32772191), 48, signal(15255086), 49, signal(6426756), 50, signal(13181086), 51, signal(32010782),
-        52, signal(19495440), 53, signal(29456926), 54, signal(31554142), 55, signal(31989890), 56, signal(32059998), 57, signal(32078366)
+        //region letters
+        65, signal(4521364556104772L),//A
+        66, signal(305158613876622460L),//B
+        67, signal(16892913896391740L),//C
+        68, signal(2027820792217347100L),//D
+        69, signal(4324586197994439740L),//E
+        70, signal(8936272078982874116L),//F
+        71, signal(4324585958283682876L),//G
+        72, signal(4919131753928737860L),//H
+        73, signal(2019873263463172124L),//I
+        74, signal(7890129935403534L),//J
+        75, signal(2599724927008646180L),//K
+        76, signal(289360691352306716L),//L
+        77, signal(4930408344243684420L),//M
+        78, signal(4921392417885938756L),//N
+        79, signal(15837658689586232L),//O
+        80, signal(2027785434968622084L),//P
+        81, signal(15837658689586360L),//Q
+        82, signal(2027785435239162916L),//R
+        83, signal(4036355581661945884L),//S
+        84, signal(8939662921505443856L),//T
+        85, signal(4919131752989213752L),//U
+        86, signal(4774451406807770136L),//V
+        87, signal(-9042521536814885848L),//W
+        88, signal(2459565815927939618L),//X
+        89, signal(4919131631854293008L),//Y
+        90, signal(9097341753874449022L),//Z
+        //endregion
+        //region digits
+        48, signal(4333628479081030716L),//0
+        49, signal(2319397943718715424L),//1
+        50, signal(4054436070992381052L),//2
+        51, signal(4341540651125456956L),//3
+        52, signal(2604246325182603296L),//4
+        53, signal(8936272492310316088L),//5
+        54, signal(4324585958417900604L),//6
+        55, signal(8953226703640989712L),//7
+        56, signal(8953226703640989712L),//8
+        57, signal(4333628582092873788L)//9
+        //endregion
     );
     protected Signal defaultValue = signal(0);
 
@@ -26,7 +58,7 @@ public class FontSignalBlock extends UnaryLogicBlock{
 
     }
 
-    private Signal signal(int value){
+    private Signal signal(long value){
         return Signal.valueOf(value);
     }
 
