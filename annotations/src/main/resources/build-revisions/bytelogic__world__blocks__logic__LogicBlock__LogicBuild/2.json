@@ -1,0 +1,1 @@
+{"read":"{\r\n    nextSignal.read(read);\r\n    lastSignal.read(read);\r\n}"}

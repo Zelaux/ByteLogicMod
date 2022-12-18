@@ -19,6 +19,7 @@ public class BLVars extends ModVars{
     public static ModSettings settings;
     public static BLUI modUI;
     public static ByteLogicMod mod;
+    public static BlLogic logic;
 
     static{
         new BLVars();
@@ -36,6 +37,8 @@ public class BLVars extends ModVars{
         onLoad.clear();
         settings = new ModSettings();
         if(!headless) listener.add(modUI = new BLUI());
+        listener.add(logic = new BlLogic());
+
     }
 
     public static String modName(){

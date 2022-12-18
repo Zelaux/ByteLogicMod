@@ -1,0 +1,1 @@
+{"read":"{\r\n    tmpSignal.read(read);\r\n    selectedType = tmpSignal.type;\r\n}"}

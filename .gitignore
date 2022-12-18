@@ -22,6 +22,7 @@ logs/
 /server/build/
 /test_files/
 /annotations/build/
+/core/src/bytelogic/mma/InternalCounter.java
 /desktop-sdl/build/
 desktop-sdl/build/
 /android/assets/mindustry-maps/
@@ -67,6 +68,7 @@ www-test/
 /android/libs/x86_64/
 /android/gen/
 .idea/
+.run/
 *.ipr
 *.iws
 *.iml
@@ -162,3 +164,4 @@ files-folder/
 #gradlew.bat
 #gradle.properties
 core/build/
+core/original

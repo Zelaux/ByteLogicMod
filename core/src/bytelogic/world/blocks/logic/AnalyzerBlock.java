@@ -4,16 +4,20 @@ import arc.*;
 import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
+import arc.math.geom.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
+import bytelogic.type.*;
+import bytelogic.ui.guide.*;
 import mindustry.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.ctype.*;
+import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.ui.*;
@@ -33,6 +37,20 @@ public class AnalyzerBlock extends LogicBlock{
         });
     }
 
+    @Override
+    public void init(){
+        if(blockPreview == null){
+            Schematic schematic = Schematics.readBase64("bXNjaAF4nF2OwU7EMAxEJ03bLSwCgZAQnPiBHPgexCHbmiVSGlepd6Xy9ThdiZXqg2cyz5YDi86iTn4kPPjkY/il7IRmcR/YDzT3OUwSOAFooz9QnFF9fnV4PixCLvIx9G7kwWWKfsHbJpXs0/zNeaSMlw1LLO7ohfC6AT0nyRyj7rxvUEjTSdwUfU8/HAed2Aeh0c18yj2h09UzLZxxs8ZnDoN+/BHXMrBGpbrX9oS7couSOFkmKtRW2huzDpZqYW2xl1etWt2aqkTNNWo1aqCbjQa2VWdgiqjZabNYcf2PmwtuL3gH/AHP5FIJ");
+            blockPreview = new SchematicBlockPreview(
+                this,
+                schematic,
+                false, schematic.width + 2, schematic.height + 2,
+                new Point2(1, 1)
+            );
+            blockPreview.hasNoSwitchMirror(false);
+        }
+        super.init();
+    }
 
     public class AnaylzerBuild extends LogicBuild{
         public int analyzeMode;
@@ -80,7 +98,7 @@ public class AnalyzerBlock extends LogicBlock{
 
         @Override
         public void drawSelect(){
-            super.drawSelect();
+            if (!canDrawSelect())return;
 
             int mode = AnalyzeMode.mode(analyzeMode);
             int selection = AnalyzeMode.selection(analyzeMode);
@@ -139,7 +157,7 @@ public class AnalyzerBlock extends LogicBlock{
         @Override
         public void updateSignalState(){
 
-            nextSignal = calculateNextSignal();
+            Signal.valueOf(nextSignal, calculateNextSignal());
             super.updateSignalState();
         }
 

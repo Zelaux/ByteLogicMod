@@ -1,0 +1,1 @@
+{"read":"{\r\n    TypeIO.readColor(read, drawColor);\r\n}"}

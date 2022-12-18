@@ -1,6 +1,7 @@
 import java.time.format.DateTimeFormatter
 
 buildscript{
+    ext.kotlin_version = '1.6.0'
     ext{
         mainPackage = "testmod"
         // v7
@@ -24,7 +25,7 @@ buildscript{
         aciVersion = "45ad8cd8ed9"
 
 
-        modCoreVersion = "v1.0.1"
+        modCoreVersion = "93716ec24ee"
 
 
         kotlinVersion = "1.6.0"
@@ -44,9 +45,7 @@ buildscript{
         classpath "com.github.Anuken.Arc:arc-core:$arcVersion"
         classpath "$mindustryPath:core:$mindustryVersion"
         classpath "com.github.Anuken.Arc:packer:$arcVersion"
-
         classpath "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
-
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
@@ -68,6 +67,7 @@ ext{
 version '1.0'
 allprojects{
     apply plugin: 'groovy'
+    apply plugin: "kotlin"
 
 //    version = 'release'
     group = 'com.github.Zelaux'
@@ -105,6 +105,10 @@ allprojects{
         maven{ url "https://oss.sonatype.org/content/repositories/releases/" }
         maven{ url 'https://jitpack.io' }
     }
+    compileKotlin{
+        sourceCompatibility = JavaVersion.VERSION_16
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
     tasks.withType(JavaCompile){
         targetCompatibility = 8
         sourceCompatibility = JavaVersion.VERSION_16
@@ -113,8 +117,14 @@ allprojects{
         options.compilerArgs += ["-Xlint:deprecation"]
 
         options.forkOptions.jvmArgs.addAll([
+                '--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
                 '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
-                '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED'
+                '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+                '--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED'
         ])
     }
 }
@@ -123,6 +133,7 @@ dependencies{
     implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
     implementation "com.github.Zelaux.ZelauxModCore:graphics:$modCoreVersion"
     implementation "com.github.Zelaux.ZelauxModCore:utils:$modCoreVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 configure(project(":annotations")){
     tasks.withType(JavaCompile){
@@ -153,6 +164,7 @@ configure(subprojects - project(":annotations")){
         apply plugin: "kotlin"
         apply plugin: "kotlin-kapt"
 
+
         kapt{
             javacOptions{
                 option("-source", "16")
@@ -161,20 +173,25 @@ configure(subprojects - project(":annotations")){
         }
 
         compileJava.options.fork = true
-//
+
+
         task preGen{
+
             outputs.upToDateWhen{ false }
+
 //        generateLocales()
 //        writeVersion()
             writeProcessors()
 //        writePlugins()
         }
         task sourcesJar(type: Jar, dependsOn: classes){
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             archiveClassifier = 'sources'
             from sourceSets.main.allSource
         }
 
         task assetsJar(type: Jar, dependsOn: ":tools:pack"){
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             archiveClassifier = 'assets'
             from files("assets"){
                 exclude "config", "cache", "music", "sounds"
@@ -183,6 +200,20 @@ configure(subprojects - project(":annotations")){
         artifacts{
             archives sourcesJar
             archives assetsJar
+        }
+
+        repositories{
+            mavenCentral()
+        }
+        compileKotlin{
+            kotlinOptions{
+                jvmTarget = "1.8"
+            }
+        }
+        compileTestKotlin{
+            kotlinOptions{
+                jvmTarget = "1.8"
+            }
         }
         dependencies{
             compileJava.dependsOn(preGen)
@@ -208,11 +239,12 @@ configure(subprojects - project(":annotations")){
             compileOnly project(":annotations")
 
 //            println "it is ${project.displayName}"
-            if(project.name=="core"){
+            if(project.name == "core"){
                 kapt(
-                        "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion",project(":annotations"))
+                        "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion", project(":annotations"))
 //                kapt project(":annotations")
             }
+            implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 //        annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
 
         }
@@ -240,6 +272,7 @@ configure(subprojects - project(":annotations")){
             }
         }
         jar{
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             exclude(mainPackage + "/entities/comp/**")
             exclude(mainPackage + "/entities/compByAnuke/**")
         }
@@ -286,7 +319,7 @@ project(":annotations"){
         implementation "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
     }
 }
-configure([":core", ":tools"].collect{ project(it) }){
+configure([project(":core")]){
     java{
         withJavadocJar()
         withSourcesJar()
@@ -319,6 +352,7 @@ task jarAndroid{
     }
 }
 jar{
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn "core:jar"
     archiveFileName = "${project.archivesBaseName}Desktop.jar"
     //  if (!file(rootDir+"/core/assets/sprites").exists())dependsOn "tools:pack"
@@ -342,6 +376,7 @@ jar{
     }
 }
 task deploy(type: Jar){
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn jarAndroid
     dependsOn jar
     archiveFileName = "${project.archivesBaseName}.jar"
@@ -352,6 +387,18 @@ task deploy(type: Jar){
         delete{ delete "$buildDir/libs/${project.archivesBaseName}Desktop.jar" }
         delete{ delete "$buildDir/libs/${project.archivesBaseName}Android.jar" }
     }
+}
+task resolveDependencies{
+    doLast{
+        rootProject.allprojects{ project ->
+            Set<Configuration> configurations = project.buildscript.configurations + project.configurations
+            configurations.findAll{ c -> c.canBeResolved }.forEach{ c -> c.resolve() }
+        }
+    }
+}
+publishToMavenLocal{
+    dependsOn("tools:pack")
+    dependsOn("jar")
 }
 
 def os(){ //Returns OS name
@@ -417,5 +464,18 @@ task mjar(){
         }
         def time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
         println "Build ended at: ${time}"
+    }
+}
+repositories{
+    mavenCentral()
+}
+compileKotlin{
+    kotlinOptions{
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin{
+    kotlinOptions{
+        jvmTarget = "1.8"
     }
 }

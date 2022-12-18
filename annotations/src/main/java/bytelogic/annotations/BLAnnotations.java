@@ -13,4 +13,9 @@ public class BLAnnotations{
     public @interface CustomSavingSerializers{
     }
 
+
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RemoveFromCompilation{
+    }
+
 }

@@ -1,7 +1,8 @@
 package bytelogic.world.blocks.logic;
 
-import arc.util.io.*;
-import bytelogic.gen.ByteLogicBuildingc;
+import arc.struct.*;
+import bytelogic.gen.*;
+import mindustry.world.*;
 
 public class AcceptorLogicBlock extends LogicBlock{
 
@@ -17,11 +18,21 @@ public class AcceptorLogicBlock extends LogicBlock{
         }
 
         @Override
+        public void nextBuildings(IntSeq positions){
+            for(int i = 0; i < 4; i++){
+                if(canOutputSignal(i)){
+                    Tile nearby = tile.nearby(i);
+                    if(nearby != null) positions.add(nearby.array());
+                }
+            }
+        }
+
+        @Override
         public void beforeUpdateSignalState(){
 
             for(int i = 0; i < 4; i++){
-                if (canOutputSignal((byte)i)){
-                    nearby(i).<ByteLogicBuildingc>as().acceptSignal(this,lastSignal);
+                if(canOutputSignal((byte)i)){
+                    nearby(i).<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
                 }
             }
         }

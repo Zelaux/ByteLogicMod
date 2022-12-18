@@ -2,79 +2,83 @@ package bytelogic.world.blocks.logic;
 
 
 import arc.graphics.*;
-import arc.math.*;
 import arc.scene.ui.layout.*;
+import arc.struct.*;
 import arc.util.*;
 import bytelogic.gen.*;
+import bytelogic.type.*;
+import bytelogic.ui.dialogs.*;
 import mindustry.gen.*;
-import mindustry.ui.dialogs.*;
+import mindustry.world.*;
 
 import static mindustry.Vars.*;
 
 public class SignalBlock extends LogicBlock{
+    protected static final Signal tmpSignal = new Signal();
 
     public SignalBlock(String name){
         super(name);
         configurable = true;
         this.<Integer, SignalLogicBuild>config(Integer.class, (build, value) -> {
-            build.nextSignal = value;
+            Signal.valueOf(build.nextSignal, value);
+        });
+        this.<byte[], SignalLogicBuild>config(byte[].class, (build, bytes) -> {
+            build.nextSignal.fromBytes(bytes);
         });
     }
 
     public class SignalLogicBuild extends LogicBuild{
 
         @Override
-        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
-            return  false;
+        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
+            return false;
         }
+
         @Override
-        public int currentSignal(){
+        public void nextBuildings(IntSeq positions){
+            Tile front = frontTile();
+            if(front != null) positions.add(front.array());
+        }
+
+        @Override
+        public Signal currentSignal(){
             return nextSignal;
+        }
+
+        public void configureNumber(long number){
+            Signal.valueOf(tmpSignal, number);
+            configure(tmpSignal.asBytes());
         }
 
         @Override
         public void buildConfiguration(Table table){
 
             table.button(Icon.pencilSmall, () -> {
-                ui.showTextInput("@block.editsignal", "", 10, nextSignal + "", true, result -> {
-                    nextSignal = Strings.parseInt(result, 0);
+                ui.showTextInput("@block.editsignal", "", 10, nextSignal.number() + "", true, result -> {
+                    configureNumber(Strings.parseLong(result, 0));
                 });
                 control.input.config.hideConfig();
             }).size(40f);
             table.button(Icon.imageSmall, () -> {
-                var disabledColor = Color.grays(0.2f);
-                new BaseDialog("@block.editsignal.as-image"){{
-                    cont.table(Tex.pane, table -> {
-                        table.defaults().pad(3);
-
-                        for(int dy = 0; dy < 5; dy++){
-                            for(int dx = 0; dx < 5; dx++){
-                                int pow = (4 - dy) * 5 + dx;
-                                int mask = 1 << pow;
-                                table.image().update(i -> {
-                                    if((nextSignal & mask) != 0){
-                                        i.color.set(Color.white);
-                                    }else{
-                                        i.color.set(disabledColor);
-                                    }
-                                }).size(64f).with(i -> {
-                                    i.clicked(() -> {
-                                        int value = nextSignal & mask;
-                                        configure(nextSignal + Mathf.sign(value == 0) * mask);
-                                    });
-                                });
-                            }
-                            table.row();
-                        }
-                    });
-//                    getCell(cont).expand(false, false);
-                    addCloseButton();
-                    this.hidden(control.input.config::hideConfig);
-                }}.show();
-                /*ui.showTextInput("$block.editsignal", "", 10, nextSignal + "", true, result -> {
-                    nextSignal = Strings.parseInt(result, 0);
-                });*/
+                new CanvasEditDialog(this).show();
             }).size(40f);
+
+            table.button(Icon.pick, () -> {
+                Color tmpColor = new Color();
+                tmpColor.set(nextSignal.intNumber());
+                ui.picker.show(tmpColor, true, out -> {
+                    tmpSignal.setNumber(out.rgba());
+                    tmpSignal.type = SignalTypes.colorType;
+                    configure(tmpSignal.asBytes());
+                });
+            }).size(40f);
+        }
+
+        private long absoluteNumber(){
+            long signal = nextSignal.number();
+            signal &= ~0b100_0000_0000_0000_0000_0000_0000_0000;
+            if(signal < 0) signal = -signal;
+            return signal;
         }
 
         @Override
@@ -86,7 +90,7 @@ public class SignalBlock extends LogicBlock{
 
         @Override
         public void updateSignalState(){
-            lastSignal = nextSignal;
+            lastSignal.set(nextSignal);
         }
         /*
         @Override
@@ -95,8 +99,8 @@ public class SignalBlock extends LogicBlock{
         }*/
 
         @Override
-        public Integer config(){
-            return nextSignal;
+        public byte[] config(){
+            return nextSignal.asBytes();
         }
     }
 }

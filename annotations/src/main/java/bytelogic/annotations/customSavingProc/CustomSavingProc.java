@@ -138,7 +138,7 @@ public class CustomSavingProc extends ModBaseProcessor{
 
 
         Fi revisionsPath = rootDirectory.child("annotations/src/main/resources/build-revisions");
-
+        System.out.println("revisionsPath.absolutePath(): "+revisionsPath.absolutePath());
         ObjectMap<String, IntMap<ClassRevision>> revisions = new ObjectMap<>();
         collectRevisions(revisionsPath, revisions);
 
@@ -205,7 +205,7 @@ public class CustomSavingProc extends ModBaseProcessor{
 
                 switchEntry.getLabels().add(StaticJavaParser.parseExpression("" + versions));
                 switchEntry.getStatements().add(value.readBlock.clone()
-                .addStatement(new BreakStmt())
+                .addStatement(new ReturnStmt())
                 );
 
                 switchStmt.getEntries().add(switchEntry);

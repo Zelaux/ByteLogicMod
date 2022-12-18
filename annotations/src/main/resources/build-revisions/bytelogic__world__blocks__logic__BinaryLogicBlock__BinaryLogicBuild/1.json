@@ -1,0 +1,1 @@
+{"read":"{\r\n    flippedInputs = read.bool();\r\n    sides[leftSideIndex].read(read);\r\n    sides[rightSideIndex].read(read);\r\n    inputType = read.i();\r\n}"}

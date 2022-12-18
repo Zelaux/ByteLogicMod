@@ -2,25 +2,26 @@ package bytelogic.world.blocks.logic;
 
 import arc.*;
 import arc.func.*;
-import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.scene.ui.*;
-import arc.scene.ui.Button.*;
 import arc.scene.ui.TextButton.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
-import bytelogic.gen.BLIcons.*;
+import bytelogic.type.*;
 import bytelogic.ui.*;
+import bytelogic.ui.guide.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
+import mindustry.world.*;
 import mma.io.*;
+import org.jetbrains.annotations.*;
 
 public class SignalTimer extends UnaryLogicBlock{
     protected static final ByteReads tmpRead = new ByteReads();
@@ -32,19 +33,31 @@ public class SignalTimer extends UnaryLogicBlock{
         rotate = true;
         configurable = true;
         config(byte[].class, (SignalTimerBuild build, byte[] value) -> {
-            tmpRead.setBytes(value);
-            int version = tmpRead.i();
-            build.setDelay(tmpRead.i());
-            build.inputType = tmpRead.i();
+            Container.set(value);
+            build.setDelay(Container.delay);
+            build.inputType = Container.inputType;
         });
     }
 
-    public static byte[] stateToBytes(int delay, int inputType){
+    public static byte[] stateToBytes(int delay, byte inputType){
         tmpWrite.reset();
-        tmpWrite.i(0);
+        tmpWrite.i(1);
         tmpWrite.i(delay);
-        tmpWrite.i(inputType);
+        tmpWrite.b(inputType);
         return tmpWrite.getBytes();
+    }
+
+    @Override
+    public void init(){
+
+        super.init();
+
+        blockPreview = new BlockPreview(this, 5, 5, blockPreview.getWorldBuilder()){
+            @Override
+            public boolean shouldBuildConfiguration(@NotNull Block block){
+                return super.shouldBuildConfiguration(block) || block instanceof SignalTimer;
+            }
+        };
     }
 
     @Override
@@ -64,8 +77,8 @@ public class SignalTimer extends UnaryLogicBlock{
                 for(int i = 0; i < amount; i++){
                     int finalI = i;
                     with.add(new MultiBar.BarPart(() -> {
-                        int signal = build.signalsQueue[Mathf.mod(amount - finalI - 1 + build.tickCounter, amount)];
-                        return signal > 0f ? Pal.accent : (signal < 0 ? Pal.remove : Color.darkGray);
+                        Signal signal = build.signalsQueue[Mathf.mod(amount - finalI - 1 + build.tickCounter, amount)];
+                        return signal.barColor();
                     }, () -> 1f));
                 }
             };
@@ -89,42 +102,44 @@ public class SignalTimer extends UnaryLogicBlock{
     @Override
     public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list){
         if(req.config instanceof Integer integer){
-            req.config = stateToBytes(integer, backInput);
+            req.config = stateToBytes(integer, unarySideState(false, true, false));
             drawPlanRegion(req, list);
             return;
         }
         if(!(req.config instanceof byte[] bytes)){
-            super.drawPlanRegion(req, list);
+            req.config = stateToBytes(1, unarySideState(false, true, false));
+            drawPlanRegion(req, list);
             return;
         }
         try{
             Container.set(bytes);
         }catch(Exception e){
-            byte[] stateToBytes = stateToBytes(1, backInput);
+            byte[] stateToBytes = stateToBytes(1, unarySideState(false, true, false));
             req.config = stateToBytes;
             Container.set(stateToBytes);
         }
 
-        if(Container.inputType == backInput){
-            super.drawPlanRegion(req, list);
-            return;
-        }
         TextureRegion back = base;
         Draw.rect(back, req.drawx(), req.drawy(),
-        back.width * req.animScale * Draw.scl,
-        back.height * req.animScale * Draw.scl,
-        0);
+            back.width * req.animScale * Draw.scl,
+            back.height * req.animScale * Draw.scl,
+            0);
 
-        Draw.rect(sideRegion, req.drawx(), req.drawy(),
-        region.width * req.animScale * Draw.scl,
-        region.height * req.animScale * Draw.scl * Mathf.sign(Container.inputType == leftInput),
-        req.rotation * 90);
+        for(int i = 1; i < sideMasks.length; i++){
+            if((Container.inputType & sideMasks[i]) == 0) continue;
+
+            Draw.rect(i == backSideMaskIndex ? region : sideRegion, req.drawx(), req.drawy(),
+                region.width * req.animScale * Draw.scl,
+                region.height * req.animScale * Draw.scl * Mathf.sign(i == leftSideMaskIndex),
+                req.rotation * 90);
+        }
     }
+
 
     @Override
     public void flipRotation(BuildPlan req, boolean x){
         if(req.config instanceof Integer integer){
-            req.config = stateToBytes(integer, backInput);
+            req.config = stateToBytes(integer, unarySideState(false, true, false));
             flipRotation(req, x);
             return;
         }
@@ -138,24 +153,39 @@ public class SignalTimer extends UnaryLogicBlock{
         if((req.rotation % 2 == 0) == x){
             req.rotation = Mathf.mod(req.rotation + 2, 4);
         }
-        if(Container.inputType == leftInput){
-            Container.inputType = rightInput;
-        }else{
-            Container.inputType = leftInput;
-        }
+
+        boolean left = UnaryInputSides.left(Container.inputType);
+        boolean right = UnaryInputSides.right(Container.inputType);
+
+
+        Container.inputType = UnaryInputSides.left(Container.inputType, right);
+        Container.inputType = UnaryInputSides.right(Container.inputType, left);
+
         req.config = Container.bytes();
 
     }
 
+    protected Signal[] createTmpSignals(){
+        Signal[] signals = new Signal[maxDelay];
+        for(int i = 0; i < signals.length; i++){
+            signals[i] = new Signal();
+        }
+        return signals;
+    }
+
     static class Container{
         static int delay;
-        static int inputType;
+        static byte inputType;
 
         static void set(byte[] bytes){
             tmpRead.setBytes(bytes);
-            tmpRead.i();
+            int version = tmpRead.i();
             delay = tmpRead.i();
-            inputType = tmpRead.i();
+            if(version == 0){
+                inputType = updateInputType(tmpRead.i());
+            }else{
+                inputType = tmpRead.b();
+            }
         }
 
         public static byte[] bytes(){
@@ -164,10 +194,19 @@ public class SignalTimer extends UnaryLogicBlock{
     }
 
     public class SignalTimerBuild extends UnaryLogicBuild{
-
+        private final Signal[] tmpSignals = createTmpSignals();
         public int tickCounter = 0;
+        public Signal[] signalsQueue;
         private int currentDelay = 1;
-        public int[] signalsQueue = new int[currentDelay];
+
+        @Override
+        public int tickAmount(){
+            return currentDelay;
+        }
+
+        {
+            setDelay(1);
+        }
 
         @Override
         public void buildConfiguration(Table table){
@@ -180,56 +219,26 @@ public class SignalTimer extends UnaryLogicBlock{
 //                it.button("-15", () -> configure(Math.max(0, currentDelay - 15))).disabled(zeroChecker);
 //                it.button("-10", () -> configure(Math.max(0, currentDelay - 10))).disabled(zeroChecker);
                     TextButtonStyle textButtonStyle = Styles.flatBordert;
-                    it.button("-5", textButtonStyle, () -> configureState(Math.max(1, currentDelay - 5),inputType)).disabled(zeroChecker);
-                    it.button("-1", textButtonStyle, () -> configureState(Math.max(1, currentDelay - 1),inputType)).disabled(zeroChecker);
+                    it.button("-5", textButtonStyle, () -> configureState(Math.max(1, currentDelay - 5), inputType)).disabled(zeroChecker);
+                    it.button("-1", textButtonStyle, () -> configureState(Math.max(1, currentDelay - 1), inputType)).disabled(zeroChecker);
                     it.label(() -> currentDelay + "").labelAlign(Align.center);
                     it.center();
-                    it.button("+1", textButtonStyle, () -> configureState(Math.min(maxDelay, currentDelay + 1),inputType)).disabled(maxChecker);
-                    it.button("+5", textButtonStyle, () -> configureState(Math.min(maxDelay, currentDelay + 5),inputType)).disabled(maxChecker);
+                    it.button("+1", textButtonStyle, () -> configureState(Math.min(maxDelay, currentDelay + 1), inputType)).disabled(maxChecker);
+                    it.button("+5", textButtonStyle, () -> configureState(Math.min(maxDelay, currentDelay + 5), inputType)).disabled(maxChecker);
                 });
                 t.row();
-                t.table(inputButtons -> {
-                    ButtonStyle style = new ButtonStyle(Styles.togglet);
-                    ButtonGroup<Button> group = new ButtonGroup<>();
-                    for(int i : new int[]{leftInput, backInput, rightInput}){
-
-//                        int i = i;
-                        float tailOffset = switch(i){
-                            case backInput -> 0;
-                            case leftInput -> -90;
-                            case rightInput -> 90;
-                            default -> throw new RuntimeException("Impossible value");
-                        };
-
-                        inputButtons.button(button -> {
-                            button.setStyle(style);
-                            Image arrow = new Image(Drawables.unaryInputArrow64);
-                            Image tail = new Image(Drawables.unaryInputBack64);
-                            button.stack(arrow, tail).update(_n -> {
-                                arrow.setRotationOrigin(rotdeg(), Align.center);
-                                tail.setRotationOrigin(rotdeg() + tailOffset, Align.center);
-                            }).size(32f);
-                        }, () -> configureState(currentDelay, i)).checked(i == inputType).size(48f).with(group::add);
-                    }
-                });
+                super.buildConfiguration(t);
 //                it.button("+10", () -> configure(Math.min(maxDelay, currentDelay + 10))).disabled(maxChecker);
 //                it.button("+15", () -> configure(Math.min(maxDelay, currentDelay + 15))).disabled(maxChecker);
             }).growX();
         }
 
         @Override
-        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
-            Building build = switch(inputType){
-                case backInput -> back();
-                case leftInput -> left();
-                case rightInput -> right();
-                default -> null;
-            };
-            if(build == otherBuilding) return super.acceptSignal(otherBuilding, signal);
-            return false;
+        protected void configureInputType(byte inputType){
+            configureState(currentDelay, inputType);
         }
 
-        private void configureState(int currentDelay, int inputType){
+        private void configureState(int currentDelay, byte inputType){
             configure(stateToBytes(currentDelay, inputType));
         }
 
@@ -238,25 +247,6 @@ public class SignalTimer extends UnaryLogicBlock{
             return stateToBytes(currentDelay, inputType);
         }
 
-        @Override
-        public void draw(){
-            if(inputType == backInput){
-                super.draw();
-                return;
-            }
-            sideRegion.flip(false, inputType == rightInput);
-            Draw.rect(base, tile.drawx(), tile.drawy());
-
-            Draw.color(signalColor());
-
-            Draw.rect(sideRegion, x, y, drawrot());
-
-            this.drawTeamTop();
-            Draw.color();
-            sideRegion.flip(false, inputType == rightInput);
-
-
-        }
 
         @Override
         public void updateTableAlign(Table table){
@@ -272,20 +262,25 @@ public class SignalTimer extends UnaryLogicBlock{
 
         public void setDelay(int delay){
             currentDelay = delay;
-            signalsQueue = new int[delay];
+            signalsQueue = new Signal[delay];
+            for(int i = 0; i < signalsQueue.length; i++){
+                signalsQueue[i] = tmpSignals[i];
+                signalsQueue[i].setZero();
+            }
+//            System.arraycopy(tmpSignals, 0, signalsQueue, 0, delay);
             tickCounter = 0;
         }
 
         @Override
         public void updateSignalState(){
             if(signalsQueue.length == 0){
-                lastSignal = nextSignal;
+                lastSignal.set(nextSignal);
             }else{
-                signalsQueue[tickCounter] = nextSignal;
+                signalsQueue[tickCounter].set(nextSignal);
                 tickCounter = Mathf.mod(tickCounter + 1, signalsQueue.length);
-                lastSignal = signalsQueue[tickCounter];
+                lastSignal.set(signalsQueue[tickCounter]);
             }
-            nextSignal = 0;
+            nextSignal.setZero();
         }
 
         @Override
@@ -307,25 +302,26 @@ public class SignalTimer extends UnaryLogicBlock{
         @Override
         public void read(Reads read, byte revision){
             byte parentRevision = (byte)(revision & (0b0000_1111));
-            if(parentRevision == 0){
-                nextSignal = lastSignal = read.i();
+
+            if(revision == 0){
+                Signal.valueOf(nextSignal, read.i());
+                lastSignal.set(nextSignal);
             }else{
                 int version = read.i();
-                if(version != 2){
-                    nextSignal = read.i();
-                    lastSignal = read.i();
-                }
+                if(version == 2) return;
+                Signal.valueOf(nextSignal, read.i());
+                Signal.valueOf(lastSignal, read.i());
             }
-            if(revision<0) return;
+            if(revision < 0) return;
             revision /= 0x10;
             int tickCounter1 = read.i();
             setDelay(read.i());
             tickCounter = tickCounter1;
             for(int i = 0; i < signalsQueue.length; i++){
-                signalsQueue[i] = read.i();
+                signalsQueue[i] = Signal.valueOf(read.i());
             }
             if(revision == 0) return;
-            inputType = read.i();
+            inputType = updateInputType(read.i());
 
 
         }
@@ -334,10 +330,9 @@ public class SignalTimer extends UnaryLogicBlock{
         public void customWrite(Writes write){
             write.i(tickCounter);
             write.i(currentDelay);
-            for(int i : signalsQueue){
-                write.i(i);
+            for(Signal signal : signalsQueue){
+                signal.write(write);
             }
-            write.i(inputType);
         }
 
         @Override
@@ -346,14 +341,13 @@ public class SignalTimer extends UnaryLogicBlock{
             setDelay(read.i());
             tickCounter = tickCounter1;
             for(int i = 0; i < signalsQueue.length; i++){
-                signalsQueue[i] = read.i();
+                signalsQueue[i].read(read);
             }
-            inputType = read.i();
         }
 
         @Override
         public short customVersion(){
-            return 0;
+            return 2;
         }
     }
 }

@@ -1,0 +1,1 @@
+{"read":"{\r\n    selectedType = SignalType.findByName(read.str());\r\n    if (selectedType == SignalTypes.nilType) {\r\n        selectedType = SignalTypes.numberType;\r\n    }\r\n}"}

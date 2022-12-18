@@ -9,11 +9,16 @@ import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
+import bytelogic.type.*;
+import bytelogic.ui.guide.*;
 import bytelogic.world.*;
+import mindustry.*;
+import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.input.*;
 import mindustry.world.*;
+import mma.type.pixmap.*;
 
 import static mindustry.Vars.*;
 import static mma.ModVars.fullName;
@@ -34,6 +39,22 @@ public class NodeLogicBlock extends LogicRouter{
         config(Point2.class, (NodeLogicBuild tile, Point2 point) -> {
             tile.link = Point2.pack(point.x + tile.tileX(), point.y + tile.tileY());
         });
+        config(byte[].class, (NodeLogicBuild tile, byte[] bytes) -> {
+            tile.isolatedSides = bytes[1];
+            tile.link = Point2.pack(getInt(bytes, 2) + tile.tileX(), getInt(bytes, 2 + 4) + tile.tileY());
+        });
+    }
+
+    private static int getInt(byte[] bytes, int offset){
+        return bytes[offset] + bytes[offset + 1] << 8 + bytes[offset + 2] << 16 + bytes[offset + 3] << 24;
+    }
+
+    @Override
+    public Pixmap generate(Pixmap icon, PixmapProcessor processor){
+
+        Pixmap generated = super.generate(icon, processor);
+        processor.save(generated, name);
+        return generated;
     }
 
     @Override
@@ -64,13 +85,31 @@ public class NodeLogicBlock extends LogicRouter{
 
     public boolean linkValid(Tile tile, Building other){
         return other != null && other.block() instanceof NodeLogicBlock
-        && Mathf.within(tile.drawx(), tile.drawy(), other.x, other.y, range)
-        && (other.team == tile.team() || !(tile.build instanceof ByteLogicBuildingc)) && (other.<NodeLogicBuild>as().link != tile.pos());
+                   && Mathf.within(tile.drawx(), tile.drawy(), other.x, other.y, range)
+                   && (other.team == tile.team() || !(tile.build instanceof ByteLogicBuildingc)) && (other.<NodeLogicBuild>as().link != tile.pos());
     }
 
     @Override
     public void init(){
         clipSize = range;
+        if(blockPreview == null){
+            blockPreview = new BlockPreview(this, 5, 5, (world, isSwitch) -> {
+
+                world.tile(0, 3).setBlock(inputBlock(isSwitch), Team.sharded, 1);
+
+                world.tile(0, 4).setBlock(this, Team.sharded, 1);
+                world.tile(0, 4).build.<NodeLogicBuild>as().link = world.tile(4, 0).pos();
+                world.tile(4, 0).setBlock(this, Team.sharded, 1);
+
+                world.tile(4, 1).setBlock(byteLogicBlocks.relay, Team.sharded, 1);
+                world.tile(4, 2).setBlock(byteLogicBlocks.relay, Team.sharded, 2);
+                world.tile(3, 2).setBlock(byteLogicBlocks.relay, Team.sharded, 1);
+                world.tile(3, 3).setBlock(byteLogicBlocks.relay, Team.sharded, 2);
+                world.tile(4, 3).setBlock(byteLogicBlocks.relay, Team.sharded, 1);
+                world.tile(4, 4).setBlock(byteLogicBlocks.relay, Team.sharded, 2);
+                return new Point2[]{Tmp.p1.set(0, 4), Tmp.p2.set(4, 0)};
+            });
+        }
         super.init();
     }
 
@@ -88,13 +127,22 @@ public class NodeLogicBlock extends LogicRouter{
         public int link = Pos.invalid;
 
         @Override
+        public void nextBuildings(IntSeq positions){
+            if(!linkValid(this)){
+                super.nextBuildings(positions);
+                return;
+            }
+            positions.add(world.tile(link).array());
+        }
+
+        @Override
         public void draw(){
             super.draw();
             Draw.draw(Layer.power, () -> {
 
                 Building link = world.build(this.link);
                 if(linkValid(this, link)){
-                    Draw.color(currentSignal() != 0 ? Pal.accent : Color.white);
+                    Draw.color(signalColor());
                     Draw.alpha(1f * Core.settings.getInt("lasersopacity") / 100f);
                     Drawf.laser(Core.atlas.find(fullName("logic-laser")), Core.atlas.find(fullName("logic-laser-end")), x, y, link.x, link.y, 0.25f);
                     Draw.reset();
@@ -113,7 +161,7 @@ public class NodeLogicBlock extends LogicRouter{
             if(linkValid(this, link)){
                 NodeLogicBuild other = link.as();
                 other.acceptSignal(this, lastSignal);
-                lastSignal = 0;
+                lastSignal.setZero();
             }else{
                 for(int i = 0; i < 4 && doOutput; i++){
                     if(this.canOutputSignal(i)){
@@ -125,7 +173,7 @@ public class NodeLogicBlock extends LogicRouter{
 
         @Override
         public void drawSelect(){
-            super.drawSelect();
+            if (!canDrawSelect())return;
 
             Lines.stroke(1f);
 
@@ -189,7 +237,7 @@ public class NodeLogicBlock extends LogicRouter{
         }
 
         @Override
-        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, int signal){
+        public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             if(link == otherBuilding.pos()) return false;
             int i = relativeTo(otherBuilding.<Building>as());
             boolean acceptSignal = super.acceptSignal(otherBuilding, signal);
@@ -200,8 +248,22 @@ public class NodeLogicBlock extends LogicRouter{
         }
 
         @Override
-        public Point2 config(){
-            return Point2.unpack(link).sub(tile.x, tile.y);
+        public byte[] config(){
+            Point2 unpack = Point2.unpack(link);
+            int x = unpack.x - tile.x;
+            int y = unpack.y - tile.y;
+            return new byte[]{
+                0,
+                isolatedSides,
+                (byte)(x & 0xFF),
+                (byte)(x >>> 8 & 0xFF),
+                (byte)(x >>> 16 & 0xFF),
+                (byte)(x >>> 24 & 0xFF),
+                (byte)(y & 0xFF),
+                (byte)(y >>> 8 & 0xFF),
+                (byte)(y >>> 16 & 0xFF),
+                (byte)(y >>> 24 & 0xFF),
+            };
         }
 
 
@@ -225,7 +287,7 @@ public class NodeLogicBlock extends LogicRouter{
 
         @Override
         public void customRead(Reads read){
-            link=read.i();
+            link = read.i();
         }
 
         @Override
