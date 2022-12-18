@@ -55,7 +55,7 @@ public abstract class LogicBlock extends Block implements LogicBlockI, ImageGene
     }
 
     private static boolean canDrawSelect(LogicBuild logicBuild){
-        return SettingManager.enabledLogicNetSelection.get();
+        return !SettingManager.enabledLogicNetSelection.get();
     }
 
     @Override

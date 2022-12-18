@@ -33,11 +33,6 @@ public class ByteLogicMod extends MMAMod{
 //        TMCall.registerPackets();
         BLVars.load();
 //        TMLogicIO.init();
-
-        Events.on(ClientLoadEvent.class, (e) -> {
-            ModAudio.reload();
-//            Vars.ui.content.show(ByteLogicBlocks.erekirBlocks.analyzer);
-        });
         modLog("Creating end");
     }
 
@@ -47,23 +42,6 @@ public class ByteLogicMod extends MMAMod{
         }
         registered = true;
         registerMain();
-        ClientLauncher clientLauncher = (ClientLauncher)Core.app.getListeners().find(it -> it instanceof ClientLauncher);
-        if(!headless) clientLauncher.add(new ApplicationListener(){
-            @Override
-            public void init(){
-                for(Block block : Vars.content.blocks()){
-                    if(block instanceof LogicBlock){
-                        BLContentRegions.loadRegions(block);
-                    }
-                }
-            }
-        });
-
-
-        Events.on(ClientLoadEvent.class, (e) -> {
-            ModAudio.reload();
-//            Vars.ui.content.show(ByteLogicBlocks.erekirBlocks.analyzer);
-        });
 
         return true;
     }
@@ -76,21 +54,31 @@ public class ByteLogicMod extends MMAMod{
             BLGroups.clear();
         });
         Vars.asyncCore.processes.add(new BlockStateUpdater());
+
+        if(!headless){
+            ClientLauncher clientLauncher = (ClientLauncher)Core.app.getListeners().find(it -> it instanceof ClientLauncher);
+            clientLauncher.add(new ApplicationListener(){
+                @Override
+                public void init(){
+                    for(Block block : Vars.content.blocks()){
+                        if(block instanceof LogicBlock){
+                            BLContentRegions.loadRegions(block);
+                        }
+                    }
+                }
+            });
+        }
+
+
+        Events.on(ClientLoadEvent.class, (e) -> {
+            ModAudio.reload();
+//            Vars.ui.content.show(ByteLogicBlocks.erekirBlocks.analyzer);
+        });
     }
 
     public static TextureRegion getIcon(){
         if(modInfo == null || modInfo.iconTexture == null) return Core.atlas.find("nomap");
         return new TextureRegion(modInfo.iconTexture);
-    }
-
-    @Override
-    protected void modContent(Content content){
-        super.modContent(content);
-//        modLog("Content: @",content);
-        if(content instanceof MappableContent && !headless){
-            BLContentRegions.loadRegions((MappableContent)content);
-//            TMContentRegions.loadRegions((MappableContent) content);
-        }
     }
 
     public void init(){
