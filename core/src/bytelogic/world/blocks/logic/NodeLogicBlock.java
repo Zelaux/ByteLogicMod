@@ -12,7 +12,6 @@ import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.guide.*;
 import bytelogic.world.*;
-import mindustry.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -173,7 +172,7 @@ public class NodeLogicBlock extends LogicRouter{
 
         @Override
         public void drawSelect(){
-            if (!canDrawSelect())return;
+            if(!canDrawSelect()) return;
 
             Lines.stroke(1f);
 
@@ -240,6 +239,9 @@ public class NodeLogicBlock extends LogicRouter{
         public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             if(link == otherBuilding.pos()) return false;
             int i = relativeTo(otherBuilding.<Building>as());
+            if(otherBuilding instanceof NodeLogicBuild b && b.link == pos()){
+                ignoreSideChecking=true;
+            }
             boolean acceptSignal = super.acceptSignal(otherBuilding, signal);
             if(otherBuilding instanceof NodeLogicBuild nodeLogicBuild && nodeLogicBuild.link == pos()){
                 sides[i] = 0;

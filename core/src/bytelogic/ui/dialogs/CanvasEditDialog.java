@@ -1,6 +1,7 @@
 package bytelogic.ui.dialogs;
 
 import arc.*;
+import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.input.*;
@@ -12,17 +13,25 @@ import bytelogic.ui.*;
 import bytelogic.world.blocks.logic.*;
 import bytelogic.world.blocks.logic.SignalBlock.*;
 import mindustry.gen.*;
-import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 
 import static mindustry.Vars.*;
 
 public class CanvasEditDialog extends BaseDialog{
-    final SignalLogicBuild build;
+    final Cons<Long> setter;
+    final Prov<Long> getter;
 
     public CanvasEditDialog(SignalLogicBuild build){
         super("@block.editsignal.as-image");
-        this.build = build;
+        getter = () -> build.currentSignal().number();
+        setter = value -> build.configureNumber(value);
+        setup();
+    }
+
+    public CanvasEditDialog( Cons<Long> setter, Prov<Long> getter){
+        super("@block.editsignal.as-image");
+        this.setter = setter;
+        this.getter = getter;
         setup();
     }
 
@@ -68,15 +77,15 @@ public class CanvasEditDialog extends BaseDialog{
                 void draw(long x, long y, boolean first){
                     long pow = y * canvasSize + x;
                     long mask = 1L << pow;
-                    long number = build.currentSignal().number();
+                    long number = getter.get();
                     boolean currentColor = (number & mask) != 0;
                     if(first){
                         coloring = !currentColor;
                     }
                     if(coloring){
-                        build.configureNumber(number & ~mask | mask);
+                        setter.get(number & ~mask | mask);
                     }else{
-                        build.configureNumber(number & ~mask);
+                        setter.get(number & ~mask);
                     }
                 }
 
@@ -88,11 +97,12 @@ public class CanvasEditDialog extends BaseDialog{
                     float rectWidth = width / canvasSize;
                     float rectHeight = height / canvasSize;
 
+                    Long number = getter.get();
                     for(long dy = 0; dy < canvasSize; dy++){
                         for(long dx = 0; dx < canvasSize; dx++){
                             long pow = dy * canvasSize + dx;
                             long mask = 1L << pow;
-                            if((build.currentSignal().number() & mask) != 0){
+                            if((number & mask) != 0){
                                 Draw.color(Color.white);
                             }else{
                                 Draw.color(disabledColor);

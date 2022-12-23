@@ -3,6 +3,7 @@ package bytelogic.game;
 import arc.struct.*;
 import arc.util.io.*;
 import bytelogic.annotations.BLAnnotations.*;
+import bytelogic.gen.*;
 import mindustry.*;
 import mindustry.gen.*;
 import mindustry.io.SaveFileReader.*;
@@ -16,6 +17,11 @@ public class CustomBuildSaving implements CustomChunk{
 
     public static void register(){
         SaveVersion.addCustomChunk("custom-building-save-v1", new CustomBuildSaving());
+    }
+
+    @Override
+    public boolean shouldWrite(){
+        return BLGroups.byteLogicBuild.size() > 0;
     }
 
     @Override

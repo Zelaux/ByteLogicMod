@@ -4,7 +4,7 @@ package bytelogic.type
 
 import mindustry.ui.*
 
-internal object NumberSignalType : DefaultSignalTypeImpl(
+internal object IntegerSignalType : DefaultSignalTypeImpl(
     "number-type",
     { Fonts.getGlyph(Fonts.outline, '0') }
 ) {

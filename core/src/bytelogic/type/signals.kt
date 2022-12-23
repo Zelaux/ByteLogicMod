@@ -71,7 +71,9 @@ object SignalTypes {
     val colorType: SignalType = ColorSignalType
 
     @JvmField
-    val numberType: SignalType = NumberSignalType
+    val numberType: SignalType = IntegerSignalType
+    @JvmField
+    val floatType: SignalType = FloatSignalType
 
     @JvmField
     val contentType: ContentSignalType = ContentSignalType

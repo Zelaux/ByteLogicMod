@@ -25,7 +25,8 @@ buildscript{
         aciVersion = "45ad8cd8ed9"
 
 
-        modCoreVersion = "93716ec24ee"
+        modCoreVersion = "70cc7cce60f"
+        arcLibVersion = "104cc9cc2e"
 
 
         kotlinVersion = "1.6.0"
@@ -130,7 +131,14 @@ allprojects{
 }
 
 dependencies{
+    implementation "com.github.Zelaux.ZelauxArcLib:defaults:$arcLibVersion"
+    implementation "com.github.Zelaux.ZelauxArcLib:utils:$arcLibVersion"
+    implementation "com.github.Zelaux.ZelauxArcLib:tooltips:$arcLibVersion"
+    implementation "com.github.Zelaux.ZelauxArcLib:components:$arcLibVersion"
+    implementation "com.github.Zelaux.ZelauxArcLib:listeners:$arcLibVersion"
+
     implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
+    implementation "com.github.Zelaux.ZelauxModCore:tiledStructures:$modCoreVersion"
     implementation "com.github.Zelaux.ZelauxModCore:graphics:$modCoreVersion"
     implementation "com.github.Zelaux.ZelauxModCore:utils:$modCoreVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
@@ -218,6 +226,13 @@ configure(subprojects - project(":annotations")){
         dependencies{
             compileJava.dependsOn(preGen)
 
+            implementation "com.github.Zelaux.ZelauxArcLib:defaults:$arcLibVersion"
+            implementation "com.github.Zelaux.ZelauxArcLib:utils:$arcLibVersion"
+            implementation "com.github.Zelaux.ZelauxArcLib:tooltips:$arcLibVersion"
+            implementation "com.github.Zelaux.ZelauxArcLib:components:$arcLibVersion"
+            implementation "com.github.Zelaux.ZelauxArcLib:listeners:$arcLibVersion"
+
+            implementation "com.github.Zelaux.ZelauxModCore:tiledStructures:$modCoreVersion"
             implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
             implementation "com.github.Zelaux.ZelauxModCore:utils:$modCoreVersion"
             implementation "com.github.Zelaux.ZelauxModCore:graphics:$modCoreVersion"
