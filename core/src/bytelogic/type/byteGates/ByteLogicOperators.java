@@ -1,4 +1,4 @@
-package bytelogic.type;
+package bytelogic.type.byteGates;
 
 import arc.*;
 import arc.func.*;
@@ -12,6 +12,7 @@ import arc.struct.*;
 import arc.util.*;
 import arc.util.serialization.*;
 import arc.util.serialization.Json.*;
+import bytelogic.type.*;
 import bytelogic.ui.dialogs.*;
 import bytelogic.world.blocks.ByteLogicProcessor.*;
 import bytelogic.world.blocks.logic.*;
@@ -117,7 +118,7 @@ public class ByteLogicOperators{
         String value();
     }
 
-    public static abstract class ByteLogicGate extends TiledStructure<ByteLogicGate>{
+    public static abstract class ByteLogicGate extends TiledStructure<ByteLogicGate> implements TiledStructureWithGroup{
         protected transient static final Cons2<TiledStructuresDialog, Table> unsetEditor = (a, b) -> {
         };
         @CodeEdit
@@ -127,6 +128,7 @@ public class ByteLogicOperators{
         protected transient final Signal tmpSignal = new Signal();
         protected transient Cons2<TiledStructuresDialog, Table> editor = unsetEditor;
         private boolean step;
+
         protected ByteLogicGate(){
             signals = signals();
             inputSignals = inputSignals();
@@ -262,8 +264,16 @@ public class ByteLogicOperators{
             return Core.bundle == null ? className : Core.bundle.get("byte-logic-gate." + className.toLowerCase() + ".name", className);
         }
 
+        protected boolean alwaysQualified(){
+            return true;
+        }
+
         @Override
         public boolean qualified(){
+            return alwaysQualified() || super.qualified();
+        }
+
+        public boolean canUseInGraphics(){
             return true;
         }
     }
@@ -346,12 +356,13 @@ public class ByteLogicOperators{
     public static abstract class UnaryGate extends ByteLogicGate{
         public final String operationLetter;
 
+        protected UnaryGate(String operationLetter){
+            this.operationLetter = operationLetter;
+        }
+
         @Override
         public ByteLogicGateGroup group(){
             return ByteLogicGateGroup.unaryOperators;
-        }
-        protected UnaryGate(String operationLetter){
-            this.operationLetter = operationLetter;
         }
 
         @Nullable
@@ -630,15 +641,15 @@ public class ByteLogicOperators{
     }
 
     public static abstract class BinaryGate extends ByteLogicGate{
+        public final String operationLetter;
+        protected transient final Signal[] tmpValues = {new Signal(), new Signal()};
+        protected BinaryGate(String operationLetter){
+            this.operationLetter = operationLetter;
+        }
+
         @Override
         public ByteLogicGateGroup group(){
             return ByteLogicGateGroup.binaryOperators;
-        }
-        public final String operationLetter;
-        protected transient final Signal[] tmpValues = {new Signal(), new Signal()};
-
-        protected BinaryGate(String operationLetter){
-            this.operationLetter = operationLetter;
         }
 
         @Nullable
@@ -689,6 +700,7 @@ public class ByteLogicOperators{
             public ByteLogicGateGroup group(){
                 return ByteLogicGateGroup.bitOperators;
             }
+
             @Override
             Signal process(Signal a, Signal b){
                 a.or(b);
@@ -705,6 +717,7 @@ public class ByteLogicOperators{
             public ByteLogicGateGroup group(){
                 return ByteLogicGateGroup.bitOperators;
             }
+
             @Override
             Signal process(Signal a, Signal b){
                 a.xor(b);
@@ -721,6 +734,7 @@ public class ByteLogicOperators{
             public ByteLogicGateGroup group(){
                 return ByteLogicGateGroup.bitOperators;
             }
+
             @Override
             Signal process(Signal a, Signal b){
                 a.and(b);
@@ -830,6 +844,7 @@ public class ByteLogicOperators{
         public transient @Nullable ByteLogicProcessorBuild link;
         @ShortName("position")
         public int clockWisePosition;
+
         @Override
         public ByteLogicGateGroup group(){
             return ByteLogicGateGroup.inputOutput;
@@ -847,6 +862,10 @@ public class ByteLogicOperators{
         }
 
         public static class OutputGate extends LinkedGate{
+            @Override
+            public boolean canUseInGraphics(){
+                return false;
+            }
 
             public OutputGate(){
                 super();
@@ -900,9 +919,15 @@ public class ByteLogicOperators{
 
     public static abstract class BitOperationGate extends ByteLogicGate{
         @Override
+        public int objWidth(){
+            return 4;
+        }
+
+        @Override
         public int outputConnections(){
             return 1;
         }
+
         @Override
         public ByteLogicGateGroup group(){
             return ByteLogicGateGroup.bitOperators;

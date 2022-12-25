@@ -6,6 +6,8 @@ import arc.struct.*;
 import arc.util.*;
 import bytelogic.type.byteGates.*;
 import bytelogic.type.byteGates.ByteLogicOperators.*;
+import bytelogic.type.graphicsGates.*;
+import bytelogic.type.graphicsGates.GraphicsOperators.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
@@ -13,12 +15,17 @@ import mindustry.ui.dialogs.*;
 import mma.ui.tiledStructures.*;
 import zelaux.arclib.ui.utils.*;
 
-public class ByteLogicDialog extends BaseTiledStructuresDialog<ByteLogicGate>{
-    public static final Seq<Prov<ByteLogicGate>> allByteLogicGates = ByteLogicOperators.getProvidersAsSequence().as();
+public class GraphicsLogicDialog extends BaseTiledStructuresDialog<ByteLogicGate>{
+    public static final Seq<Prov<ByteLogicGate>> allGraphicsGates;
 
     static{
+        allGraphicsGates=ByteLogicOperators.getProvidersAsSequence().as();
+        allGraphicsGates.removeAll(it->!it.get().canUseInGraphics());
+        allGraphicsGates.addAll(GraphicsOperators.getProvidersAsSequence().as());
         TiledStructures tiledStructures = new TiledStructures(new Seq<>());
         ByteLogicOperators.registerAll(tiledStructures);
+        GraphicsOperators.registerAll(tiledStructures);
+        tiledStructures.allObjectiveTypes.removeAll(it->!((ByteLogicGate)it.get()).canUseInGraphics());
         setGlobalProvider(ByteLogicGate.class, (type, cons) -> new BaseDialog("@add"){{
             cont.pane(p -> {
                 p.background(Tex.button);
@@ -27,7 +34,7 @@ public class ByteLogicDialog extends BaseTiledStructuresDialog<ByteLogicGate>{
 
                 int i = 0;
                 ObjectMap<ByteLogicGateGroup, Seq<ByteLogicGate>> keyMap = new ObjectMap<>();
-                for(Prov<ByteLogicGate> gate : allByteLogicGates){
+                for(Prov<ByteLogicGate> gate : allGraphicsGates){
                     ByteLogicGate logicGate = gate.get();
                     keyMap.get(logicGate.group(), Seq::new).add(logicGate);
                 }
@@ -59,8 +66,8 @@ public class ByteLogicDialog extends BaseTiledStructuresDialog<ByteLogicGate>{
 
     }
 
-    public ByteLogicDialog(){
-        super("@byte-logic", ByteLogicGate.class,allByteLogicGates);
+    public GraphicsLogicDialog(){
+        super("@graphics-logic", ByteLogicGate.class, allGraphicsGates);
     }
 
 }

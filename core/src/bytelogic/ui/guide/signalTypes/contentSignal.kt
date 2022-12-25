@@ -11,13 +11,14 @@ import bytelogic.ui.guide.*
 import mindustry.*
 import mindustry.ctype.*
 import mindustry.graphics.*
+import zelaux.arclib.ui.utils.*
 
 object ContentSignalTab : (Table) -> Unit {
     private fun Table.header(text: String): Cell<Table> {
         return table {
-            UIUtils.horizontalSeparator(it, Pal.accent)
+            Separators.horizontalSeparator(it, Pal.accent)
             it.add(text).color(Pal.accentBack).padLeft(8f).padRight(8f)
-            UIUtils.horizontalSeparator(it, Pal.accent)
+            Separators.horizontalSeparator(it, Pal.accent)
         }.growX()
     }
 
@@ -33,7 +34,7 @@ object ContentSignalTab : (Table) -> Unit {
         table.header("@content.signal.info.intro").colspan(3).row()
 
         table.add(bundleFormat("content.signal.info.text", "contentSignal = shift + id")).colspan(3).row()
-        UIUtils.horizontalSeparator(table, Color.darkGray).colspan(3).row()
+        Separators.horizontalSeparator(table, Color.darkGray).colspan(3).row()
 
 
         table.header("@content.signal.info.values").padTop(4f).colspan(3).row()

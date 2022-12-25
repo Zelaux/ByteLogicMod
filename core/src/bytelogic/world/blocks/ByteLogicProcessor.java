@@ -1,23 +1,27 @@
 package bytelogic.world.blocks;
 
-import arc.func.*;
 import arc.graphics.g2d.*;
+import arc.math.*;
+import arc.math.geom.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
+import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.io.*;
-import bytelogic.type.ByteLogicOperators.*;
-import bytelogic.type.ByteLogicOperators.LinkedGate.*;
 import bytelogic.type.*;
+import bytelogic.type.byteGates.ByteLogicOperators.*;
+import bytelogic.type.byteGates.ByteLogicOperators.LinkedGate.*;
 import bytelogic.ui.dialogs.*;
 import bytelogic.world.blocks.logic.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.ui.*;
+import mindustry.world.*;
 import mma.ui.tiledStructures.*;
 import mma.ui.tiledStructures.TiledStructures.*;
+import org.jetbrains.annotations.*;
 
 import java.util.*;
 
@@ -29,6 +33,9 @@ public class ByteLogicProcessor extends LogicBlock{
     public TextureRegion inputWire;
     @Load("@realName()-output-wire")
     public TextureRegion outputWire;
+
+    public Point2[] edges;
+    public Point2[] innerEdges;
 
     public ByteLogicProcessor(String name){
         super(name);
@@ -43,13 +50,40 @@ public class ByteLogicProcessor extends LogicBlock{
         });
     }
 
+    @Override
+    public void init(){
+        innerEdges = new Point2[size * 4];
+        edges = new Point2[size * 4];
+        int leftX = -(size - 1) / 2 - 1,
+            bottomY = -(size - 1) / 2 - 1,
+            rightX = Mathf.ceil((size - 1) / 2f) + 1,
+            topY = Mathf.ceil((size - 1) / 2f) + 1;
+        int innerLeftX = -(size - 1) / 2,
+            innerBottomY = -(size - 1) / 2,
+            innerRightX = Mathf.ceil((size - 1) / 2f),
+            innerTopY = Mathf.ceil((size - 1) / 2f);
+        for(int i = 0; i < size; i++){
+
+            edges[i] = new Point2(rightX, bottomY + i + 1);
+            edges[i + size] = new Point2(rightX - i - 1, topY);
+            edges[i + size * 2] = new Point2(leftX, topY - i - 1);
+            edges[i + size * 3] = new Point2(leftX + 1 + i, bottomY);
+
+            innerEdges[i] = new Point2(innerRightX, innerBottomY + i);
+            innerEdges[i + size] = new Point2(innerRightX - i, innerTopY);
+            innerEdges[i + size * 2] = new Point2(innerLeftX, innerTopY - i);
+            innerEdges[i + size * 3] = new Point2(innerLeftX + i, innerBottomY);
+        }
+        super.init();
+    }
+
     public class ByteLogicProcessorBuild extends LogicBuild{
-        public final TiledStructures structures = new TiledStructures(ByteLogicDialog.allByteLogicGates.as());
-        private final Signal[] signalOutputCache;
-        private final Signal[] signalInputCache;
-        private final Signal[] nextSignalInputCache;
+        public final TiledStructures structures = initStructures();
+        protected final Signal[] signalOutputCache;
+        protected final Signal[] signalInputCache;
+        protected final Signal[] nextSignalInputCache;
         public boolean buildingUpdate = false;
-        private byte[] sideStates = new byte[size * 4];
+        protected byte[] sideStates = new byte[size * 4];
 
         public ByteLogicProcessorBuild(){
             signalOutputCache = new Signal[4 * size];
@@ -60,6 +94,11 @@ public class ByteLogicProcessor extends LogicBlock{
                 signalInputCache[i] = new Signal();
                 nextSignalInputCache[i] = new Signal();
             }
+        }
+
+        @NotNull
+        protected TiledStructures initStructures(){
+            return new TiledStructures(ByteLogicDialog.allByteLogicGates.as());
         }
 
         @Override
@@ -95,9 +134,9 @@ public class ByteLogicProcessor extends LogicBlock{
 
         @Override
         public void beforeUpdateSignalState(){
-            for(int i = 0; i < signalOutputCache.length; i++){
-                Building nearby = nearby(i / size);
-                if(nearby instanceof ByteLogicBuildingc buildingc){
+            for(int i = 0; i < edges.length; i++){
+                Tile nearby = tile.nearby(edges[i]);
+                if(nearby != null && nearby.build instanceof ByteLogicBuildingc buildingc){
                     buildingc.acceptSignal(this, signalOutputCache[i]);
                 }
                 signalOutputCache[i].setZero();
@@ -126,8 +165,17 @@ public class ByteLogicProcessor extends LogicBlock{
         @Override
         public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
             if(otherBuilding != null){
-                byte sideId = relativeTo(otherBuilding.<Building>as());
-                nextSignalInputCache[sideId * size].set(signal);
+                int edge = Structs.indexOf(edges, it -> {
+                    Tile nearby = tile.nearby(it);
+                    return nearby != null && nearby.build == otherBuilding;
+                });
+//                int trns = size / 2 + 1;
+//                int i = Structs.indexOf(edges, it -> nearby(it.x * trns, it.y * trns) == otherBuilding);
+//                if (i)
+//                byte sideId = relativeTo(otherBuilding.<Building>as());
+                if(edge != -1){
+                    nextSignalInputCache[edge].set(signal);
+                }
             }
             return super.acceptSignal(otherBuilding, signal);
         }
@@ -161,14 +209,18 @@ public class ByteLogicProcessor extends LogicBlock{
         @Override
         public void draw(){
             Draw.rect(base, tile.drawx(), tile.drawy());
-
-            for(int i = 0; i < 4; i++){
+            for(int i = 0; i < edges.length; i++){
+                if(sideStates[i] == 0) continue;
+                int rotationId = i / size;
+                Tile nearby = tile.nearby(innerEdges[i]);
+                float drawx = nearby.worldx();
+                float drawy = nearby.worldy();
                 if(sideStates[i] == 1){
                     Draw.color(signalInputCache[i].color());
-                    Draw.rect(inputWire, x, y, i * 90);
+                    Draw.rect(inputWire, drawx, drawy, rotationId * 90);
                 }else if(sideStates[i] == 2){
                     Draw.color(signalOutputCache[i].color());
-                    Draw.rect(outputWire, x, y, i * 90);
+                    Draw.rect(outputWire, drawx, drawy, rotationId * 90);
                 }
             }
             Draw.color();
@@ -199,7 +251,7 @@ public class ByteLogicProcessor extends LogicBlock{
             prepareStructures();
         }
 
-        private void prepareStructures(){
+        protected void prepareStructures(){
             Seq<InputGate> inputGates = new Seq<>();
             Seq<OutputGate> outputGates = new Seq<>();
             for(TiledStructure<?> tiledStructure : structures.all){

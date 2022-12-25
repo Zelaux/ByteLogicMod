@@ -25,8 +25,8 @@ buildscript{
         aciVersion = "45ad8cd8ed9"
 
 
-        modCoreVersion = "70cc7cce60f"
-        arcLibVersion = "104cc9cc2e"
+        modCoreVersion = "7dea4dc9f97"
+        arcLibVersion = "5c1b7773a9"
 
 
         kotlinVersion = "1.6.0"
