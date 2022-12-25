@@ -20,7 +20,7 @@ public class BLTypeIO extends ModTypeIO{
         }*/
     public static TiledStructures readTiledStructures(Reads read, TiledStructures target){
         String string = read.str();
-        System.out.println("String: " + string);
+//        System.out.println("String: " + string);
         return JsonIO.read(TiledStructures.class, target, string);
     }
 

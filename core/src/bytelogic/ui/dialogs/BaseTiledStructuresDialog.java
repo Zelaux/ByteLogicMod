@@ -12,6 +12,7 @@ import arc.scene.ui.layout.Stack;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import arc.util.Log.*;
 import bytelogic.type.*;
 import kotlin.jvm.internal.Ref.*;
 import mindustry.gen.*;
@@ -54,7 +55,6 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
 
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button){
-                    System.out.println("touchUp");
                     localToStageCoordinates(Tmp.v1.set(x, y));
                     canvas.tilemap.stageToLocalCoordinates(Tmp.v1);
 
@@ -200,9 +200,14 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
             for(StructureTile tile : canvas.selection.list()){
                 tmpStructures.all.add(tile.obj);
             }
+            LogLevel level = Log.level;
+            Log.level=LogLevel.none;
             JsonIO.read(TiledStructures.class, tmpStructures, JsonIO.write(tmpStructures));
+            Log.level=level;
             canvas.stopQuery();
-            tmpStructures.all.each(canvas::addQuery);
+            for(TiledStructure tiledStructure : tmpStructures.all){
+                canvas.getQuery().add(tiledStructure,true);
+            }
             tmpStructures.clear();
         }).disabled(it -> canvas.selection.isEmpty());
         buttons.button(Icon.trash, Styles.squarei, () -> {
