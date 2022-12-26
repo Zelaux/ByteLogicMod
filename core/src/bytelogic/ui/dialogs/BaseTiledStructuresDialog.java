@@ -201,14 +201,17 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
                 tmpStructures.all.add(tile.obj);
             }
             LogLevel level = Log.level;
-            Log.level=LogLevel.none;
+            Log.level = LogLevel.none;
             JsonIO.read(TiledStructures.class, tmpStructures, JsonIO.write(tmpStructures));
-            Log.level=level;
+            Log.level = level;
             canvas.stopQuery();
             for(TiledStructure tiledStructure : tmpStructures.all){
-                canvas.getQuery().add(tiledStructure,true);
+                canvas.getQuery().list().add(tiledStructure);
+                canvas.queryTilemap.createTile(tiledStructure);
             }
+            canvas.getQuery().calculateSize();
             tmpStructures.clear();
+            prevPair.element=null;
         }).disabled(it -> canvas.selection.isEmpty());
         buttons.button(Icon.trash, Styles.squarei, () -> {
             for(StructureTile tile : canvas.selection.list()){
@@ -217,8 +220,17 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
             canvas.selection.clear();
             canvas.updateStructures();
         }).disabled(it -> canvas.selection.isEmpty());
+        buttons.row();
+
+        buttons.button(Icon.save, Styles.squarei, () -> {
+
+            for(StructureTile tile : canvas.selection.list()){
+                tmpStructures.all.add(tile.obj);
+            }
+        }).disabled(it -> canvas.selection.isEmpty());
     }
 
+    ObjectRef<GatePair<T>> prevPair = new ObjectRef<>();
     private void buildGateSelection(Table p){
         p.background(Tex.button);
         p.marginRight(14f);
@@ -230,7 +242,6 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
         }
         Seq<GroupOfTiledStructure> groups = keyMap.keys().toSeq().sort();
 
-        ObjectRef<GatePair<T>> prevPair = new ObjectRef<>();
         for(GroupOfTiledStructure group : groups){
             Seq<GatePair<T>> gates = keyMap.get(group);
             p.table(title -> {
@@ -243,13 +254,28 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
                 int i = 0;
                 for(GatePair<T> pair : gates){
 
-                    mma.ui.tiledStructures.TiledStructureGroup query = canvas.getQuery();
+                    TiledStructureGroup query = canvas.getQuery();
 //                    Seq<TiledStructure<?>> list = query.list();
                     items.button(pair.structure.typeName(), Styles.flatTogglet, () -> {
                             if(query.any() && prevPair.element == pair){
-                                canvas.addQuery(pair.structureProvider.get());
+                                T obj = pair.structureProvider.get();
+                                if(obj instanceof ConfigGroupStructure groupStructure){
+                                    groupStructure.updateConfig(query.list().size);
+                                }
+                                canvas.addQuery(obj);
+                                int index = query.list().size - 1;
+                                for(TiledStructure<?> structure : query.list()){
+                                    if(structure instanceof ConfigGroupStructure groupStructure){
+                                        groupStructure.updateConfig(index);
+                                    }
+                                    index--;
+                                }
                             }else{
-                                canvas.beginQuery(pair.structureProvider.get());
+                                T obj = pair.structureProvider.get();
+                                if(obj instanceof ConfigGroupStructure groupStructure){
+                                    groupStructure.updateConfig(0);
+                                }
+                                canvas.beginQuery(obj);
                             }
                             prevPair.element = pair;
                         }).checked(it -> prevPair.element == pair && query.any())

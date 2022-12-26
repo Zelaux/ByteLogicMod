@@ -643,6 +643,7 @@ public class ByteLogicOperators{
     public static abstract class BinaryGate extends ByteLogicGate{
         public final String operationLetter;
         protected transient final Signal[] tmpValues = {new Signal(), new Signal()};
+
         protected BinaryGate(String operationLetter){
             this.operationLetter = operationLetter;
         }
@@ -840,10 +841,15 @@ public class ByteLogicOperators{
 
     }
 
-    public static abstract class LinkedGate extends ByteLogicGate{
+    public static abstract class LinkedGate extends ByteLogicGate implements ConfigGroupStructure{
         public transient @Nullable ByteLogicProcessorBuild link;
         @ShortName("position")
         public int clockWisePosition;
+
+        @Override
+        public void updateConfig(int index){
+            clockWisePosition = index;
+        }
 
         @Override
         public ByteLogicGateGroup group(){
@@ -862,13 +868,13 @@ public class ByteLogicOperators{
         }
 
         public static class OutputGate extends LinkedGate{
+            public OutputGate(){
+                super();
+            }
+
             @Override
             public boolean canUseInGraphics(){
                 return false;
-            }
-
-            public OutputGate(){
-                super();
             }
 
             @Override
@@ -883,8 +889,9 @@ public class ByteLogicOperators{
 
             @Override
             public void updateSignals(){
+                if(link != null) clockWisePosition = clockWisePosition % (link.block.size * 4);
                 if(link != null && link.buildingUpdate){
-                    link.transferSignal(clockWisePosition % 4, inputSignals[0]);
+                    link.transferSignal(clockWisePosition, inputSignals[0]);
                 }
             }
 
@@ -907,6 +914,7 @@ public class ByteLogicOperators{
 
             @Override
             public void updateSignals(){
+                if(link != null) clockWisePosition = clockWisePosition % (link.block.size * 4);
                 if(link != null){
                     signals[0].set(link.inputSignal(clockWisePosition));
                 }else{
@@ -988,7 +996,7 @@ public class ByteLogicOperators{
             }
         }
 
-        public static class ShiftGate extends BitOperationGate{
+        public static class ShiftGate extends BitOperationGate implements ConfigGroupStructure{
             public boolean isLeft;
             public int shiftValue;
             public boolean signalAsShiftIndex;
@@ -1025,6 +1033,11 @@ public class ByteLogicOperators{
             @Override
             public int inputConnections(){
                 return 2;
+            }
+
+            @Override
+            public void updateConfig(int index){
+                shiftValue = index % 64;
             }
         }
     }

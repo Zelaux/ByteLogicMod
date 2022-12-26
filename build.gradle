@@ -25,7 +25,7 @@ buildscript{
         aciVersion = "45ad8cd8ed9"
 
 
-        modCoreVersion = "7dea4dc9f97"
+        modCoreVersion = "f4d2adb3f18"
         arcLibVersion = "5c1b7773a9"
 
 
