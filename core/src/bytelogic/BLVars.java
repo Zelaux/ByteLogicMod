@@ -3,6 +3,7 @@ package bytelogic;
 import arc.*;
 import arc.struct.*;
 import arc.util.*;
+import bytelogic.schematics.*;
 import mindustry.*;
 import mindustry.content.*;
 import mindustry.ctype.*;
@@ -20,6 +21,7 @@ public class BLVars extends ModVars{
     public static BLUI modUI;
     public static ByteLogicMod mod;
     public static BlLogic logic;
+    public static ByteLogicSchematics schematics;
 
     static{
         new BLVars();
@@ -38,6 +40,7 @@ public class BLVars extends ModVars{
         settings = new ModSettings();
         if(!headless) listener.add(modUI = new BLUI());
         listener.add(logic = new BlLogic());
+       Core.assets.load(schematics=new ByteLogicSchematics());
 
     }
 

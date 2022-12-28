@@ -227,6 +227,7 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
             for(StructureTile tile : canvas.selection.list()){
                 tmpStructures.all.add(tile.obj);
             }
+
         }).disabled(it -> canvas.selection.isEmpty());
     }
 
