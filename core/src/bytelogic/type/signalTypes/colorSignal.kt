@@ -61,7 +61,15 @@ internal object ColorSignalType : DefaultSignalTypeImpl("color-type", { Icon.pic
 
     override fun div(`this&signal`: Signal, signal: Signal) {
         if (signal.type != SignalTypes.colorType) {
-            super.div(`this&signal`, signal)
+            if (signal.type == SignalTypes.floatType) {
+                `this&signal`.setNumber(
+                    Tmp.c2.set(color(`this&signal`)).mul(1f/Double.fromBits(signal.number).toFloat()).rgba()
+                )
+            } else {
+                `this&signal`.setNumber(
+                    Tmp.c2.set(color(`this&signal`)).mul(1f/signal.number).rgba()
+                )
+            }
             return
         }
         val b = signal.color()
@@ -81,7 +89,17 @@ internal object ColorSignalType : DefaultSignalTypeImpl("color-type", { Icon.pic
 
     override fun times(`this&signal`: Signal, signal: Signal) {
         if (signal.type != SignalTypes.colorType) {
-            super.times(`this&signal`, signal)
+
+            if (signal.type == SignalTypes.floatType) {
+                `this&signal`.setNumber(
+                    Tmp.c2.set(color(`this&signal`)).mul(Double.fromBits(signal.number).toFloat()).rgba()
+                )
+            } else {
+                `this&signal`.setNumber(
+                    Tmp.c2.set(color(`this&signal`)).mul(signal.number.toFloat()).rgba()
+                )
+            }
+
             return
         }
         `this&signal`.setNumber(

@@ -10,8 +10,11 @@ import arc.scene.ui.Tooltip.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import arc.util.io.*;
 import arc.util.serialization.*;
 import arc.util.serialization.Json.*;
+import bytelogic.annotations.BLAnnotations.*;
+import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.dialogs.*;
 import bytelogic.world.blocks.ByteLogicProcessor.*;
@@ -68,6 +71,10 @@ public class ByteLogicOperators{
         Seq<Class<?>> seq = new Seq<>();
         collectClasses(ByteLogicOperators.class, seq, new ObjectSet<>());
         providers = seq.map(Reflect::cons).reverse().toArray(Prov.class);
+
+        String schemTag = Reflect.cons(SchematicGate.class).get().name();
+        JsonIO.classTag(schemTag, SchematicGate.class);
+        JsonIO.classTag(Strings.camelize(schemTag), SchematicGate.class);
         for(Class<?> type : seq){
             JsonIO.classTag(type.getName(), type);
             TiledStructuresDialog.setGlobalInterpreter(type, TiledStructuresDialog.defaultInterpreter());
@@ -118,18 +125,34 @@ public class ByteLogicOperators{
         String value();
     }
 
+    @Serializable(prefix = "BL", canCreateInstance = false, type = TiledStructure.class)
+
+    @GenerateByteLogicGatesSerializer
     public static abstract class ByteLogicGate extends TiledStructure<ByteLogicGate> implements TiledStructureWithGroup{
         protected transient static final Cons2<TiledStructuresDialog, Table> unsetEditor = (a, b) -> {
         };
-        @CodeEdit
-        public final Signal[] signals;
-        @CodeEdit
-        public final Signal[] inputSignals;
+        public transient final Class<? extends ByteLogicGate> clazz = getClass().isAnonymousClass() ? (Class<? extends ByteLogicGate>)getClass().getSuperclass() : getClass();
         protected transient final Signal tmpSignal = new Signal();
+        @CodeEdit
+
+        @FinalField
+        public Signal[] signals;
+        @CodeEdit
+        @FinalField
+        public Signal[] inputSignals;
+        @CodeEdit
+        public boolean step;
         protected transient Cons2<TiledStructuresDialog, Table> editor = unsetEditor;
-        private boolean step;
 
         protected ByteLogicGate(){
+            initSignals();
+        }
+
+        public void afterRead(){
+
+        }
+
+        protected void initSignals(){
             signals = signals();
             inputSignals = inputSignals();
             int max = Math.max(signals.length, inputSignals.length);
@@ -170,6 +193,14 @@ public class ByteLogicOperators{
             for(ConnectionWire<ByteLogicGate> wire : inputWires){
                 inputSignals[wire.input].or(wire.obj.signals[wire.parentOutput]);
             }
+        }
+
+        public int[] outputSides(){
+            return new int[0];
+        }
+
+        public int[] inputSides(){
+            return new int[0];
         }
 
         protected boolean useShortInlineFields(){
@@ -275,6 +306,22 @@ public class ByteLogicOperators{
 
         public boolean canUseInGraphics(){
             return true;
+        }
+
+        public void setLink(ByteLogicProcessorBuild build){
+
+        }
+
+        public void write(Writes write){
+
+            BLSerializer.writeTiledStructure(write, this);
+            ByteLogicGateSerializer.write(write, clazz, this);
+        }
+
+        public void read(Reads read){
+            BLSerializer.readTiledStructure(read, this);
+            ByteLogicGateSerializer.read(read, clazz, this);
+            afterRead();
         }
     }
 
@@ -406,6 +453,17 @@ public class ByteLogicOperators{
             signals[0].set(process(inputSignals[0]));
         }
 
+        public static class RelayGate extends UnaryGate{
+            public RelayGate(){
+                super("");
+            }
+
+            @Override
+            Signal process(Signal value){
+                return value;
+            }
+        }
+
         public static class NotGate extends UnaryGate{
             public NotGate(){
                 super("!");
@@ -430,96 +488,17 @@ public class ByteLogicOperators{
             }
         }
 
-        public static class RoundGate extends UnaryGate{
-            public RoundGate(){
-                super("@round");
-            }
-
-            @Override
-            Signal process(Signal value){
-                if(value.type != SignalTypes.floatType) return value;
-
-                double number = Double.longBitsToDouble(value.number());
-
-
-                long longValue;
-                double floatPart = number % 1.0;
-                if(floatPart >= 0.5){
-                    longValue = (long)number + 1;
-                }else{
-                    longValue = (long)number;
-                }
-                return Signal.valueOf(value, longValue);
-            }
-        }
-
-        public static class CeilGate extends UnaryGate{
-            public CeilGate(){
-                super("@round");
-            }
-
-            @Override
-            Signal process(Signal value){
-                if(value.type != SignalTypes.floatType) return value;
-
-                double number = Double.longBitsToDouble(value.number());
-
-
-                long longValue;
-                double floatPart = number % 1.0;
-                if(floatPart <= 0.000001){
-                    longValue = (long)number;
-                }else{
-                    longValue = (long)number + 1;
-                }
-                return Signal.valueOf(value, longValue);
-            }
-        }
-
-        public static class FloorGate extends UnaryGate{
-            public FloorGate(){
-                super("@floor");
-            }
-
-            @Override
-            Signal process(Signal value){
-                if(value.type != SignalTypes.floatType) return value;
-
-                double number = Double.longBitsToDouble(value.number());
-                return Signal.valueOf(value, (long)number);
-            }
-        }
-
-        public static class RelayGate extends UnaryGate{
-            public RelayGate(){
-                super("");
-            }
-
-            @Override
-            Signal process(Signal value){
-                return value;
-            }
-        }
 
         public static class DelayerGate extends UnaryGate{
             public transient Seq<Signal> signalsQueue = Seq.with(new Signal());
             public int currentDelay = 1;
+            @CodeEdit
+            public int tickCounter = 0;
             transient int previousDelay = 1;
-            private int tickCounter = 0;
             private transient int realAmount = 1;
 
             public DelayerGate(){
                 super("");
-            }
-
-            @Override
-            protected boolean useShortInlineFields(){
-                return true;
-            }
-
-            @Override
-            protected boolean shouldInlineFields(){
-                return true;
             }
 
             @Override
@@ -635,6 +614,91 @@ public class ByteLogicOperators{
             @Retention(RetentionPolicy.RUNTIME)
             public @interface SIGNAL_TYPE{
 
+            }
+        }
+
+        public static abstract class FloatOperationGate extends UnaryGate{
+            protected FloatOperationGate(String operationLetter){
+                super(operationLetter);
+            }
+
+            @Override
+            public ByteLogicGateGroup group(){
+                return ByteLogicGateGroup.floatOperations;
+            }
+
+            public static class ToFloatGate extends FloatOperationGate{
+                public ToFloatGate(){
+                    super("a");
+                }
+
+                @Override
+                Signal process(Signal value){
+                    if(value.type == SignalTypes.floatType) return value;
+                    value.type = SignalTypes.floatType;
+                    value.setNumber(Double.doubleToRawLongBits(value.number()));
+                    return value;
+                }
+            }
+
+            public static class RoundGate extends FloatOperationGate{
+                public RoundGate(){
+                    super("@round");
+                }
+
+                @Override
+                Signal process(Signal value){
+                    if(value.type != SignalTypes.floatType) return value;
+
+                    double number = Double.longBitsToDouble(value.number());
+
+
+                    long longValue;
+                    double floatPart = number % 1.0;
+                    if(floatPart >= 0.5){
+                        longValue = (long)number + 1;
+                    }else{
+                        longValue = (long)number;
+                    }
+                    return Signal.valueOf(value, longValue);
+                }
+            }
+
+            public static class CeilGate extends FloatOperationGate{
+                public CeilGate(){
+                    super("@round");
+                }
+
+                @Override
+                Signal process(Signal value){
+                    if(value.type != SignalTypes.floatType) return value;
+
+                    double number = Double.longBitsToDouble(value.number());
+
+
+                    long longValue;
+                    double floatPart = number % 1.0;
+                    if(floatPart <= 0.000001){
+                        longValue = (long)number;
+                    }else{
+                        longValue = (long)number + 1;
+                    }
+                    return Signal.valueOf(value, longValue);
+                }
+            }
+
+            public static class FloorGate extends FloatOperationGate{
+                public FloorGate(){
+                    super("@floor");
+                }
+
+                @Override
+                Signal process(Signal value){
+                    if(value.type != SignalTypes.floatType) return value;
+
+                    double number = Double.longBitsToDouble(value.number());
+                    return Signal.valueOf(value, (long)number);
+                }
             }
         }
 
@@ -847,6 +911,11 @@ public class ByteLogicOperators{
         public int clockWisePosition;
 
         @Override
+        public void setLink(ByteLogicProcessorBuild build){
+            this.link = build;
+        }
+
+        @Override
         public void updateConfig(int index){
             clockWisePosition = index;
         }
@@ -870,6 +939,11 @@ public class ByteLogicOperators{
         public static class OutputGate extends LinkedGate{
             public OutputGate(){
                 super();
+            }
+
+            @Override
+            public int[] outputSides(){
+                return new int[]{clockWisePosition};
             }
 
             @Override
@@ -900,6 +974,11 @@ public class ByteLogicOperators{
         public static class InputGate extends LinkedGate{
             public InputGate(){
                 super();
+            }
+
+            @Override
+            public int[] inputSides(){
+                return new int[]{clockWisePosition};
             }
 
             @Override
@@ -1038,6 +1117,176 @@ public class ByteLogicOperators{
             @Override
             public void updateConfig(int index){
                 shiftValue = index % 64;
+            }
+        }
+    }
+
+    public static abstract class MathGate extends ByteLogicGate{
+        public transient ConnectionSettings connections;//not null
+
+        @Override
+        public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
+            String inputName = connections.inputWires.get(inputIndex).name;
+            return inputName == null ? null : SideTooltips.INSTANCE.create(inputName);
+        }
+
+        @Override
+        public @Nullable Tooltip outputConnectorTooltip(int outputIndex){
+            String outputName = connections.outputWires.get(outputIndex).name;
+            return outputName == null ? null : SideTooltips.INSTANCE.create(outputName);
+        }
+
+        @Override
+        public int objWidth(){
+            return 4;
+        }
+
+        @Override
+        protected void initSignals(){
+            connections = new ConnectionSettings();
+            initConnections();
+            super.initSignals();
+        }
+
+        protected abstract void initConnections();
+
+        @Override
+        public int outputConnections(){
+            return connections.outputWires.size;
+        }
+
+        @Override
+        public int inputConnections(){
+            return connections.inputWires.size;
+        }
+
+        @Override
+        public ByteLogicGateGroup group(){
+            return ByteLogicGateGroup.math;
+        }
+
+        public static class AbsGate extends MathGate{
+
+
+            @Override
+            public void initConnections(){
+                connections.inputWire("a");
+                connections.outputWire("|a|");
+            }
+
+            @Override
+            public void updateSignals(){
+                signals[0].set(inputSignals[0]);
+                signals[0].absolute();
+            }
+        }
+        private static final Signal radiansSignal = new Signal(){{
+            type = SignalTypes.floatType;
+            setNumber(Double.doubleToRawLongBits(Math.toDegrees(1)));
+        }};
+        public static class SinGate extends MathGate{
+
+            public boolean radians = false;
+
+            @Override
+            protected void initConnections(){
+                connections.inputWire("a");
+                connections.outputWire("sin(a)");
+            }
+
+            @Override
+            public void updateSignals(){
+                signals[0].set(inputSignals[0]);
+                inputSignals[0].set(radiansSignal);
+                if(!radians){
+                    signals[0].div(inputSignals[0]);
+                }
+                inputSignals[0].type.sin(signals[0]);
+            }
+        }
+        public static class CosGate extends MathGate{
+            public boolean radians = false;
+            @Override
+            protected void initConnections(){
+                connections.inputWire("a");
+                connections.outputWire("cos(a)");
+            }
+
+            @Override
+            public void updateSignals(){
+                signals[0].set(inputSignals[0]);
+                if(!radians){
+                    signals[0].div(radiansSignal);
+                }
+                inputSignals[0].type.cos(signals[0]);
+            }
+        }
+        public static class TanGate extends MathGate{
+            public boolean radians = false;
+            @Override
+            protected void initConnections(){
+                connections.inputWire("a");
+                connections.outputWire("tan(a)");
+            }
+
+            @Override
+            public void updateSignals(){
+                signals[0].set(inputSignals[0]);
+                if(!radians){
+                    signals[0].div(radiansSignal);
+                }
+                inputSignals[0].type.tan(signals[0]);
+            }
+        }
+        public static class AsinGate extends MathGate{
+            public boolean radians = false;
+            @Override
+            protected void initConnections(){
+                connections.inputWire("a");
+                connections.outputWire("asin(a)");
+            }
+
+            @Override
+            public void updateSignals(){
+                signals[0].set(inputSignals[0]);
+                inputSignals[0].type.atan(signals[0]);
+                if(!radians){
+                    signals[0].times(radiansSignal);
+                }
+            }
+        }
+        public static class AcosGate extends MathGate{
+            public boolean radians = false;
+            @Override
+            protected void initConnections(){
+                connections.inputWire("a");
+                connections.outputWire("acos(a)");
+            }
+
+            @Override
+            public void updateSignals(){
+                signals[0].set(inputSignals[0]);
+                inputSignals[0].type.acos(signals[0]);
+                if(!radians){
+                    signals[0].times(radiansSignal);
+                }
+            }
+        }
+        public static class AtanGate extends MathGate{
+            public boolean radians = false;
+            @Override
+            protected void initConnections(){
+                connections.inputWire("a");
+                connections.outputWire("atan(a)");
+            }
+
+            @Override
+            public void updateSignals(){
+                signals[0].set(inputSignals[0]);
+                inputSignals[0].type.atan(signals[0]);
+                if(!radians){
+                    signals[0].times(radiansSignal);
+                }
             }
         }
     }

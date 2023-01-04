@@ -7,27 +7,29 @@ import arc.graphics.*;
 import arc.graphics.gl.*;
 import arc.struct.*;
 import arc.util.*;
-import arc.util.io.Streams.*;
 import arc.util.io.*;
+import arc.util.io.Streams.*;
 import arc.util.serialization.*;
+import bytelogic.io.*;
 import bytelogic.type.*;
+import bytelogic.utils.*;
 import mindustry.game.EventType.*;
 import mindustry.io.*;
-import mma.ui.tiledStructures.*;
 import mma.ui.tiledStructures.TiledStructures.*;
 
 import java.io.*;
 import java.util.zip.*;
 
+import static bytelogic.BLVars.byteLogicSchematicDirectory;
 import static mindustry.Vars.*;
 
 public class ByteLogicSchematics implements Loadable{
-    public static final String byteLogicSchematicExtension ="mbsch";
-    private static final TiledStructures tmpSchem = new TiledStructures(new Seq<>());
-    private static final TiledStructures tmpSchem2 = new TiledStructures(new Seq<>());
+    public static final String byteLogicSchematicExtension = "mbsch";
+    private static final ByteLogicSchematic tmpSchem = new ByteLogicSchematic(new Seq<>(), new StringMap(), 1, 1, ByteLogicGateProvider.defaultProvider);
+    private static final ByteLogicSchematic tmpSchem2 = new ByteLogicSchematic(new Seq<>(), new StringMap(), 1, 1, ByteLogicGateProvider.defaultProvider);
 
     private static final byte[] header = {'m', 'b', 's', 'c', 'h'};
-    private static final byte version = 0;
+    private static final byte version = 1;
 
     private static final int padding = 2;
     private static final int maxPreviewsMobile = 32;
@@ -39,6 +41,7 @@ public class ByteLogicSchematics implements Loadable{
     private ObjectSet<ByteLogicSchematic> errored = new ObjectSet<>();
     private Texture errorTexture;
     private long lastClearTime;
+
 
     public ByteLogicSchematics(){
 
@@ -90,12 +93,19 @@ public class ByteLogicSchematics implements Loadable{
                 labels = JsonIO.read(String[].class, map.get("labels", "[]"));
             }catch(Exception ignored){
             }
-            JsonIO.read(TiledStructures.class, ByteLogicSchematic.tmpStructure, stream.readUTF());
-            Seq<TiledStructure> tiledStructures = ByteLogicSchematic.tmpStructure.all.copy();
-            ByteLogicGateProvider provider = ByteLogicGateProvider.providerMap.get(stream.readUTF());
+            Reads read = new Reads(stream);
+            ByteLogicTiledStructures tmpStructures = new ByteLogicTiledStructures(new Seq<>());
+            if (ver==0){
+                JsonIO.read(ByteLogicTiledStructures.class, tmpStructures, read.str());
+            } else{
 
-            ByteLogicSchematic out = new ByteLogicSchematic(tiledStructures, map, width, height,provider);
-            out.connectionSettings.read(Reads.get(stream));
+                BLTypeIO.readByteLogicTiledStructures(read,tmpStructures);
+            }
+            Seq<TiledStructure> tiledStructures = tmpStructures.all.copy();
+            ByteLogicGateProvider provider = ByteLogicGateProvider.providerMap.get(read.str());
+
+            ByteLogicSchematic out = new ByteLogicSchematic(tiledStructures, map, width, height, provider);
+            out.connectionSettings.read(read);
             if(labels != null) out.labels.addAll(labels);
             return out;
         }
@@ -114,18 +124,24 @@ public class ByteLogicSchematics implements Loadable{
             stream.writeShort(schematic.width);
             stream.writeShort(schematic.height);
 
-            schematic.tags.put("labels", JsonIO.write(schematic.labels.toArray(String.class)));
+            JsonUtils.saveWriterIO(() -> {
+                schematic.tags.put("labels", JsonIO.write(schematic.labels.toArray(String.class)));
+            });
+
 
             stream.writeByte(schematic.tags.size);
             for(var e : schematic.tags.entries()){
                 stream.writeUTF(e.key);
                 stream.writeUTF(e.value);
             }
+            ByteLogicTiledStructures tmpStructures = new ByteLogicTiledStructures(new Seq<>());
+            tmpStructures.set(schematic.provider.providers.as());
 
-            ByteLogicSchematic.tmpStructure.set(schematic.provider.providers.as());
-            stream.writeUTF(JsonIO.write(ByteLogicSchematic.tmpStructure));
-            stream.writeUTF(schematic.provider.name);
-            schematic.connectionSettings.write(Writes.get(stream));
+            tmpStructures.all.set(schematic.structures);
+            Writes write = new Writes(stream);
+            BLTypeIO.writeByteLogicTiledStructures(write, tmpStructures);
+            write.str(schematic.provider.name);
+            schematic.connectionSettings.write(write);
         }
     }
 
@@ -139,14 +155,14 @@ public class ByteLogicSchematics implements Loadable{
         all.clear();
 
 
-        for(Fi file : schematicDirectory.list()){
+        for(Fi file : byteLogicSchematicDirectory.list()){
             loadFile(file);
         }
 
 //        platform.getWorkshopContent(ByteLogicSchematic.class).each(this::loadFile);
 
         //mod-specific schematics, cannot be removed
-        mods.listFiles("byte-logic-schematics", (mod, file) -> {
+        mods.listFiles(byteLogicSchematicDirectory.name(), (mod, file) -> {
             ByteLogicSchematic s = loadFile(file);
             if(s != null){
                 s.mod = mod;
@@ -189,7 +205,7 @@ public class ByteLogicSchematics implements Loadable{
             all.add(s);
 
             //external file from workshop
-            if(!s.file.parent().equals(schematicDirectory)){
+            if(!s.file.parent().equals(byteLogicSchematicDirectory)){
                 s.tags.put("steamid", s.file.parent().name());
             }
 
@@ -222,8 +238,8 @@ public class ByteLogicSchematics implements Loadable{
     public boolean hasPreview(ByteLogicSchematic schematic){
         return previews.containsKey(schematic);
     }
-/*
-    *//** Creates an array of build plans from a schematic's data, centered on the provided x+y coordinates. *//*
+    /*
+     *//** Creates an array of build plans from a schematic's data, centered on the provided x+y coordinates. *//*
     public Seq<BuildPlan> toPlans(ByteLogicSchematic schem, int x, int y){
         return schem.tiles.map(t -> new BuildPlan(t.x + x - schem.width / 2, t.y + y - schem.height / 2, t.rotation, t.block, t.config).original(t.x, t.y, schem.width, schem.height))
                    .removeAll(s -> (!s.block.isVisible() && !(s.block instanceof CoreBlock)) || !s.block.unlockedNow()).sort(Structs.comparingInt(s -> -s.block.schematicPriority));
@@ -233,7 +249,7 @@ public class ByteLogicSchematics implements Loadable{
     public void add(ByteLogicSchematic schematic){
         all.add(schematic);
         try{
-            Fi file = schematicDirectory.child(Time.millis() + "." + byteLogicSchematicExtension);
+            Fi file = byteLogicSchematicDirectory.child(Time.millis() + "." + byteLogicSchematicExtension);
             write(schematic, file);
             schematic.file = file;
         }catch(Exception e){

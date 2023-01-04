@@ -4,6 +4,7 @@ package bytelogic.type
 
 import mindustry.gen.*
 import mindustry.ui.*
+import kotlin.math.*
 
 internal object FloatSignalType : DefaultSignalTypeImpl(
     "float-number-type",
@@ -89,6 +90,45 @@ internal object FloatSignalType : DefaultSignalTypeImpl(
         `this&signal`.setNumber((number * secondNumber).toRawBits())
     }
 
+    override fun absolute(`this&signal`: Signal) {
+        `this&signal`.setNumber(Double.fromBits(`this&signal`.number).absoluteValue.toRawBits())
+    }
+
     override fun applyControl(`this&signal`: Signal, building: Building) {
+    }
+
+    override fun log(signal: Signal) {
+        signal.type=SignalTypes.floatType
+        signal.setNumber(Math.log(Double.fromBits(signal.number)).toRawBits())
+    }
+
+    override fun sin(signal: Signal) {
+        signal.type=SignalTypes.floatType
+        signal.setNumber(Math.sin(Double.fromBits(signal.number)).toRawBits())
+    }
+
+    override fun cos(signal: Signal) {
+        signal.type=SignalTypes.floatType
+        signal.setNumber(Math.cos(Double.fromBits(signal.number)).toRawBits())
+    }
+
+    override fun tan(signal: Signal) {
+        signal.type=SignalTypes.floatType
+        signal.setNumber(Math.tan(Double.fromBits(signal.number)).toRawBits())
+    }
+
+    override fun asin(signal: Signal) {
+        signal.type=SignalTypes.floatType
+        signal.setNumber(Math.asin(Double.fromBits(signal.number)).toRawBits())
+    }
+
+    override fun acos(signal: Signal) {
+        signal.type=SignalTypes.floatType
+        signal.setNumber(Math.acos(Double.fromBits(signal.number)).toRawBits())
+    }
+
+    override fun atan(signal: Signal) {
+        signal.type=SignalTypes.floatType
+        signal.setNumber(Math.atan(Double.fromBits(signal.number)).toRawBits())
     }
 }

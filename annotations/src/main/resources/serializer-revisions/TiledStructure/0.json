@@ -1,0 +1,1 @@
+{fields:[{name:completed,type:boolean,isPrivate:true},{name:editorX,type:int},{name:editorY,type:int}]}

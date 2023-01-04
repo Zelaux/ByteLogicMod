@@ -1,6 +1,7 @@
 package bytelogic;
 
 import arc.*;
+import arc.files.*;
 import arc.struct.*;
 import arc.util.*;
 import bytelogic.schematics.*;
@@ -13,15 +14,16 @@ import bytelogic.content.*;
 import bytelogic.core.*;
 import bytelogic.customArc.*;
 
-import static mindustry.Vars.headless;
+import static mindustry.Vars.*;
 
 public class BLVars extends ModVars{
+    public static Fi byteLogicSchematicDirectory=dataDirectory.child("byte-logic-schematics");
     private final static Seq<Runnable> onLoad = new Seq<>();
     public static ModSettings settings;
     public static BLUI modUI;
     public static ByteLogicMod mod;
     public static BlLogic logic;
-    public static ByteLogicSchematics schematics;
+    public static ByteLogicSchematics byteLogicSchematics;
 
     static{
         new BLVars();
@@ -40,7 +42,7 @@ public class BLVars extends ModVars{
         settings = new ModSettings();
         if(!headless) listener.add(modUI = new BLUI());
         listener.add(logic = new BlLogic());
-       Core.assets.load(schematics=new ByteLogicSchematics());
+       Core.assets.load(byteLogicSchematics =new ByteLogicSchematics());
 
     }
 

@@ -3,31 +3,26 @@ package bytelogic.world.blocks;
 import arc.graphics.g2d.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
-import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.type.byteGates.ByteLogicOperators.*;
-import bytelogic.type.byteGates.ByteLogicOperators.LinkedGate.*;
-import bytelogic.type.graphicsGates.GraphicsOperators.*;
 import bytelogic.type.graphicsGates.GraphicsOperators.GraphicsOperator.*;
 import bytelogic.ui.dialogs.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.ui.*;
-import mindustry.world.*;
 import mindustry.world.blocks.logic.LogicDisplay.*;
-import mma.graphics.*;
 import mma.ui.tiledStructures.*;
 import mma.ui.tiledStructures.TiledStructures.*;
 import org.jetbrains.annotations.*;
 
 import java.util.*;
 
-import static mindustry.Vars.*;
+import static mindustry.Vars.state;
 
 public class GraphicsProcessor extends ByteLogicProcessor{
     public static final TiledStructures tmpStructures = new TiledStructures(GraphicsLogicDialog.allGraphicsGates.as());
-    public int updatePerTick = 8;
+    public int updatePerTick = 1;
     @Load("@realName()-input-wire")
     public TextureRegion inputWire;
     @Load("@realName()-output-wire")
@@ -48,12 +43,19 @@ public class GraphicsProcessor extends ByteLogicProcessor{
 
         public boolean buildingUpdate = false;
         public LongQueue commands = new LongQueue(256);
+        public transient boolean hasDisplays = false;
         private byte[] sideStates = new byte[size * 4];
+
+        @Override
+        public void updateProximity(){
+            super.updateProximity();
+            hasDisplays = proximity.contains(it -> it instanceof LogicDisplayBuild);
+        }
 
         @NotNull
         @Override
-        protected TiledStructures initStructures(){
-            return new TiledStructures(GraphicsLogicDialog.allGraphicsGates.as());
+        protected ByteLogicGateProvider provider(){
+            return ByteLogicGateProvider.graphicsProvider;
         }
 
         @Override
@@ -89,6 +91,7 @@ public class GraphicsProcessor extends ByteLogicProcessor{
 
         @Override
         public void beforeUpdateSignalState(){
+            if (!hasDisplays)return;
             buildingUpdate = true;
             for(int i = 0; i < updatePerTick; i++){
                 //initializing inputs
@@ -133,22 +136,15 @@ public class GraphicsProcessor extends ByteLogicProcessor{
 
         @Override
         protected void prepareStructures(){
-            Seq<InputGate> inputGates = new Seq<>();
+            Arrays.fill(sideStates, (byte)0);
             for(TiledStructure<?> tiledStructure : structures.all){
-                if(tiledStructure instanceof GraphicsOperator operator){
-                    operator.listener = this;
-                }
-                if(tiledStructure instanceof LinkedGate linkedGate){
-                    linkedGate.link = this;
-                    if(linkedGate instanceof InputGate inputGate){
-                        inputGates.add(inputGate);
+                if(tiledStructure instanceof ByteLogicGate byteLogicGate){
+                    byteLogicGate.setLink(this);
+
+                    for(var side : byteLogicGate.inputSides()){
+                        sideStates[side % sideStates.length] = 1;
                     }
                 }
-            }
-            Arrays.fill(sideStates, (byte)0);
-
-            for(InputGate inputGate : inputGates){
-                sideStates[inputGate.clockWisePosition % sideStates.length] = 1;
             }
         }
 

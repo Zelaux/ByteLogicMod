@@ -9,6 +9,7 @@ import arc.util.*;
 import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.io.*;
+import bytelogic.schematics.*;
 import bytelogic.type.*;
 import bytelogic.type.byteGates.ByteLogicOperators.*;
 import bytelogic.type.byteGates.ByteLogicOperators.LinkedGate.*;
@@ -19,6 +20,7 @@ import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.ui.*;
 import mindustry.world.*;
+import mma.io.*;
 import mma.ui.tiledStructures.*;
 import mma.ui.tiledStructures.TiledStructures.*;
 import org.jetbrains.annotations.*;
@@ -28,7 +30,7 @@ import java.util.*;
 import static mindustry.Vars.state;
 
 public class ByteLogicProcessor extends LogicBlock{
-    public static final TiledStructures tmpStructures = new TiledStructures(ByteLogicDialog.allByteLogicGates.as());
+    public static final ByteLogicTiledStructures tmpStructures = new ByteLogicTiledStructures(ByteLogicDialog.allByteLogicGates.as());
     @Load("@realName()-input-wire")
     public TextureRegion inputWire;
     @Load("@realName()-output-wire")
@@ -47,6 +49,12 @@ public class ByteLogicProcessor extends LogicBlock{
         this.<String, ByteLogicProcessorBuild>config(String.class, (build, string) -> {
             build.setStructures(string);
 //            System.out.println(JsonIO.print(string));
+        });
+
+        this.<byte[], ByteLogicProcessorBuild>config(byte[].class, (build, bytes) -> {
+
+            build.setStructures(bytes);
+            // System.out.println(JsonIO.print(string));
         });
     }
 
@@ -76,9 +84,10 @@ public class ByteLogicProcessor extends LogicBlock{
         }
         super.init();
     }
+    private static final ByteWrites byteWrites=new ByteWrites();
 
     public class ByteLogicProcessorBuild extends LogicBuild{
-        public final TiledStructures structures = initStructures();
+        public final ByteLogicTiledStructures structures = initStructures();
         protected final Signal[] signalOutputCache;
         protected final Signal[] signalInputCache;
         protected final Signal[] nextSignalInputCache;
@@ -95,15 +104,20 @@ public class ByteLogicProcessor extends LogicBlock{
                 nextSignalInputCache[i] = new Signal();
             }
         }
-
         @NotNull
-        protected TiledStructures initStructures(){
-            return new TiledStructures(ByteLogicDialog.allByteLogicGates.as());
+protected ByteLogicGateProvider provider(){
+            return ByteLogicGateProvider.defaultProvider;
+}
+        @NotNull
+        protected ByteLogicTiledStructures initStructures(){
+            return new ByteLogicTiledStructures(provider().providers.as());
         }
 
         @Override
         public Object config(){
-            return JsonIO.write(structures);
+            byteWrites.reset();
+            structures.write(byteWrites);
+            return byteWrites.getBytes();
         }
 
         public boolean accessible(){
@@ -121,7 +135,9 @@ public class ByteLogicProcessor extends LogicBlock{
                 ByteLogicDialog dialog = new ByteLogicDialog();
                 dialog.show(() -> structures.all, it -> {
                     tmpStructures.all.set(it);
-                    configure(JsonIO.write(tmpStructures));
+                    BLTypeIO.tmpWrites.reset();
+                    BLTypeIO.writeByteLogicTiledStructures(BLTypeIO.tmpWrites,tmpStructures);
+                    configure(BLTypeIO.tmpWrites.getBytes());
                 });
                 deselect();
             }).size(40f);
@@ -180,31 +196,6 @@ public class ByteLogicProcessor extends LogicBlock{
             return super.acceptSignal(otherBuilding, signal);
         }
 
-        @Override
-        public void customWrite(Writes write){
-            BLTypeIO.writeTiledStructures(write, structures);
-
-            writeSignalArray(write, signalOutputCache);
-            writeSignalArray(write, signalInputCache);
-            writeSignalArray(write, nextSignalInputCache);
-        }
-
-        private void writeSignalArray(Writes write, Signal[] array){
-            write.i(array.length);
-            for(Signal value : array){
-                value.write(write);
-            }
-        }
-
-        @Override
-        public void customRead(Reads read){
-            BLTypeIO.readTiledStructures(read, structures);
-
-            readSignalArray(read, signalOutputCache);
-            readSignalArray(read, signalInputCache);
-            readSignalArray(read, nextSignalInputCache);
-            prepareStructures();
-        }
 
         @Override
         public void draw(){
@@ -226,6 +217,71 @@ public class ByteLogicProcessor extends LogicBlock{
             Draw.color();
         }
 
+
+        public void setStructures(String string){
+            JsonIO.read(ByteLogicTiledStructures.class, structures, string);
+            prepareStructures();
+        }
+        public void setStructures(byte[] bytes){
+            BLTypeIO.tmpReads.setBytes(bytes);
+            BLTypeIO.readByteLogicTiledStructures(BLTypeIO.tmpReads,structures);
+            prepareStructures();
+        }
+
+        protected void prepareStructures(){
+            byte[] inputs=new byte[size*4];
+            byte[] outputs=new byte[size*4];
+            for(TiledStructure<?> tiledStructure : structures.all){
+                if(tiledStructure instanceof ByteLogicGate byteLogicGate){
+                    byteLogicGate.setLink(this);
+
+                    for(var side : byteLogicGate.inputSides()){
+                        inputs[side%inputs.length]=1;
+                    }
+                    for(var side : byteLogicGate.outputSides()){
+                        outputs[side%outputs.length]=1;
+                    }
+                }
+            }
+            Arrays.fill(sideStates, (byte)0);
+            for(int i = 0; i < inputs.length; i++){
+                sideStates[i] = (byte)Math.max(inputs[i],outputs[i]*2);
+            }
+        }
+
+        public void transferSignal(int clockWisePosition, Signal signal){
+            signalOutputCache[clockWisePosition].set(signal);
+        }
+
+        public Signal inputSignal(int clockWisePosition){
+            return signalInputCache[clockWisePosition];
+        }
+        @Override
+        public void customWrite(Writes write){
+            BLTypeIO.writeByteLogicTiledStructures(write, structures);
+
+            writeSignalArray(write, signalOutputCache);
+            writeSignalArray(write, signalInputCache);
+            writeSignalArray(write, nextSignalInputCache);
+        }
+
+        private void writeSignalArray(Writes write, Signal[] array){
+            write.i(array.length);
+            for(Signal value : array){
+                value.write(write);
+            }
+        }
+
+        @Override
+        public void customRead(Reads read){
+            BLTypeIO.readByteLogicTiledStructures(read, structures);
+
+            readSignalArray(read, signalOutputCache);
+            readSignalArray(read, signalInputCache);
+            readSignalArray(read, nextSignalInputCache);
+            prepareStructures();
+        }
+
         private void readSignalArray(Reads read, Signal[] array){
             int size = read.i();
             for(int i = 0; i < size; i++){
@@ -243,43 +299,7 @@ public class ByteLogicProcessor extends LogicBlock{
 
         @Override
         public short customVersion(){
-            return 0;
-        }
-
-        public void setStructures(String string){
-            JsonIO.read(TiledStructures.class, structures, string);
-            prepareStructures();
-        }
-
-        protected void prepareStructures(){
-            Seq<InputGate> inputGates = new Seq<>();
-            Seq<OutputGate> outputGates = new Seq<>();
-            for(TiledStructure<?> tiledStructure : structures.all){
-                if(tiledStructure instanceof LinkedGate linkedGate){
-                    linkedGate.link = this;
-                    if(linkedGate instanceof InputGate inputGate){
-                        inputGates.add(inputGate);
-                    }else if(linkedGate instanceof OutputGate outputGate){
-                        outputGates.add(outputGate);
-                    }
-                }
-            }
-            Arrays.fill(sideStates, (byte)0);
-
-            for(InputGate inputGate : inputGates){
-                sideStates[inputGate.clockWisePosition % sideStates.length] = 1;
-            }
-            for(OutputGate outputGate : outputGates){
-                sideStates[outputGate.clockWisePosition % sideStates.length] = 2;
-            }
-        }
-
-        public void transferSignal(int clockWisePosition, Signal signal){
-            signalOutputCache[clockWisePosition].set(signal);
-        }
-
-        public Signal inputSignal(int clockWisePosition){
-            return signalInputCache[clockWisePosition];
+            return 1;
         }
     }
 }

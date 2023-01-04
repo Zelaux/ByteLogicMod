@@ -8,10 +8,10 @@ import bytelogic.type.graphicsGates.*;
 import mma.ui.tiledStructures.TiledStructures.*;
 
 public class ByteLogicGateProvider{
-    public static final ByteLogicGateProvider defaultProvider = new ByteLogicGateProvider("default",ByteLogicOperators.getProvidersAsSequence().as());
-    public static final ByteLogicGateProvider graphicsProvider = new ByteLogicGateProvider("graphics", GraphicsOperators.getProvidersAsSequence().as());
     public static final ObjectMap<String, ByteLogicGateProvider> providerMap = new ObjectMap<>();
     public static final Seq<ByteLogicGateProvider> allProviders = new Seq<>();
+    public static final ByteLogicGateProvider defaultProvider = new ByteLogicGateProvider("default",ByteLogicOperators.getProvidersAsSequence().as());
+    public static final ByteLogicGateProvider graphicsProvider = new ByteLogicGateProvider("graphics", GraphicsOperators.getProvidersAsSequence().as());
     public final int id;
     public final String name;
     public final Seq<Prov<? extends TiledStructure<?>>> providers;

@@ -13,9 +13,24 @@ public class BLAnnotations{
     public @interface CustomSavingSerializers{
     }
 
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Serializable{
+        String prefix() default "";
+        boolean canCreateInstance() default true;
+
+        Class<?> type() default Void.class;
+    }
+
 
     @Retention(RetentionPolicy.SOURCE)
     public @interface RemoveFromCompilation{
     }
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(ElementType.FIELD)
+    public @interface FinalField{
+    }
 
+    public @interface GenerateByteLogicGatesSerializer {
+    }
 }

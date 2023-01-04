@@ -1,3 +1,5 @@
 bytelogic.annotations.assets.IconsProcessor
 bytelogic.annotations.customSavingProc.CustomSavingProc
 bytelogic.annotations.extra.FilePostprocessor
+bytelogic.annotations.serialization.ByteLogicGatesSerializer
+bytelogic.annotations.serialization.SerializeProcessor

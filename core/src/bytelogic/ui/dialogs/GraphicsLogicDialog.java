@@ -19,6 +19,7 @@ public class GraphicsLogicDialog extends BaseTiledStructuresDialog<ByteLogicGate
     public static final Seq<Prov<ByteLogicGate>> allGraphicsGates;
 
     static{
+
         allGraphicsGates=ByteLogicOperators.getProvidersAsSequence().as();
         allGraphicsGates.removeAll(it->!it.get().canUseInGraphics());
         allGraphicsGates.addAll(GraphicsOperators.getProvidersAsSequence().as());

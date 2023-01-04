@@ -13,8 +13,12 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.Log.*;
+import bytelogic.schematics.*;
 import bytelogic.type.*;
+import bytelogic.type.byteGates.*;
 import kotlin.jvm.internal.Ref.*;
+import mindustry.*;
+import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.io.*;
@@ -28,10 +32,18 @@ import zelaux.arclib.ui.utils.*;
 import java.lang.annotation.*;
 import java.util.*;
 
+import static bytelogic.BLVars.byteLogicSchematics;
 import static mindustry.Vars.mobile;
+import static mindustry.editor.MapObjectivesCanvas.*;
 
 public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructureWithGroup> extends TiledStructuresDialog{
+    public static BaseTiledStructuresDialog tmpDialog;
 
+    static{
+        Events.run(ClientLoadEvent.class, () -> {
+            tmpDialog = new BaseTiledStructuresDialog("", ByteLogicSchematicsDialog.class, ByteLogicGateProvider.defaultProvider.providers);
+        });
+    }
 
     final Seq<Prov<T>> allGates;
     public Element selectionTable = new Element(){
@@ -97,6 +109,7 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
             }
         }
     };
+    ObjectRef<GatePair<T>> prevPair = new ObjectRef<>();
 
     public BaseTiledStructuresDialog(String title, Class<T> initClass, Seq<Prov<T>> allGates){
         super(title, initClass);
@@ -175,6 +188,40 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
         ).grow().pad(0f).margin(0f);
     }
 
+    @Override
+    public void show(Prov<Seq<TiledStructure>> structuresProv, Cons<Seq<TiledStructure>> out){
+        this.out = out;
+        Seq<TiledStructure> structures = structuresProv.get();
+        canvas.clearObjectives();
+        if(structures.any() && structures.contains(obj -> !canvas.tilemap.createTile(obj))){
+            // ... then rebuild the structure.
+            canvas.clearObjectives();
+
+            // This is definitely NOT a good way to do it, but only insane people or people from the distant past would actually encounter this anyway.
+            int w = objWidth + 2,
+                len = structures.size * w,
+                columns = structures.size,
+                rows = 1;
+
+            if(len > bounds){
+                rows = len / bounds;
+                columns = bounds / w;
+            }
+
+            int i = 0;
+            loop:
+            for(int y = 0; y < rows; y++){
+                for(int x = 0; x < columns; x++){
+                    canvas.tilemap.createTile(x * w, bounds - 1 - y * 2, structures.get(i++));
+                    if(i >= structures.size) break loop;
+                }
+            }
+        }
+        this.originalStructures = structuresProv;
+        canvas.structures.set(structures);
+        show();
+    }
+
     private void setupSideButtons(Table buttons, TiledStructures tmpStructures){
         buttons.defaults().size(48f);
 
@@ -211,7 +258,7 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
             }
             canvas.getQuery().calculateSize();
             tmpStructures.clear();
-            prevPair.element=null;
+            prevPair.element = null;
         }).disabled(it -> canvas.selection.isEmpty());
         buttons.button(Icon.trash, Styles.squarei, () -> {
             for(StructureTile tile : canvas.selection.list()){
@@ -227,11 +274,35 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
             for(StructureTile tile : canvas.selection.list()){
                 tmpStructures.all.add(tile.obj);
             }
+            JsonIO.read(TiledStructures.class, tmpStructures, JsonIO.write(tmpStructures));
+            new ByteLogicSchematicEditDialog(tmpStructures.all.copy().as(), ByteLogicGateProvider.defaultProvider).show();
 
         }).disabled(it -> canvas.selection.isEmpty());
+        buttons.button(Icon.upload, Styles.squarei, () -> {
+            ByteLogicSchematicsDialog dialog = new ByteLogicSchematicsDialog();
+            dialog.show(it -> {
+                dialog.remove();
+                Core.app.post(() -> {
+                    Vars.ui.showCustomConfirm("@add-schematic", "", "as gate", "as schem", () -> {
+
+                        ByteLogicSchematic schematic = ByteLogicSchematics.readBase64(byteLogicSchematics.writeBase64(it));
+                        schematic.parentFile(it.file);
+                        canvas.beginQuery(new SchematicGate(schematic));
+                    }, () -> {
+                        TiledStructureGroup query = canvas.getQuery();
+                        canvas.stopQuery();
+                        query.list().addAll(it.structures.as());
+                        query.list().each(canvas.queryTilemap::createTile);
+
+                        query.calculateSize();
+                        query.setPosition(0,0);
+                    });
+                });
+            });
+
+        });
     }
 
-    ObjectRef<GatePair<T>> prevPair = new ObjectRef<>();
     private void buildGateSelection(Table p){
         p.background(Tex.button);
         p.marginRight(14f);

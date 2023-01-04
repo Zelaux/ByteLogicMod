@@ -39,7 +39,7 @@ public class CustomBuildSaving implements CustomChunk{
             stream.writeInt(pos);
             Building build = Vars.world.build(pos);
             CustomSaveBuilding customSaveBuilding = (CustomSaveBuilding)build;
-            customSaveBuilding.customWrite(Writes.get(stream));
+            customSaveBuilding.customWrite(new Writes(stream));
         }
 //        Writes.get(stream).var
     }
@@ -50,7 +50,7 @@ public class CustomBuildSaving implements CustomChunk{
         for(int i = 0; i < buildAmount; i++){
             int buildPos = stream.readInt();
             Building build = Vars.world.build(buildPos);
-            ((CustomSaveBuilding)build).customRead(Reads.get(stream));
+            ((CustomSaveBuilding)build).customRead(new Reads(stream));
         }
     }
 

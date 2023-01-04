@@ -8,7 +8,7 @@ import mma.io.*
 
 typealias NUMBER_TYPE = Long
 
-class Signal {
+open class Signal {
     companion object {
         @JvmField
         val tmpReads: ByteReads = ByteReads()
@@ -154,6 +154,10 @@ class Signal {
     }
 
     fun applyControl(building: Building) {
-    type.applyControl(this,building)
+        type.applyControl(this, building)
+    }
+
+    fun absolute() {
+        type.absolute(this);
     }
 }

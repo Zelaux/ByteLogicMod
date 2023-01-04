@@ -6,11 +6,14 @@ import bytelogic.type.*;
 import org.jetbrains.annotations.*;
 
 public class ByteLogicGateGroup implements GroupOfTiledStructure{
+    public static ByteLogicGateGroup nil=new ByteLogicGateGroup("nil");
     public static final ByteLogicGateGroup signalProviders = new ByteLogicGateGroup("signal-providers");
     public static final ByteLogicGateGroup inputOutput = new ByteLogicGateGroup("input-output");
     public static final ByteLogicGateGroup bitOperators = new ByteLogicGateGroup("bit-operators");
     public static final ByteLogicGateGroup unaryOperators = new ByteLogicGateGroup("unary-operators");
     public static final ByteLogicGateGroup binaryOperators = new ByteLogicGateGroup("binary-operators");
+    public static ByteLogicGateGroup floatOperations=new ByteLogicGateGroup("float-operations");
+    public static ByteLogicGateGroup math=new ByteLogicGateGroup("math");
     public static ByteLogicGateGroup draw=new ByteLogicGateGroup("draw");
     private static int total = 0;
     public final String name;

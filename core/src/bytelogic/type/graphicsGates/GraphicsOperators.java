@@ -9,6 +9,7 @@ import arc.struct.*;
 import arc.util.*;
 import bytelogic.type.byteGates.*;
 import bytelogic.type.byteGates.ByteLogicOperators.*;
+import bytelogic.world.blocks.ByteLogicProcessor.*;
 import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.world.blocks.logic.*;
@@ -76,6 +77,14 @@ public class GraphicsOperators{
     public static abstract class GraphicsOperator extends ByteLogicGate{
         @Nullable
         public transient DrawCommandListener listener;
+
+        @Override
+        public void setLink(ByteLogicProcessorBuild build){
+            if (build instanceof DrawCommandListener){
+                listener= (DrawCommandListener)build;
+            }
+            super.setLink(build);
+        }
 
         @Override
         public final boolean canUseInGraphics(){
