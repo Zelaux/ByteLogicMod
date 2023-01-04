@@ -375,6 +375,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
                 WireDescriptor wireDescriptor = wires.get(i);
 
                 MockConnector element = new MockConnector(!isInput, i, ConnectorStyle.defaultStyle());
+
                 collectors.add(element);
                 ObjectRef<String> tooltipText = new ObjectRef<>();
                 if(isInput){
@@ -647,6 +648,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
                     conPointer = pointer;
 
                     if(connecting.has()) return false;
+                    requestScroll();
                     connecting.set(MockConnector.this);
 
                     pointX = x;
@@ -657,6 +659,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
                 @Override
                 public void touchDragged(InputEvent event, float x, float y, int pointer){
                     if(conPointer != pointer) return;
+                    requestScroll();
                     pointX = x;
                     pointY = y;
                 }

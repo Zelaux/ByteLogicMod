@@ -12,6 +12,7 @@ import arc.scene.ui.layout.*;
 import arc.scene.utils.*;
 import arc.struct.*;
 import arc.util.*;
+import bytelogic.*;
 import bytelogic.schematics.*;
 import bytelogic.ui.elements.*;
 import mindustry.*;
@@ -253,7 +254,7 @@ public class ByteLogicSchematicsDialog extends BaseDialog{
                     }catch(Throwable e){
                         ui.showException(e);
                     }
-                }).marginLeft(12f).disabled(b -> Core.app.getClipboardText() == null || !Core.app.getClipboardText().startsWith(schematicBaseStart));
+                }).marginLeft(12f).disabled(b -> Core.app.getClipboardText() == null || !Core.app.getClipboardText().startsWith(BLVars.byteLogicSchematicBaseStart));
                 t.row();
                 t.button("@schematic.importfile", Icon.download, style, () -> platform.showFileChooser(true, schematicExtension, file -> {
                     dialog.hide();

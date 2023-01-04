@@ -28,7 +28,7 @@ public class ByteLogicSchematics implements Loadable{
     private static final ByteLogicSchematic tmpSchem = new ByteLogicSchematic(new Seq<>(), new StringMap(), 1, 1, ByteLogicGateProvider.defaultProvider);
     private static final ByteLogicSchematic tmpSchem2 = new ByteLogicSchematic(new Seq<>(), new StringMap(), 1, 1, ByteLogicGateProvider.defaultProvider);
 
-    private static final byte[] header = {'m', 'b', 's', 'c', 'h'};
+    public static final byte[] header = {'m', 'b', 's', 'c', 'h'};
     private static final byte version = 1;
 
     private static final int padding = 2;
