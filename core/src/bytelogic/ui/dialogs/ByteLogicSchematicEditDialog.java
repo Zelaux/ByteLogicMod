@@ -35,6 +35,7 @@ import zelaux.arclib.ui.listeners.*;
 import zelaux.arclib.ui.tooltips.*;
 import zelaux.arclib.ui.utils.*;
 
+import static mindustry.Vars.mobile;
 import static mma.ui.tiledStructures.TiledStructuresCanvas.*;
 
 public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
@@ -43,17 +44,19 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
     private final ConnectingState connecting = new ConnectingState();
     private final Seq<MockConnector> mockInputs = new Seq<>();
     private final Seq<MockConnector> mockOutputs = new Seq<>();
+    @Nullable
+    public ByteLogicSchematicsDialog schematicsDialog;
     LongMap<TiledStructure<?>> structureMap = new LongMap<>();
     private ByteLogicSchematic schematic;
 
     public ByteLogicSchematicEditDialog(Seq<TiledStructure<?>> structures, ByteLogicGateProvider provider){
-        this(createSchematic(structures, provider),null);
+        this(createSchematic(structures, provider), null);
     }
 
     public ByteLogicSchematicEditDialog(ByteLogicSchematic schematic, @Nullable ByteLogicSchematicsDialog dialog){
         super("byte-logic-schematic-save", null);
         this.schematic = schematic;
-        this.schematicsDialog=dialog;
+        this.schematicsDialog = dialog;
         for(TiledStructure structure : schematic.structures){
             structureMap.put(Pack.longInt(structure.editorX, structure.editorY), structure);
         }
@@ -147,7 +150,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
     }
 
     private void setup(Table cont){
-        canvas = new TiledStructuresCanvas(this);
+        initCanvas();
         for(TiledStructure<?> structure : structures){
 
             canvas.tilemap.createTile(structure);
@@ -202,7 +205,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
         keyDown(KeyCode.back, this::hide);
 
         cont.row();
-        cont.table(contInner->{
+        cont.table(contInner -> {
             contInner.table(inputConnections -> {
                 connectorsReset.add(connectionsBuilder(inputConnections, schematic.connectionSettings.inputWires, mockInputs, true));
             }).height(size);
@@ -248,11 +251,61 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
         buttons.button("@save", accept).disabled(b -> nameField.getText().isEmpty());
     }
 
+    private void initCanvas(){
+        canvas = new ByteLogicGateCanvas(this){{
+            getCaptureListeners().pop();
+            addCaptureListener(new ElementGestureListener(){
+                int pressPointer = -1;
+
+                @Override
+                public void pan(InputEvent event, float x, float y, float deltaX, float deltaY){
+//                    if(tilemap.moving.any() || tilemap.connecting != null) return;
+                    if(connecting.any()) return;
+                    tilemap.x = Mathf.clamp(tilemap.x + deltaX, -bounds * unitSize + width, bounds * unitSize);
+                    tilemap.y = Mathf.clamp(tilemap.y + deltaY, -bounds * unitSize + height, bounds * unitSize);
+                }
+
+                @Override
+                public void tap(InputEvent event, float x, float y, int count, KeyCode button){
+                    if(query.isEmpty()) return;
+
+                    Vec2 pos = localToDescendantCoordinates(tilemap, Tmp.v1.set(x, y));
+                    query.setPosition(
+                        queryX(pos), queryY(pos)
+                    );
+//                queryX = queryX(pos);
+                    //noinspection IntegerDivisionInFloatingPointContext
+//                queryY = queryY(pos);
+
+                    // In mobile, placing the query is done in a separate button.
+                    if(!mobile) placeQuery();
+                }
+
+                @Override
+                public void touchDown(InputEvent event, float x, float y, int pointer, KeyCode button){
+                    if(pressPointer != -1) return;
+                    pressPointer = pointer;
+                    setPressed(true);
+                    setVisualPressed(Time.millis() + 100);
+                }
+
+                @Override
+                public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button){
+                    if(pointer == pressPointer){
+                        pressPointer = -1;
+                        setPressed(false);
+                    }
+                }
+            });
+        }};
+
+    }
+
     private void buildTags(ByteLogicSchematic schem, Table t, boolean name){
         final float tagh = 42f;
         t.clearChildren();
         t.left();
-        Seq<String> tags = schematicsDialog==null?Core.settings.getJson("schematic-tags", Seq.class, String.class, Seq::new):schematicsDialog.tags;
+        Seq<String> tags = schematicsDialog == null ? Core.settings.getJson("schematic-tags", Seq.class, String.class, Seq::new) : schematicsDialog.tags;
 
         //sort by order in the main target array. the complexity of this is probably awful
         schem.labels.sort(s -> tags.indexOf(s));
@@ -328,26 +381,26 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
             dialog.show();
         }).size(tagh).tooltip("@schematic.addtag");
     }
-    @Nullable
-    public ByteLogicSchematicsDialog schematicsDialog;
+
     void addTag(ByteLogicSchematic s, String tag){
         s.labels.add(tag);
         s.save();
-        if (schematicsDialog !=null) schematicsDialog.tagsChanged();
+        if(schematicsDialog != null) schematicsDialog.tagsChanged();
     }
 
     void removeTag(ByteLogicSchematic s, String tag){
         s.labels.remove(tag);
         s.save();
-        if (schematicsDialog !=null) schematicsDialog.tagsChanged();
+        if(schematicsDialog != null) schematicsDialog.tagsChanged();
     }
+
     private void saveSchem(){
         if(schematic.file == null){
             BLVars.byteLogicSchematics.add(schematic);
         }else{
             schematic.save();
         }
-        if (schematicsDialog!=null){
+        if(schematicsDialog != null){
             schematicsDialog.rebuild();
         }
     }
@@ -431,7 +484,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
                 drawCurve(Color.white, from.x, from.y, to.x, to.y, true);
             }
         }
-        if(!connecting.has()) return;
+        if(!connecting.any()) return;
 
         if(connecting.isMock){
             MockConnector connecting = this.connecting.mockConnector;
@@ -544,7 +597,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
             this.isMock = false;
         }
 
-        public boolean has(){
+        public boolean any(){
             return mockConnector != null || connector != null;
         }
 
@@ -562,7 +615,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
         }
 
         public boolean canConnectTo(MockConnector mockConnector){
-            return !has() || isMock() ? false : connector.findParent != mockConnector.isInput;
+            return !any() || isMock() ? false : connector.findParent != mockConnector.isInput;
         }
     }
 
@@ -589,7 +642,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
             if(conPointer != -1 || connector.isDisabled()) return false;
             conPointer = pointer;
 
-            if(self.connecting.has()) return false;
+            if(self.connecting.any()) return false;
             self.connecting.set(connector);
 
             connector.pointX = x1;
@@ -647,7 +700,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
                     if(conPointer != -1 || isDisabled()) return false;
                     conPointer = pointer;
 
-                    if(connecting.has()) return false;
+                    if(connecting.any()) return false;
                     requestScroll();
                     connecting.set(MockConnector.this);
 

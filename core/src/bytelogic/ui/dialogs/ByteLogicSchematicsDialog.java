@@ -270,12 +270,12 @@ public class ByteLogicSchematicsDialog extends BaseDialog{
                     }
                 })).marginLeft(12f);
                 t.row();
-                if(steam){
+                /*if(steam){
                     t.button("@schematic.browseworkshop", Icon.book, style, () -> {
                         dialog.hide();
                         platform.openWorkshop();
                     }).marginLeft(12f);
-                }
+                }*/
             });
         });
 

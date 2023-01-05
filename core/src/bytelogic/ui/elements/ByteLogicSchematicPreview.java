@@ -54,9 +54,16 @@ public class ByteLogicSchematicPreview extends Table{
             }
         };
 
+        TiledStructureGroup group = new TiledStructureGroup();
+        for(TiledStructure structure : schematic.structures){
+            group.list().add(structure);
+        }
+        group.calculateSize();
         for(TiledStructure structure : schematic.structures){
             canvas.tilemap.createTile(structure);
         }
+
+
 
 
         ByteLogicSchematicEditDialog.clearTiles(canvas.tilemap.getChildren().as());

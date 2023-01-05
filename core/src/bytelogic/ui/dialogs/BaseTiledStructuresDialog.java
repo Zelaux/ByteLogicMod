@@ -13,6 +13,7 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.Log.*;
+import bytelogic.io.*;
 import bytelogic.schematics.*;
 import bytelogic.type.*;
 import bytelogic.type.byteGates.*;
@@ -119,6 +120,14 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
         setupUI(initClass);
     }
 
+    private static void cloneStructures(ByteLogicTiledStructures tmpStructures){
+        BLTypeIO.tmpWrites.reset();
+        tmpStructures.write(BLTypeIO.tmpWrites);
+        BLTypeIO.tmpReads.setBytes(BLTypeIO.tmpWrites.getBytes());
+        BLTypeIO.tmpWrites.reset();
+        tmpStructures.read(BLTypeIO.tmpReads);
+    }
+
     private void setSelection(int x0, int y0, int x1, int y1){
         this.canvas.setSelection(Math.min(x0, x1), Math.min(y0, y1), Math.abs(x0 - x1), Math.abs(y0 - y1));
     }
@@ -126,7 +135,7 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
     @Override
     protected void setupUI(Class<? extends TiledStructure> initClass){
         if(allGates == null) return;
-        TiledStructures tmpStructures = new TiledStructures(allGates.as());
+        ByteLogicTiledStructures tmpStructures = new ByteLogicTiledStructures(allGates.as());
         clear();
         margin(0f);
 //        WidgetGroup canvasGroup;
@@ -222,7 +231,7 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
         show();
     }
 
-    private void setupSideButtons(Table buttons, TiledStructures tmpStructures){
+    private void setupSideButtons(Table buttons, ByteLogicTiledStructures tmpStructures){
         buttons.defaults().size(48f);
 
         buttons.button("+", () -> {
@@ -270,11 +279,12 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
         buttons.row();
 
         buttons.button(Icon.save, Styles.squarei, () -> {
-
+            tmpStructures.all.clear();
             for(StructureTile tile : canvas.selection.list()){
                 tmpStructures.all.add(tile.obj);
             }
-            JsonIO.read(TiledStructures.class, tmpStructures, JsonIO.write(tmpStructures));
+            BLTypeIO.tmpWrites.reset();
+            cloneStructures(tmpStructures);
             new ByteLogicSchematicEditDialog(tmpStructures.all.copy().as(), ByteLogicGateProvider.defaultProvider).show();
 
         }).disabled(it -> canvas.selection.isEmpty());
@@ -291,11 +301,13 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
                     }, () -> {
                         TiledStructureGroup query = canvas.getQuery();
                         canvas.stopQuery();
-                        query.list().addAll(it.structures.as());
+                        tmpStructures.all.set(it.structures);
+                        cloneStructures(tmpStructures);
+                        query.list().addAll(tmpStructures.all.as());
                         query.list().each(canvas.queryTilemap::createTile);
 
                         query.calculateSize();
-                        query.setPosition(0,0);
+                        query.setPosition(0, 0);
                     });
                 });
             });

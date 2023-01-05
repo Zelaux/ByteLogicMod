@@ -38,7 +38,7 @@ public class BLTypeIO extends ModTypeIO{
     public static void writeSignal(Writes write, Signal signal){
         signal.write(write);
     }
-    public static final ByteWrites tmpWrites = new ByteWrites();
+    public static final ByteWrites  tmpWrites = new ByteWrites();
     public static final ByteReads tmpReads = new ByteReads();
     private static final Signal tmpSignal=new Signal();
     public static Signal readSignal(Reads read, Signal signal){
