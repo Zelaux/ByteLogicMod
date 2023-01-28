@@ -13,6 +13,7 @@ import arc.util.*;
 import arc.util.io.*;
 import arc.util.serialization.*;
 import arc.util.serialization.Json.*;
+import bytelogic.*;
 import bytelogic.annotations.BLAnnotations.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
@@ -40,54 +41,57 @@ public class ByteLogicOperators{
     static Prov<? extends TiledStructure>[] providers;
 
     static{
-        Seq<Json> jsons = Seq.with(JsonIO.json, Reflect.get(JsonIO.class, "jsonBase"));
-        SignalTypes.nilType.getId();
-        Serializer signalTypeSerializer = new Serializer<SignalType>(){
-            @Override
-            public void write(Json json, SignalType object, Class knownType){
-                json.writeValue(object.getName());
-            }
 
-            @Override
-            public SignalType read(Json json, JsonValue jsonData, Class type){
-                return SignalType.findByName(jsonData.asString());
-            }
-        };
-        for(Json json : jsons){
-            if(json.getSerializer(SignalType.class) == null){
-                json.setSerializer(SignalType.class, signalTypeSerializer);
-            }
-            for(SignalType type : SignalType.all){
+        if(!BLVars.packSprites){
+            Seq<Json> jsons = Seq.with(JsonIO.json, Reflect.get(JsonIO.class, "jsonBase"));
+            SignalTypes.nilType.getId();
+            Serializer signalTypeSerializer = new Serializer<SignalType>(){
+                @Override
+                public void write(Json json, SignalType object, Class knownType){
+                    json.writeValue(object.getName());
+                }
 
-                Class<? extends SignalType> aClass = type.getClass();
-                if(aClass.isAnonymousClass()) aClass = (Class<? extends SignalType>)aClass.getSuperclass();
-                if(json.getSerializer(aClass) == null){
-                    json.setSerializer(aClass, signalTypeSerializer);
+                @Override
+                public SignalType read(Json json, JsonValue jsonData, Class type){
+                    return SignalType.findByName(jsonData.asString());
+                }
+            };
+            for(Json json : jsons){
+                if(json.getSerializer(SignalType.class) == null){
+                    json.setSerializer(SignalType.class, signalTypeSerializer);
+                }
+                for(SignalType type : SignalType.all){
+
+                    Class<? extends SignalType> aClass = type.getClass();
+                    if(aClass.isAnonymousClass()) aClass = (Class<? extends SignalType>)aClass.getSuperclass();
+                    if(json.getSerializer(aClass) == null){
+                        json.setSerializer(aClass, signalTypeSerializer);
+                    }
                 }
             }
+
+
+            Seq<Class<?>> seq = new Seq<>();
+            collectClasses(ByteLogicOperators.class, seq, new ObjectSet<>());
+            providers = seq.map(Reflect::cons).reverse().toArray(Prov.class);
+
+            String schemTag = Reflect.cons(SchematicGate.class).get().name();
+            JsonIO.classTag(schemTag, SchematicGate.class);
+            JsonIO.classTag(Strings.camelize(schemTag), SchematicGate.class);
+            for(Class<?> type : seq){
+                JsonIO.classTag(type.getName(), type);
+                TiledStructuresDialog.setGlobalInterpreter(type, TiledStructuresDialog.defaultInterpreter());
+            }
+
+            TiledStructuresDialog.setGlobalProvider(long.class, (type, cons) -> cons.get(0L));
+            TiledStructuresDialog.setGlobalInterpreter(long.class, (instance, cont, name, type, field, remover, indexer, get, set) -> {
+                TiledStructuresDialog.name(cont, name, remover, indexer);
+                cont.field(Long.toString(get.get()), str -> set.get(Strings.parseLong(str, 0L)))
+                    .growX().fillY()
+                    .valid(ModStrings::canParseLong)
+                    .get().setFilter(TextFieldFilter.digitsOnly);
+            });
         }
-
-
-        Seq<Class<?>> seq = new Seq<>();
-        collectClasses(ByteLogicOperators.class, seq, new ObjectSet<>());
-        providers = seq.map(Reflect::cons).reverse().toArray(Prov.class);
-
-        String schemTag = Reflect.cons(SchematicGate.class).get().name();
-        JsonIO.classTag(schemTag, SchematicGate.class);
-        JsonIO.classTag(Strings.camelize(schemTag), SchematicGate.class);
-        for(Class<?> type : seq){
-            JsonIO.classTag(type.getName(), type);
-            TiledStructuresDialog.setGlobalInterpreter(type, TiledStructuresDialog.defaultInterpreter());
-        }
-
-        TiledStructuresDialog.setGlobalProvider(long.class, (type, cons) -> cons.get(0L));
-        TiledStructuresDialog.setGlobalInterpreter(long.class, (instance, cont, name, type, field, remover, indexer, get, set) -> {
-            TiledStructuresDialog.name(cont, name, remover, indexer);
-            cont.field(Long.toString(get.get()), str -> set.get(Strings.parseLong(str, 0L)))
-                .growX().fillY()
-                .valid(ModStrings::canParseLong)
-                .get().setFilter(TextFieldFilter.digitsOnly);
-        });
     }
 
     public static Seq<Prov<? extends TiledStructure>> getProvidersAsSequence(){
@@ -614,6 +618,38 @@ public class ByteLogicOperators{
             @Retention(RetentionPolicy.RUNTIME)
             public @interface SIGNAL_TYPE{
 
+            }
+        }
+        public static class TypeOfGate extends UnaryGate{
+
+
+            public TypeOfGate(){
+                super("");
+            }
+
+            @Override
+            public boolean hasFields(){
+                return true;
+            }
+
+            @Override
+            public int objHeight(){
+                return 2;
+            }
+
+            @Nullable
+            @Override
+            public Tooltip outputConnectorTooltip(int inputIndex){
+                return SideTooltips.getInstance().create("typeId");
+            }
+            @Override
+            Signal process(Signal value){
+                int id = value.type.getId();
+                if (id>=SignalTypes.nilType.getId()){
+                    id--;
+                }
+                Signal.valueOf(value, id);
+                return value;
             }
         }
 

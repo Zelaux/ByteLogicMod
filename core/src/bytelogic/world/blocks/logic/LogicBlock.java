@@ -47,6 +47,7 @@ public abstract class LogicBlock extends Block implements LogicBlockI, ImageGene
     protected boolean doOutput = true;
     public LogicBlock(String name){
         super(name);
+        saveConfig=false;
         rotate = true;
         group = BlockGroup.logic;
         update = true;
@@ -200,6 +201,13 @@ public abstract class LogicBlock extends Block implements LogicBlockI, ImageGene
     }
 
     public abstract class LogicBuild extends Building implements ByteLogicBuildingc, CustomSaveBuilding{
+        protected  int index__bytelogicBuild=-1;
+        @Override
+        public void setIndex__byteLogicBuild(int index){
+this.index__bytelogicBuild=index;
+        }
+
+
         public final Signal lastSignal = new Signal();
         protected final Signal nextSignal = new Signal();
 
@@ -306,7 +314,7 @@ public abstract class LogicBlock extends Block implements LogicBlockI, ImageGene
             boolean wasAdded = added;
             super.remove();
             if(wasAdded != added){
-                BLGroups.byteLogicBuild.remove(this);
+                BLGroups.byteLogicBuild.removeIndex(this,index__bytelogicBuild);
             }
         }
 
@@ -315,7 +323,7 @@ public abstract class LogicBlock extends Block implements LogicBlockI, ImageGene
             boolean wasAdded = added;
             super.add();
             if(wasAdded != added){
-                BLGroups.byteLogicBuild.add(this);
+                index__bytelogicBuild=BLGroups.byteLogicBuild.addIndex(this);
             }
         }
 

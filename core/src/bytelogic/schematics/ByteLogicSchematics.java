@@ -10,6 +10,7 @@ import arc.util.*;
 import arc.util.io.*;
 import arc.util.io.Streams.*;
 import arc.util.serialization.*;
+import bytelogic.*;
 import bytelogic.io.*;
 import bytelogic.type.*;
 import bytelogic.utils.*;
@@ -24,7 +25,7 @@ import static bytelogic.BLVars.byteLogicSchematicDirectory;
 import static mindustry.Vars.*;
 
 public class ByteLogicSchematics implements Loadable{
-    public static final String byteLogicSchematicExtension = "mbsch";
+
     private static final ByteLogicSchematic tmpSchem = new ByteLogicSchematic(new Seq<>(), new StringMap(), 1, 1, ByteLogicGateProvider.defaultProvider);
     private static final ByteLogicSchematic tmpSchem2 = new ByteLogicSchematic(new Seq<>(), new StringMap(), 1, 1, ByteLogicGateProvider.defaultProvider);
 
@@ -198,7 +199,7 @@ public class ByteLogicSchematics implements Loadable{
     }*/
 
     private @Nullable ByteLogicSchematic loadFile(Fi file){
-        if(!file.extension().equals(byteLogicSchematicExtension)) return null;
+        if(!file.extension().equals(BLVars.byteLogicSchematicExtension)) return null;
 
         try{
             ByteLogicSchematic s = read(file);
@@ -249,7 +250,7 @@ public class ByteLogicSchematics implements Loadable{
     public void add(ByteLogicSchematic schematic){
         all.add(schematic);
         try{
-            Fi file = byteLogicSchematicDirectory.child(Time.millis() + "." + byteLogicSchematicExtension);
+            Fi file = byteLogicSchematicDirectory.child(Time.millis() + "." + BLVars.byteLogicSchematicExtension);
             write(schematic, file);
             schematic.file = file;
         }catch(Exception e){

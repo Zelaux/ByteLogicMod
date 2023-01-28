@@ -256,7 +256,7 @@ public class ByteLogicSchematicsDialog extends BaseDialog{
                     }
                 }).marginLeft(12f).disabled(b -> Core.app.getClipboardText() == null || !Core.app.getClipboardText().startsWith(BLVars.byteLogicSchematicBaseStart));
                 t.row();
-                t.button("@schematic.importfile", Icon.download, style, () -> platform.showFileChooser(true, schematicExtension, file -> {
+                t.button("@schematic.importfile", Icon.download, style, () -> platform.showFileChooser(true, BLVars.byteLogicSchematicExtension, file -> {
                     dialog.hide();
 
                     try{
@@ -298,7 +298,7 @@ public class ByteLogicSchematicsDialog extends BaseDialog{
                 t.row();
                 t.button("@schematic.exportfile", Icon.export, style, () -> {
                     dialog.hide();
-                    platform.export(s.name(), ByteLogicSchematics.byteLogicSchematicExtension, file -> byteLogicSchematics.write(s, file));
+                    platform.export(s.name(), BLVars.byteLogicSchematicExtension, file -> byteLogicSchematics.write(s, file));
                 }).marginLeft(12f);
             });
         });

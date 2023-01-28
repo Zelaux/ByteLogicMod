@@ -2,6 +2,7 @@ package bytelogic;
 
 import arc.*;
 import arc.files.*;
+import arc.func.*;
 import arc.struct.*;
 import arc.util.*;
 import bytelogic.content.*;
@@ -17,9 +18,10 @@ import mma.*;
 import static mindustry.Vars.*;
 
 public class BLVars extends ModVars{
+    public static final String byteLogicSchematicExtension = "mbsch";
     public static final String byteLogicSchematicBaseStart = "bWJzY2g";
     private final static Seq<Runnable> onLoad = new Seq<>();
-    public static Fi byteLogicSchematicDirectory = dataDirectory.child("byte-logic-schematics");
+    public static Fi byteLogicSchematicDirectory = dataDirectory==null ? null : dataDirectory.child("byte-logic-schematics");
     public static ModSettings settings;
     public static BLUI modUI;
     public static ByteLogicMod mod;
@@ -97,6 +99,10 @@ public class BLVars extends ModVars{
 
     public static void modLog(String text, Object... args){
         Log.info("[@] @", modInfo == null ? "test-java" : modInfo.name, Strings.format(text, args));
+    }
+
+    public static <T> T nullOnPack(Prov<T> provider){
+        return packSprites?null:provider.get();
     }
 
     @Override

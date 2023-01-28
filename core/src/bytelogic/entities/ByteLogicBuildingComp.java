@@ -7,7 +7,7 @@ import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 
 @Component
-abstract class ByteLogicBuildingComp implements Buildingc, ByteLogicBuildingc{
+abstract class ByteLogicBuildingComp implements Buildingc, ByteLogicBuildingc, IndexableEntity__byteLogicBuild{
     public abstract void updateSignalState();
 
     @Override

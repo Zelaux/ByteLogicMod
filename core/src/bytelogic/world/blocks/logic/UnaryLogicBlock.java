@@ -36,6 +36,8 @@ public abstract class UnaryLogicBlock extends LogicBlock{
     protected static final int rightSideMaskIndex = 3;
     @Annotations.Load("@realName()-side")
     public TextureRegion sideRegion;
+    @Annotations.Load("@realName()-center")
+    public TextureRegion centerRegion;
     protected /*@NonNull*/ UnaryProcessor processor;
 
     public UnaryLogicBlock(String name){
@@ -43,6 +45,9 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         configurable = true;
         this.<Byte, UnaryLogicBuild>config(Byte.class, (build, value) -> {
             build.inputType = value;
+        });
+        this.<byte[], UnaryLogicBuild>config(byte[].class, (build, value) -> {
+            build.inputType = value[0];
         });
         this.<Integer, UnaryLogicBuild>config(Integer.class, (build, value) -> {
             build.inputType = updateInputType(value);
@@ -65,6 +70,9 @@ public abstract class UnaryLogicBlock extends LogicBlock{
     @Override
     public Pixmap generate(Pixmap icon, PixmapProcessor processor){
         icon = super.generate(icon, processor);
+        if (centerRegion.found()){
+            icon.draw(processor.get(centerRegion),true);
+        }
         applyMask(sideRegion,processor);
         return icon;
     }
@@ -197,6 +205,9 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         public void draw(){
             Draw.rect(base, tile.drawx(), tile.drawy());
             Draw.color(signalColor());
+            if(centerRegion.found()){
+                Draw.rect(centerRegion,x,y,drawrot());
+            }
             for(int i = 1; i < sideMasks.length; i++){
                 if((inputType & sideMasks[i]) == 0) continue;
                 if(i == rightSideMaskIndex) sideRegion.flip(false, true);

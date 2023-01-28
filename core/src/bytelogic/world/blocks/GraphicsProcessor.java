@@ -1,8 +1,11 @@
 package bytelogic.world.blocks;
 
+import arc.*;
+import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
+import bytelogic.*;
 import bytelogic.type.*;
 import bytelogic.type.byteGates.ByteLogicOperators.*;
 import bytelogic.type.graphicsGates.GraphicsOperators.GraphicsOperator.*;
@@ -11,7 +14,9 @@ import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.ui.*;
+import mindustry.world.*;
 import mindustry.world.blocks.logic.LogicDisplay.*;
+import mma.type.pixmap.*;
 import mma.ui.tiledStructures.*;
 import mma.ui.tiledStructures.TiledStructures.*;
 import org.jetbrains.annotations.*;
@@ -21,12 +26,13 @@ import java.util.*;
 import static mindustry.Vars.state;
 
 public class GraphicsProcessor extends ByteLogicProcessor{
-    public static final TiledStructures tmpStructures = new TiledStructures(GraphicsLogicDialog.allGraphicsGates.as());
+    public static final TiledStructures tmpStructures = BLVars.nullOnPack(()->new TiledStructures(GraphicsLogicDialog.allGraphicsGates.as()));
     public int updatePerTick = 1;
-    @Load("@realName()-input-wire")
-    public TextureRegion inputWire;
-    @Load("@realName()-output-wire")
-    public TextureRegion outputWire;
+    public TextureRegion[] wires;
+    @Load(value = "@-top", fallback = "@realName()-top")
+    public TextureRegion top;
+    @Load(value = "@-bottom", fallback = "@realName()-bottom")
+    public TextureRegion bottom;
 
     public GraphicsProcessor(String name){
         super(name);
@@ -36,6 +42,42 @@ public class GraphicsProcessor extends ByteLogicProcessor{
         rotate = false;
         size = 2;
 
+    }
+
+    @Override
+    public void load(){
+        wires=new TextureRegion[size*4];
+        for(int i = 0; i < wires.length; i++){
+            wires[i]= Core.atlas.find(name+"-wire-"+i);
+        }
+        super.load();
+    }
+
+    @Override
+    public Pixmap generate(Pixmap icon, PixmapProcessor processor){
+
+        Pixmap bottom = processor.get(this.bottom);
+        Pixmap top = processor.get(this.top);
+        if(size == 2){
+            Pixmap zeroWire = processor.get(name + "-wire");
+
+            for(int sideIndex = 0; sideIndex < 4; sideIndex++){
+                for(int offset = 0; offset < 2; offset++){
+                    Pixmap result=zeroWire.copy();
+                    if(offset==1){
+                        result=result.flipY();
+                    }
+                    result = PixmapProcessor.rotatePixmap(result, sideIndex);
+
+
+                    processor.save(result, name + "-wire-" + (sideIndex * 2 + offset));
+                }
+            }
+        }
+
+
+        bottom.draw(top, true);
+        return bottom;
     }
 
     public class GraphicsProcessorBuild extends ByteLogicProcessor.ByteLogicProcessorBuild implements DrawCommandListener{
@@ -91,7 +133,7 @@ public class GraphicsProcessor extends ByteLogicProcessor{
 
         @Override
         public void beforeUpdateSignalState(){
-            if (!hasDisplays)return;
+            if(!hasDisplays) return;
             buildingUpdate = true;
             for(int i = 0; i < updatePerTick; i++){
                 //initializing inputs
@@ -117,7 +159,15 @@ public class GraphicsProcessor extends ByteLogicProcessor{
 
         @Override
         public void draw(){
-            super.draw();
+            Draw.rect(bottom, tile.drawx(), tile.drawy());
+            for(int i = 0; i < edges.length; i++){
+                if(sideStates[i] == 1){
+                    Draw.color(signalInputCache[i].color());
+                    Draw.rect(wires[i], x, y, 0);
+                }
+            }
+            Draw.rect(top, tile.drawx(), tile.drawy());
+            Draw.color();
            /* for(int i = 0; i < edges.length; i++){
                 Tile nearby = tile.nearby(edges[i]);
                 Tile nearbyInner = tile.nearby(innerEdges[i]);

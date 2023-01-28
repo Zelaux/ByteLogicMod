@@ -4,15 +4,14 @@ import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.scene.ui.layout.*;
-import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
+import bytelogic.*;
 import bytelogic.gen.*;
 import bytelogic.io.*;
 import bytelogic.schematics.*;
 import bytelogic.type.*;
 import bytelogic.type.byteGates.ByteLogicOperators.*;
-import bytelogic.type.byteGates.ByteLogicOperators.LinkedGate.*;
 import bytelogic.ui.dialogs.*;
 import bytelogic.world.blocks.logic.*;
 import mindustry.annotations.Annotations.*;
@@ -20,8 +19,8 @@ import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.ui.*;
 import mindustry.world.*;
+import mma.*;
 import mma.io.*;
-import mma.ui.tiledStructures.*;
 import mma.ui.tiledStructures.TiledStructures.*;
 import org.jetbrains.annotations.*;
 
@@ -30,12 +29,12 @@ import java.util.*;
 import static mindustry.Vars.state;
 
 public class ByteLogicProcessor extends LogicBlock{
-    public static final ByteLogicTiledStructures tmpStructures = new ByteLogicTiledStructures(ByteLogicDialog.allByteLogicGates.as());
+    public static final ByteLogicTiledStructures tmpStructures = BLVars.nullOnPack(() -> new ByteLogicTiledStructures(ByteLogicDialog.allByteLogicGates.as()));
+    private static final ByteWrites byteWrites = new ByteWrites();
     @Load("@realName()-input-wire")
     public TextureRegion inputWire;
     @Load("@realName()-output-wire")
     public TextureRegion outputWire;
-
     public Point2[] edges;
     public Point2[] innerEdges;
 
@@ -58,6 +57,10 @@ public class ByteLogicProcessor extends LogicBlock{
         });
     }
 
+    @Override
+    public TextureRegion[] icons(){
+        return !ModVars.packSprites ? new TextureRegion[]{fullIcon} : new TextureRegion[]{base};
+    }
     @Override
     public void init(){
         innerEdges = new Point2[size * 4];
@@ -84,7 +87,6 @@ public class ByteLogicProcessor extends LogicBlock{
         }
         super.init();
     }
-    private static final ByteWrites byteWrites=new ByteWrites();
 
     public class ByteLogicProcessorBuild extends LogicBuild{
         public final ByteLogicTiledStructures structures = initStructures();
@@ -104,10 +106,12 @@ public class ByteLogicProcessor extends LogicBlock{
                 nextSignalInputCache[i] = new Signal();
             }
         }
+
         @NotNull
-protected ByteLogicGateProvider provider(){
+        protected ByteLogicGateProvider provider(){
             return ByteLogicGateProvider.defaultProvider;
-}
+        }
+
         @NotNull
         protected ByteLogicTiledStructures initStructures(){
             return new ByteLogicTiledStructures(provider().providers.as());
@@ -136,7 +140,7 @@ protected ByteLogicGateProvider provider(){
                 dialog.show(() -> structures.all, it -> {
                     tmpStructures.all.set(it);
                     BLTypeIO.tmpWrites.reset();
-                    BLTypeIO.writeByteLogicTiledStructures(BLTypeIO.tmpWrites,tmpStructures);
+                    BLTypeIO.writeByteLogicTiledStructures(BLTypeIO.tmpWrites, tmpStructures);
                     configure(BLTypeIO.tmpWrites.getBytes());
                 });
                 deselect();
@@ -222,30 +226,31 @@ protected ByteLogicGateProvider provider(){
             JsonIO.read(ByteLogicTiledStructures.class, structures, string);
             prepareStructures();
         }
+
         public void setStructures(byte[] bytes){
             BLTypeIO.tmpReads.setBytes(bytes);
-            BLTypeIO.readByteLogicTiledStructures(BLTypeIO.tmpReads,structures);
+            BLTypeIO.readByteLogicTiledStructures(BLTypeIO.tmpReads, structures);
             prepareStructures();
         }
 
         protected void prepareStructures(){
-            byte[] inputs=new byte[size*4];
-            byte[] outputs=new byte[size*4];
+            byte[] inputs = new byte[size * 4];
+            byte[] outputs = new byte[size * 4];
             for(TiledStructure<?> tiledStructure : structures.all){
                 if(tiledStructure instanceof ByteLogicGate byteLogicGate){
                     byteLogicGate.setLink(this);
 
                     for(var side : byteLogicGate.inputSides()){
-                        inputs[side%inputs.length]=1;
+                        inputs[side % inputs.length] = 1;
                     }
                     for(var side : byteLogicGate.outputSides()){
-                        outputs[side%outputs.length]=1;
+                        outputs[side % outputs.length] = 1;
                     }
                 }
             }
             Arrays.fill(sideStates, (byte)0);
             for(int i = 0; i < inputs.length; i++){
-                sideStates[i] = (byte)Math.max(inputs[i],outputs[i]*2);
+                sideStates[i] = (byte)Math.max(inputs[i], outputs[i] * 2);
             }
         }
 
@@ -256,6 +261,7 @@ protected ByteLogicGateProvider provider(){
         public Signal inputSignal(int clockWisePosition){
             return signalInputCache[clockWisePosition];
         }
+
         @Override
         public void customWrite(Writes write){
             BLTypeIO.writeByteLogicTiledStructures(write, structures);
