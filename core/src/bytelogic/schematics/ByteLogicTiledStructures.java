@@ -7,16 +7,17 @@ import arc.util.io.*;
 import bytelogic.type.byteGates.ByteLogicOperators.*;
 import mindustry.io.*;
 import mma.ui.tiledStructures.*;
-import mma.ui.tiledStructures.TiledStructures.*;
 import mma.ui.tiledStructures.TiledStructures.TiledStructure.*;
 
 public class ByteLogicTiledStructures extends TiledStructures{
     public ByteLogicTiledStructures(Seq<Prov<? extends ByteLogicGate>> allObjectiveTypes){
         super(allObjectiveTypes.as());
     }
+
     public void set(Seq<Prov<? extends ByteLogicGate>> allObjectiveTypes){
         this.allObjectiveTypes.set(allObjectiveTypes);
     }
+
     public void write(Writes write){
         write.i(0);//version
         //region all
@@ -28,16 +29,16 @@ public class ByteLogicTiledStructures extends TiledStructures{
         }
         //endregion
         //region wires
-        write.i(gates.count(it->it.inputWires.any()));
+        write.i(gates.count(it -> it.inputWires.any()));
         for(int i = 0; i < gates.size; i++){
 
             ByteLogicGate root = gates.get(i);
-            if (root.inputWires.isEmpty())continue;
+            if(root.inputWires.isEmpty()) continue;
             write.i(i);
-            write.i(root.inputWires.count(it->gates.indexOf(it.obj)!=-1));
+            write.i(root.inputWires.count(it -> gates.indexOf(it.obj) != -1));
             for(ConnectionWire<ByteLogicGate> inputWire : root.inputWires){
                 int objIndex = gates.indexOf(inputWire.obj);
-                if(objIndex==-1)continue;
+                if(objIndex == -1) continue;
                 write.i(objIndex);
                 write.i(inputWire.input);
                 write.i(inputWire.parentOutput);
@@ -45,6 +46,7 @@ public class ByteLogicTiledStructures extends TiledStructures{
         }
         //endregion
     }
+
     public void read(Reads read){
         read.i();//version
         //region all
@@ -52,7 +54,8 @@ public class ByteLogicTiledStructures extends TiledStructures{
         all.clear();
         for(int i = 0; i < allAmount; i++){
             String gateName = read.str();
-            Class<? extends ByteLogicGate> clazz =JsonIO.json.getClass(gateName);
+            Class<? extends ByteLogicGate> clazz = JsonIO.json.getClass(gateName);
+            if(clazz == null) throw new NullPointerException("Cannot find clazz for gate with name: " + gateName);
             ByteLogicGate gate = Reflect.cons(clazz).get();
             gate.read(read);
             all.add(gate);
@@ -69,7 +72,7 @@ public class ByteLogicTiledStructures extends TiledStructures{
                 int objIndex = read.i();
                 int input = read.i();
                 int parentOutput = read.i();
-                root.addParent(gates.get(objIndex),input,parentOutput);
+                root.addParent(gates.get(objIndex), input, parentOutput);
             }
         }
         //endregion

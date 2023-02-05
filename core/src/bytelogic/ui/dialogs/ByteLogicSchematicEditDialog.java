@@ -396,6 +396,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
 
     private void saveSchem(){
         if(schematic.file == null){
+
             BLVars.byteLogicSchematics.add(schematic);
         }else{
             schematic.save();

@@ -253,7 +253,7 @@ task generateIcons(dependsOn: [classes, configurations.runtimeClasspath]) {
         javaexec {
             maxHeapSize = "4048m"
             args("32","64")
-            main = "bytelogic.tools.IconRasterizer"
+            main = "bytelogic.tools.IconGenerator"
             classpath = sourceSets.main.runtimeClasspath
             workingDir = "../"
 //            jvmArgs ("-Xmx2024m")

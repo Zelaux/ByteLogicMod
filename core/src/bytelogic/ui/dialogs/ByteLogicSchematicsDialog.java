@@ -164,7 +164,7 @@ public class ByteLogicSchematicsDialog extends BaseDialog{
                             });
 
                             buttons.button(Icon.pencil, style, () -> {
-                                ByteLogicSchematicEditDialog dialog = new ByteLogicSchematicEditDialog(s,this);
+                                ByteLogicSchematicEditDialog dialog = new ByteLogicSchematicEditDialog(s, this);
                                 dialog.show();
                                 /*new BaseDialog("@schematic.rename"){{
 
@@ -184,7 +184,7 @@ public class ByteLogicSchematicsDialog extends BaseDialog{
 
                         }).growX().height(50f);
                         b.row();
-                        b.stack(new ByteLogicSchematicPreview(s)/*.setScaling(Scaling.fit)*/, new Table(n -> {
+                        b.stack(byteLogicSchematics.getPreview(s)/*.setScaling(Scaling.fit)*/, new Table(n -> {
                             n.top();
                             n.table(Styles.black3, c -> {
                                 Label label = c.add(s.name()).style(Styles.outlineLabel).color(Color.white).top().growX().maxWidth(200f - 8f).get();
@@ -220,6 +220,10 @@ public class ByteLogicSchematicsDialog extends BaseDialog{
 
             rebuildPane.run();
         }).grow().scrollX(false);
+    }
+
+    private SmallByteLogicSchematicPreview getPreview(ByteLogicSchematic s){
+        return null;
     }
 
     public void rebuild(){
@@ -626,7 +630,7 @@ public class ByteLogicSchematicsDialog extends BaseDialog{
             cont.row();
             cont.table(tags -> buildTags(schem, tags)).fillX().left().row();
             cont.row();
-            cont.add(new ByteLogicSchematicPreview(schem)).maxSize(800f);
+            cont.add(new ByteLogicSchematicPreview(schem)).size(800f);
             cont.row();
 
             /*ItemSeq arr = schem.requirements();

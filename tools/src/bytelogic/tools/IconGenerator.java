@@ -15,7 +15,7 @@ import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 
-public class IconRasterizer{
+public class IconGenerator{
     Graphics2D out = null;
     BufferedImage outImage = null;
     float width, height;
@@ -25,7 +25,7 @@ public class IconRasterizer{
         try{
             executeMain(inputArgs);
         }catch(SdlError error){
-            Log.warn("Cannot run " + IconRasterizer.class.getSimpleName() + ", reason: @", Strings.getStackTrace(error));
+            Log.warn("Cannot run " + IconGenerator.class.getSimpleName() + ", reason: @", Strings.getStackTrace(error));
         }catch(IOException e){
             RuntimeException exception = new RuntimeException(e.getMessage());
             exception.setStackTrace(e.getStackTrace());
@@ -41,14 +41,6 @@ public class IconRasterizer{
             sizes[sizeI++] = Strings.parseInt(inputArgs[i]);
         }
         System.out.println("sizes: " + Arrays.toString(sizes));
-        /*
-        Process for adding an icon to the font:
-        1. Have an SVG ready, possibly created with this tool.
-        2. Go to Fontello and load the config.json from core/assets-raw/fontgen/config.json
-        3. Drag the SVG in.
-        4. Export the config and font file, replace the old config.
-        5. Take the font (ttf) from the zip, open it in FontForge, and merge it into font.woff and icon.ttf. Usually, you would do view -> go to (the 0x unicode index).
-        **/
         Fi rootDirectory = Fi.get("../../../assets-raw");
         if(Core.atlas == null){
             rootDirectory = Fi.get("core/assets-raw");
@@ -79,7 +71,7 @@ public class IconRasterizer{
                 }
 
                 for(int size : sizes){
-                    new IconRasterizer().convert(pixmap.copy(), size, svgOutputFolder.child(fileName + "-" + size + ".png"));
+                    new IconGenerator().convert(pixmap.copy(), size, svgOutputFolder.child(fileName + "-" + size + ".png"));
                     /*Main main = new Main(new String[]{
 //                    "-d",svgOutputFolder.absolutePath()+"/"+dst.nameWithoutExtension()+"-"+size+".png",
                     "-w", size + "",
@@ -338,18 +330,9 @@ public class IconRasterizer{
                 x3 + 0.5f, flip(y3 + 0.5f)
             );
         }
-
-       /* Tri tri = new Tri(
-                new Vec2(x1 + 0.5f, flip(y1 + 0.5f)).scl(scaleX, scaleY),
-                new Vec2(x2 + 0.5f, flip(y2 + 0.5f)).scl(scaleX, scaleY),
-                new Vec2(x3 + 0.5f, flip(y3 + 0.5f)).scl(scaleX, scaleY)
-        );
-*/
-        /*out.draw(tri);*/
     }
 
     void rect(float x1, float y1, float width, float height){
-//        Fill.quad(x1 + 0.5f, flip(y1 + 0.5f), width, height);
         if (out!=null){
             JustPoly poly = new JustPoly(4);
 
@@ -372,16 +355,6 @@ public class IconRasterizer{
                 x, y + height
             );
         }
-        /*float scaleX = outImage.getWidth() / width;
-        float scaleY = outImage.getHeight() / height;
-        Square square = new Square(
-                new Vec2(Tmp.v1.set(x1 + 0.5f, flip(y1 + 0.5f))).scl(scaleX, scaleY),
-                new Vec2(Tmp.v1.x + width, Tmp.v1.y).scl(scaleX, scaleY),
-                new Vec2(Tmp.v1.x + width, Tmp.v1.y + height).scl(scaleX, scaleY),
-                new Vec2(Tmp.v1.x, Tmp.v1.y + height).scl(scaleX, scaleY)
-        );
-
-        out.draw(square);*/
     }
 
     float flip(float y){

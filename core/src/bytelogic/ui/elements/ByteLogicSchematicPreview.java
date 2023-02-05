@@ -15,8 +15,8 @@ import bytelogic.type.ConnectionSettings.WireDescriptor.*;
 import bytelogic.ui.dialogs.*;
 import kotlin.jvm.internal.Ref.*;
 import mindustry.graphics.*;
-import mma.ui.tiledStructures.TiledStructures.*;
 import mma.ui.tiledStructures.*;
+import mma.ui.tiledStructures.TiledStructures.*;
 import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
 import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
 import org.jetbrains.annotations.*;
@@ -32,10 +32,12 @@ public class ByteLogicSchematicPreview extends Table{
     public float thickness = 4f;
     public Color borderColor = Pal.gray;
     TiledStructuresCanvas canvas;
+    LongMap<StructureTile> tilemap = new LongMap<>();
 
     public ByteLogicSchematicPreview(ByteLogicSchematic schematic){
 
         this.schematic = schematic;
+
         canvas = new TiledStructuresCanvas(BaseTiledStructuresDialog.tmpDialog){
 
             @Override
@@ -62,11 +64,13 @@ public class ByteLogicSchematicPreview extends Table{
         for(TiledStructure structure : schematic.structures){
             canvas.tilemap.createTile(structure);
         }
+        setTransform(true);
 
-
-
-
-        ByteLogicSchematicEditDialog.clearTiles(canvas.tilemap.getChildren().as());
+        Seq<StructureTile> tiles = canvas.tilemap.getChildren().as();
+        ByteLogicSchematicEditDialog.clearTiles(tiles);
+        for(StructureTile tile : tiles){
+            tilemap.put(Pack.longInt(tile.tx, tile.ty), tile);
+        }
 
 
         table(inputConnections -> {
@@ -93,19 +97,20 @@ public class ByteLogicSchematicPreview extends Table{
     public void act(float delta){
         super.act(delta);
         float scaleX = Math.min(1, getWidth() / (schematic.width * unitSize / Scl.scl()));
-        float scaleY = Math.min(1, getHeight() / (schematic.height * unitSize / Scl.scl()));
+        float scaleY = Math.min(1, getHeight() / ((schematic.height * unitSize + 1) / Scl.scl()));
         canvas.setTransform(true);
-        canvas.originX=canvas.getWidth()/2f;
-        canvas.originY=canvas.getHeight()/2f;
+        canvas.originX = canvas.getWidth() / 2f;
+        canvas.originY = canvas.getHeight() / 2f;
         canvas.setScale(Math.min(scaleX, scaleY));
-        canvas.tilemap.setPosition(-schematic.width * unitSize-getWidth()/2f, -schematic.height * unitSize -getHeight()/2f);
+        canvas.tilemap.setPosition(0, 0);
+//        canvas.tilemap.setPosition(-schematic.width * unitSize-getWidth()/2f, -schematic.height * unitSize -getHeight()/2f);
     }
 
     @Override
     public void draw(){
         super.draw();
-        canvas.localToAscendantCoordinates(this, Tmp.v1.setZero());
-        canvas.localToAscendantCoordinates(this, Tmp.v2.set(canvas.getWidth(), canvas.getHeight()));
+//        canvas.localToAscendantCoordinates(this, Tmp.v1.setZero());
+//        canvas.localToAscendantCoordinates(this, Tmp.v2.set(canvas.getWidth(), canvas.getHeight()));
         drawWires();
         /*if(clipBegin(Tmp.v1.x, Tmp.v1.y, Tmp.v2.x - Tmp.v1.x, Tmp.v2.y - Tmp.v1.y)){
 
@@ -138,25 +143,25 @@ public class ByteLogicSchematicPreview extends Table{
             MockConnector conFrom = mockInputs.get(i);
             WireDescriptor wireDescriptor = schematic.connectionSettings.inputWires.get(conFrom.id);
             for(StructureDescriptor structureDescriptor : wireDescriptor.connectedStructures){
-                StructureTile structureTile = tiles.find(it -> it.tx == structureDescriptor.x && it.ty == structureDescriptor.y);
+                StructureTile structureTile = tilemap.get(structureDescriptor.packed());
                 Connector conTo = structureTile.conParent[structureDescriptor.connectionIndex];
                 Vec2
                     from = conFrom.localToAscendantCoordinates(this, Tmp.v1.set(conFrom.getWidth() / 2f, conFrom.getHeight() / 2f)),
                     to = conTo.localToAscendantCoordinates(this, Tmp.v2.set(conTo.getWidth() / 2f, conTo.getHeight() / 2f));
-                drawCurve(Color.white, from.x, from.y, to.x, to.y, false);
+                drawCurve(Color.white, from.x + x, from.y + y, to.x + x, to.y + y, false);
             }
         }
         for(int i = 0; i < mockOutputs.size; i++){
             MockConnector conTo = mockOutputs.get(i);
             WireDescriptor wireDescriptor = schematic.connectionSettings.outputWires.get(conTo.id);
             for(StructureDescriptor structureDescriptor : wireDescriptor.connectedStructures){
-                StructureTile structureTile = tiles.find(it -> it.tx == structureDescriptor.x && it.ty == structureDescriptor.y);
+                StructureTile structureTile = tilemap.get(structureDescriptor.packed());
 
                 Connector conFrom = structureTile.conChildren[structureDescriptor.connectionIndex];
                 Vec2
                     from = conFrom.localToAscendantCoordinates(this, Tmp.v1.set(conFrom.getWidth() / 2f, conFrom.getHeight() / 2f)),
                     to = conTo.localToAscendantCoordinates(this, Tmp.v2.set(conTo.getWidth() / 2f, conTo.getHeight() / 2f));
-                drawCurve(Color.white, from.x, from.y, to.x, to.y, true);
+                drawCurve(Color.white, from.x + x, from.y + y, to.x + x, to.y + y, true);
             }
         }
     }

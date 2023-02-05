@@ -1,6 +1,7 @@
 package bytelogic.type;
 
 import arc.struct.*;
+import arc.util.*;
 import arc.util.io.*;
 import bytelogic.type.ConnectionSettings.WireDescriptor.*;
 import mindustry.io.*;
@@ -8,26 +9,6 @@ import mindustry.io.*;
 public class ConnectionSettings{
     public Seq<WireDescriptor> inputWires = new Seq<>();
     public Seq<WireDescriptor> outputWires = new Seq<>();
-public WireDescriptor inputWire(){
-    return inputWire(null);
-}
-
-    public WireDescriptor inputWire(String name){
-        WireDescriptor descriptor = new WireDescriptor();
-        descriptor.name=name;
-        inputWires.add(descriptor);
-        return descriptor;
-    }
-    public WireDescriptor outputWire(){
-    return outputWire(null);
-}
-
-    public WireDescriptor outputWire(String name){
-        WireDescriptor descriptor = new WireDescriptor();
-        descriptor.name=name;
-        outputWires.add(descriptor);
-        return descriptor;
-    }
 
     private static void writeWires(Writes write, Seq<WireDescriptor> wires){
         write.i(wires.size);
@@ -41,6 +22,28 @@ public WireDescriptor inputWire(){
                 write.i(structure.connectionIndex);
             }
         }
+    }
+
+    public WireDescriptor inputWire(){
+        return inputWire(null);
+    }
+
+    public WireDescriptor inputWire(String name){
+        WireDescriptor descriptor = new WireDescriptor();
+        descriptor.name = name;
+        inputWires.add(descriptor);
+        return descriptor;
+    }
+
+    public WireDescriptor outputWire(){
+        return outputWire(null);
+    }
+
+    public WireDescriptor outputWire(String name){
+        WireDescriptor descriptor = new WireDescriptor();
+        descriptor.name = name;
+        outputWires.add(descriptor);
+        return descriptor;
     }
 
     public void write(Writes write){
@@ -78,13 +81,24 @@ public WireDescriptor inputWire(){
         public Seq<StructureDescriptor> connectedStructures = new Seq<>();
 
         public static class StructureDescriptor{
+            public long packed;
             public int x, y;
             public int connectionIndex;
 
             public StructureDescriptor(int x, int y, int connectionIndex){
                 this.x = x;
                 this.y = y;
+                this.packed = Pack.longInt(x, y);
                 this.connectionIndex = connectionIndex;
+            }
+
+            public long packed(){
+                updatePacked();
+                return packed;
+            }
+
+            public void updatePacked(){
+                packed = Pack.longInt(x, y);
             }
         }
     }

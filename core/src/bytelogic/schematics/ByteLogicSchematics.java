@@ -4,6 +4,7 @@ import arc.*;
 import arc.assets.*;
 import arc.files.*;
 import arc.graphics.*;
+import arc.graphics.g2d.*;
 import arc.graphics.gl.*;
 import arc.struct.*;
 import arc.util.*;
@@ -13,7 +14,10 @@ import arc.util.serialization.*;
 import bytelogic.*;
 import bytelogic.io.*;
 import bytelogic.type.*;
+import bytelogic.ui.elements.*;
 import bytelogic.utils.*;
+import mindustry.entities.units.*;
+import mindustry.game.*;
 import mindustry.game.EventType.*;
 import mindustry.io.*;
 import mma.ui.tiledStructures.TiledStructures.*;
@@ -26,31 +30,25 @@ import static mindustry.Vars.*;
 
 public class ByteLogicSchematics implements Loadable{
 
+    public static final byte[] header = {'m', 'b', 's', 'c', 'h'};
     private static final ByteLogicSchematic tmpSchem = new ByteLogicSchematic(new Seq<>(), new StringMap(), 1, 1, ByteLogicGateProvider.defaultProvider);
     private static final ByteLogicSchematic tmpSchem2 = new ByteLogicSchematic(new Seq<>(), new StringMap(), 1, 1, ByteLogicGateProvider.defaultProvider);
-
-    public static final byte[] header = {'m', 'b', 's', 'c', 'h'};
     private static final byte version = 1;
-
     private static final int padding = 2;
     private static final int maxPreviewsMobile = 32;
     private static final int resolution = 32;
-
     private OptimizedByteArrayOutputStream out = new OptimizedByteArrayOutputStream(1024);
     private Seq<ByteLogicSchematic> all = new Seq<>();
-    private OrderedMap<ByteLogicSchematic, FrameBuffer> previews = new OrderedMap<>();
+    private OrderedMap<ByteLogicSchematic, SmallByteLogicSchematicPreview> previews = new OrderedMap<>();
     private ObjectSet<ByteLogicSchematic> errored = new ObjectSet<>();
     private Texture errorTexture;
     private long lastClearTime;
-
-
     public ByteLogicSchematics(){
 
         Events.on(ClientLoadEvent.class, event -> {
             errorTexture = new Texture("sprites/error.png");
         });
     }
-
 
     /** Loads a schematic from base64. May throw an exception. */
     public static ByteLogicSchematic readBase64(String schematic){
@@ -96,11 +94,11 @@ public class ByteLogicSchematics implements Loadable{
             }
             Reads read = new Reads(stream);
             ByteLogicTiledStructures tmpStructures = new ByteLogicTiledStructures(new Seq<>());
-            if (ver==0){
+            if(ver == 0){
                 JsonIO.read(ByteLogicTiledStructures.class, tmpStructures, read.str());
-            } else{
+            }else{
 
-                BLTypeIO.readByteLogicTiledStructures(read,tmpStructures);
+                BLTypeIO.readByteLogicTiledStructures(read, tmpStructures);
             }
             Seq<TiledStructure> tiledStructures = tmpStructures.all.copy();
             ByteLogicGateProvider provider = ByteLogicGateProvider.providerMap.get(read.str());
@@ -146,6 +144,31 @@ public class ByteLogicSchematics implements Loadable{
         }
     }
 
+
+    public boolean hasPreview(ByteLogicSchematic schematic){
+        return previews.containsKey(schematic);
+    }
+
+    public SmallByteLogicSchematicPreview getPreview(ByteLogicSchematic schematic){
+        //dispose unneeded previews to prevent memory outage errors.
+        //only runs every 2 seconds
+        if(mobile && Time.timeSinceMillis(lastClearTime) > 1000 * 2 && previews.size > maxPreviewsMobile){
+            Seq<ByteLogicSchematic> keys = previews.orderedKeys().copy();
+            for(int i = 0; i < previews.size - maxPreviewsMobile; i++){
+                //dispose and remove unneeded previews
+//                previews.get(keys.get(i)).dispose();
+                previews.remove(keys.get(i));
+            }
+            //update last clear time
+            lastClearTime = Time.millis();
+        }
+
+        if(!previews.containsKey(schematic)){
+            previews.put(schematic,new SmallByteLogicSchematicPreview(schematic));
+        }
+
+        return previews.get(schematic);
+    }
     @Override
     public void loadSync(){
         load();
@@ -236,9 +259,6 @@ public class ByteLogicSchematics implements Loadable{
 
     //region IO methods
 
-    public boolean hasPreview(ByteLogicSchematic schematic){
-        return previews.containsKey(schematic);
-    }
     /*
      *//** Creates an array of build plans from a schematic's data, centered on the provided x+y coordinates. *//*
     public Seq<BuildPlan> toPlans(ByteLogicSchematic schem, int x, int y){
@@ -268,7 +288,7 @@ public class ByteLogicSchematics implements Loadable{
         }
 
         if(previews.containsKey(s)){
-            previews.get(s).dispose();
+//            previews.get(s).dispose();
             previews.remove(s);
         }
         all.sort();
