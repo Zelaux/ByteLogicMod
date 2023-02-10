@@ -4,6 +4,7 @@ import arc.*;
 import arc.func.*;
 import arc.graphics.g2d.*;
 import arc.input.*;
+import arc.math.*;
 import arc.math.geom.*;
 import arc.scene.*;
 import arc.scene.event.*;
@@ -203,28 +204,13 @@ public class BaseTiledStructuresDialog<T extends TiledStructure<?>&TiledStructur
         Seq<TiledStructure> structures = structuresProv.get();
         canvas.clearObjectives();
         if(structures.any() && structures.contains(obj -> !canvas.tilemap.createTile(obj))){
-            // ... then rebuild the structure.
-            canvas.clearObjectives();
-
-            // This is definitely NOT a good way to do it, but only insane people or people from the distant past would actually encounter this anyway.
-            int w = objWidth + 2,
-                len = structures.size * w,
-                columns = structures.size,
-                rows = 1;
-
-            if(len > bounds){
-                rows = len / bounds;
-                columns = bounds / w;
+            TiledStructureGroup group = new TiledStructureGroup();
+            group.clear();
+            for(TiledStructure structure : structures){
+                group.add(structure, false);
             }
-
-            int i = 0;
-            loop:
-            for(int y = 0; y < rows; y++){
-                for(int x = 0; x < columns; x++){
-                    canvas.tilemap.createTile(x * w, bounds - 1 - y * 2, structures.get(i++));
-                    if(i >= structures.size) break loop;
-                }
-            }
+            show(structuresProv,out);
+            return;
         }
         this.originalStructures = structuresProv;
         canvas.structures.set(structures);
