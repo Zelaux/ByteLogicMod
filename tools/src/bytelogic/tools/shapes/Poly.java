@@ -80,6 +80,7 @@ public abstract class Poly<T extends Poly> implements Cloneable, Shape2D, Shape 
 
     @Override
     public PathIterator getPathIterator(AffineTransform at) {
+        System.out.println("halll");
         return new PolyPathIterator(points, at);
     }
 

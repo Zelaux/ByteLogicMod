@@ -3,6 +3,7 @@ package bytelogic.content;
 import arc.struct.*;
 import arc.util.*;
 import bytelogic.type.*;
+import bytelogic.world.blocks.*;
 import bytelogic.world.blocks.logic.*;
 import bytelogic.world.blocks.sandbox.*;
 import mindustry.content.*;
@@ -28,7 +29,9 @@ public class ByteLogicBlocks{
         adder, subtractor, divider, remainder, multiplier, equalizer, comparator,
 
     transformer,
-        fontSignal, displayBlock;
+        fontSignal, displayBlock,
+
+    processor;
     public Planet planet;
 
 
@@ -38,6 +41,17 @@ public class ByteLogicBlocks{
         relay = new RelayBlock(namePrefix + "relay"){{
             requirements(blockCategory, bothRequirements.clone());
         }};
+
+        if (planet==Planets.erekir){
+            processor = new ByteLogicProcessor("processor"){{
+                requirements(blockCategory, bothRequirements.clone());
+                baseName = "processor-base";
+            }};
+            processor = new GraphicsProcessor("graphics-processor"){{
+                requirements(blockCategory, bothRequirements.clone());
+                baseName = "processor-base";
+            }};
+        }
         signalTimer = new SignalTimer(namePrefix + "signal-timer"){{
             requirements(blockCategory, bothRequirements.clone());
         }};
@@ -205,17 +219,10 @@ public class ByteLogicBlocks{
             requirements(blockCategory, displayRequirements.clone());
             size = 1;
         }};
-
         fontSignal = new FontSignalBlock(namePrefix + "font-signal"){{
             requirements(blockCategory, bothRequirements.clone());
         }};
-        for(Field field : ByteLogicBlocks.class.getFields()){
-            if(field.getType() == LogicBlock.class){
-                LogicBlock block = Reflect.<LogicBlock>get(this, field);
-                block.byteLogicBlocks = this;
-                blocks.add(block);
-            }
-        }
+        initFields();
         byteLogicBlocks.add(this);
     }
 
@@ -245,5 +252,18 @@ public class ByteLogicBlocks{
             serpulo.details = erekir.details;
         }
         //endregion
+
+    }
+
+    private void initFields(){
+        blocks.clear();
+        for(Field field : ByteLogicBlocks.class.getFields()){
+            if(field.getType() == LogicBlock.class){
+                LogicBlock block = Reflect.<LogicBlock>get(this, field);
+                if(block == null) continue;
+                block.byteLogicBlocks = this;
+                blocks.add(block);
+            }
+        }
     }
 }

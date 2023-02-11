@@ -1,0 +1,1 @@
+{fields:[{name:isLeft,type:boolean},{name:shiftValue,type:int},{name:signalAsShiftIndex,type:boolean}]}

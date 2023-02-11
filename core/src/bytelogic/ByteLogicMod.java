@@ -2,10 +2,13 @@ package bytelogic;
 
 import arc.*;
 import arc.graphics.g2d.*;
+import arc.util.io.Streams.*;
+import arc.util.serialization.*;
 import bytelogic.async.*;
 import bytelogic.audio.*;
 import bytelogic.game.*;
 import bytelogic.gen.*;
+import bytelogic.schematics.*;
 import bytelogic.ui.*;
 import bytelogic.ui.dialogs.*;
 import bytelogic.world.blocks.logic.*;
@@ -15,6 +18,8 @@ import mindustry.game.EventType.*;
 import mindustry.world.*;
 import mma.*;
 import mma.annotations.*;
+
+import java.io.*;
 
 import static bytelogic.BLVars.*;
 import static mindustry.Vars.headless;
@@ -28,6 +33,15 @@ public class ByteLogicMod extends MMAMod{
         registerMain();
         registered = true;
         disableBlockOutline = true;
+      /*  try{
+            OptimizedByteArrayOutputStream out = new OptimizedByteArrayOutputStream(1024);
+            out.reset();
+            out.write(ByteLogicSchematics.header);
+            System.out.println("HIHIHI["+new String(Base64Coder.encode(out.getBuffer(),out.size()))+"]");
+        }catch(IOException e){
+            throw new RuntimeException(e);
+        }*/
+//        ByteLogicSchematics.readBase64()
         modLog("Creating start");
 //        TMEntityMapping.init();
 //        TMCall.registerPackets();

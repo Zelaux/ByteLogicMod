@@ -103,15 +103,18 @@ public class LogicRouter extends LogicBlock implements ImageGenerator{
             Draw.color();
             drawTeamTop();
         }
-
+protected boolean ignoreSideChecking=false;
         @Override
         public boolean acceptSignal(ByteLogicBuildingc otherBuilding, Signal signal){
-            int sideIndex = relativeTo(otherBuilding.<Building>as());
-            if((isolatedSides & sideMasks[sideIndex]) != 0) return false;
-            sides[sideIndex] -= 1;
-            if(signal.compareWithZero() != 0) sides[sideIndex] = 2;
+            if (!ignoreSideChecking){
+                int sideIndex = relativeTo(otherBuilding.<Building>as());
+                if((isolatedSides & sideMasks[sideIndex]) != 0) return false;
+                sides[sideIndex] -= 1;
+                if(signal.compareWithZero() != 0) sides[sideIndex] = 2;
 //                sides[sideIndex]=Mathf.clamp(sides[sideIndex]+Mathf.sign(signal!=0),0,2);
-            sides[sideIndex] = Mathf.clamp(sides[sideIndex], 0, 2);
+                sides[sideIndex] = Mathf.clamp(sides[sideIndex], 0, 2);
+            }
+            ignoreSideChecking=false;
             return super.acceptSignal(otherBuilding, signal);
         }
 

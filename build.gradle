@@ -3,35 +3,38 @@ import java.time.format.DateTimeFormatter
 buildscript{
     ext.kotlin_version = '1.6.0'
     ext{
-        mainPackage = "testmod"
-        // v7
-        mindustryPath = "com.github.Anuken.Mindustry"
-        mindustryVersionFull = "v140.3"
-        mindustryVersion = mindustryVersionFull
-        mindustryVersionOld = mindustryVersionFull
-        arcVersion = mindustryVersion
-        jparcerVersion = "3.24.2"
-//        arcVersion = "916c5a77"
-
-
-        // normal
-        //mindustryPath = "com.github.Anuken.Mindustry"
-        //mindustryVersion = 'v135'
-        //arcVersion=mindustryVersion
-        jabelVersion = "0.6.0"
-
-        parserVersion = '3.22.1'
-
-        aciVersion = "45ad8cd8ed9"
-
-
-        modCoreVersion = "93716ec24ee"
-
-
-        kotlinVersion = "1.6.0"
+        def properties = new Properties().with{ p -> p.load(file('gradle.properties').newReader()); return p }
+        mindustryVersion = properties["mindustryVersion"]
+        jparcerVersion = properties["jparcerVersion"]
+        jabelVersion = properties["jabelVersion"]
+        parserVersion = properties["parserVersion"]
+        aciVersion = properties["aciVersion"]
+        modCoreVersion = properties["modCoreVersion"]
+        arcLibVersion = properties["arcLibVersion"]
+        kotlin_version = kotlinVersion = properties["kotlinVersion"]
 //        kotlinVersion = "1.5.31"
 
         sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
+        mindustryModule = { String name ->
+            //skip to last submodule
+            if(name.contains(':')) name = name.split(':').last()
+            return "com.github.Anuken.Mindustry:$name:$mindustryVersion"
+        }
+        arcModule = { String name ->
+            //skip to last submodule
+            if(name.contains(':')) name = name.split(':').last()
+            return "com.github.Anuken.Arc:$name:$mindustryVersion"
+        }
+        coreModule = { String name ->
+            //skip to last submodule
+            if(name.contains(':')) name = name.split(':').last()
+            return "com.github.Zelaux.ZelauxModCore:$name:$modCoreVersion"
+        }
+        arcLibModule = { String name ->
+            //skip to last submodule
+            if(name.contains(':')) name = name.split(':').last()
+            return "com.github.Zelaux.ZelauxArcLib:$name:$arcLibVersion"
+        }
     }
     repositories{
         mavenLocal()
@@ -42,10 +45,10 @@ buildscript{
     }
 
     dependencies{
-        classpath "com.github.Anuken.Arc:arc-core:$arcVersion"
-        classpath "$mindustryPath:core:$mindustryVersion"
-        classpath "com.github.Anuken.Arc:packer:$arcVersion"
-        classpath "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
+        classpath arcModule("arc-core")
+        classpath mindustryModule("core")
+        classpath arcModule("packer")
+        classpath coreModule("annotations")
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
@@ -72,11 +75,6 @@ allprojects{
 //    version = 'release'
     group = 'com.github.Zelaux'
     ext{
-        arcModule = { String name ->
-            //skip to last submodule
-            if(name.contains(':')) name = name.split(':').last()
-            return "com.github.Anuken.Arc:$name:$arcVersion"
-        }
         writeProcessors = {
             new File(rootDir, "annotations/src/main/resources/META-INF/services/").mkdirs()
             def processorFile = new File(rootDir, "annotations/src/main/resources/META-INF/services/javax.annotation.processing.Processor")
@@ -129,12 +127,7 @@ allprojects{
     }
 }
 
-dependencies{
-    implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
-    implementation "com.github.Zelaux.ZelauxModCore:graphics:$modCoreVersion"
-    implementation "com.github.Zelaux.ZelauxModCore:utils:$modCoreVersion"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-}
+
 configure(project(":annotations")){
     tasks.withType(JavaCompile){
         targetCompatibility = 8
@@ -167,7 +160,7 @@ configure(subprojects - project(":annotations")){
 
         kapt{
             javacOptions{
-                option("-source", "16")
+                option("-source", "17")
                 option("-target", "1.8")
             }
         }
@@ -218,9 +211,16 @@ configure(subprojects - project(":annotations")){
         dependencies{
             compileJava.dependsOn(preGen)
 
-            implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
-            implementation "com.github.Zelaux.ZelauxModCore:utils:$modCoreVersion"
-            implementation "com.github.Zelaux.ZelauxModCore:graphics:$modCoreVersion"
+            implementation arcLibModule("defaults")
+            implementation arcLibModule("utils")
+            implementation arcLibModule("tooltips")
+            implementation arcLibModule("components")
+            implementation arcLibModule("listeners")
+
+            implementation coreModule("tiledStructures")
+            implementation coreModule("core")
+            implementation coreModule("utils")
+            implementation coreModule("graphics")
 
             compileOnly "org.lz4:lz4-java:1.7.1"
             compileOnly arcModule("arc-core")
@@ -229,19 +229,19 @@ configure(subprojects - project(":annotations")){
             compileOnly arcModule("extensions:g3d")
             compileOnly arcModule("extensions:fx")
             compileOnly arcModule("extensions:arcnet")
-            compileOnly "$mindustryPath:core:$mindustryVersion"
+            compileOnly mindustryModule("core")
 //        implementation "com.github.Zelaux:AdvancedContentInfo:$aciVersion"
 
 
             annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
 
-            compileOnly "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
+            compileOnly coreModule("annotations")
             compileOnly project(":annotations")
 
 //            println "it is ${project.displayName}"
             if(project.name == "core"){
                 kapt(
-                        "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion", project(":annotations"))
+                        coreModule("annotations"), project(":annotations"))
 //                kapt project(":annotations")
             }
             implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -273,13 +273,14 @@ configure(subprojects - project(":annotations")){
         }
         jar{
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-            exclude(mainPackage + "/entities/comp/**")
-            exclude(mainPackage + "/entities/compByAnuke/**")
+            exclude("bytelogic/entities/comp/**")
+            exclude("bytelogic/entities/compByAnuke/**")
         }
     }
 }
 project(":tools"){
     apply plugin: "java"
+
     dependencies{
         implementation fileTree(dir: 'libs', include: ['*.jar'])
         implementation 'commons-io:commons-io:2.5'
@@ -289,7 +290,7 @@ project(":tools"){
         implementation project(":core")
 
         implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.22.1'
-        implementation "$mindustryPath:core:$mindustryVersion"
+        implementation mindustryModule("core")
 
         implementation arcModule("natives:natives-desktop")
         implementation arcModule("natives:natives-freetype-desktop")
@@ -297,20 +298,22 @@ project(":tools"){
         implementation arcModule("backends:backend-sdl")
 
 
-        implementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
+        implementation coreModule("core")
 
         implementation 'com.github.sterlp:svg2png:1.0.0'
-        implementation "com.github.Zelaux.ZelauxModCore:tools:$modCoreVersion"
+        implementation coreModule("tools")
 
         implementation arcModule(":extensions:packer")
     }
+
 }
+
 project(":annotations"){
     apply plugin: "java-library"
     dependencies{
         implementation 'com.squareup:javapoet:1.12.1'
         implementation arcModule('arc-core')
-        implementation "$mindustryPath:core:$mindustryVersion"
+        implementation mindustryModule("core")
 
 
         implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
@@ -361,7 +364,7 @@ jar{
         project(":core").fileTree("build/libs/core.jar").collect{ it.isDirectory() ? it : zipTree(it) }
     }
     from{
-        configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
+        project(":core").configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
 //        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
     }
 

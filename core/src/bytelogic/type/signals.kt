@@ -48,6 +48,15 @@ abstract class SignalType(val name: String, iconInitializer: () -> Drawable) {
         return signal.number.toString()
     }
 
+    abstract fun absolute(`this&signal`: Signal)
+    abstract fun log(signal: Signal)
+    abstract fun sin(signal: Signal)
+    abstract fun cos(signal: Signal)
+    abstract fun tan(signal: Signal)
+    abstract fun asin(signal: Signal)
+    abstract fun acos(signal: Signal)
+    abstract fun atan(signal: Signal)
+
     companion object {
         @JvmStatic
         fun findByName(name: String): SignalType {
@@ -71,7 +80,9 @@ object SignalTypes {
     val colorType: SignalType = ColorSignalType
 
     @JvmField
-    val numberType: SignalType = NumberSignalType
+    val numberType: SignalType = IntegerSignalType
+    @JvmField
+    val floatType: SignalType = FloatSignalType
 
     @JvmField
     val contentType: ContentSignalType = ContentSignalType

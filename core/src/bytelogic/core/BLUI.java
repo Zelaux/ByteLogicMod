@@ -22,6 +22,7 @@ import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.blocks.storage.*;
 import mma.ui.dialogs.*;
+import zelaux.arclib.ui.components.ComboBox.ComboBoxItem.*;
 
 import static bytelogic.BLVars.inTry;
 import static mindustry.Vars.headless;
@@ -33,7 +34,6 @@ public class BLUI extends mma.core.ModUI implements Disposable, ApplicationListe
 
     public BLUI(){
         super();
-
         Vars.schematics = new SchematicsWrapper(Vars.schematics){
             @Nullable
             Planet findCampaignPlanet(){

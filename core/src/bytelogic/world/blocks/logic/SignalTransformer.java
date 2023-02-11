@@ -11,6 +11,7 @@ import bytelogic.type.*;
 import bytelogic.ui.guide.*;
 import bytelogic.world.blocks.logic.SignalBlock.*;
 import bytelogic.world.meta.*;
+import mindustry.entities.units.*;
 import mindustry.game.*;
 import mindustry.ui.*;
 import mindustry.world.*;
@@ -33,7 +34,9 @@ public class SignalTransformer extends UnaryLogicBlock{
                 type = SignalTypes.numberType;
             build.selectedType = type;
         });*/
+        lastConfig = null;
         this.<byte[], SignalTransformerBuild>config(byte[].class, (build, bytes) -> {
+            if(bytes.length < 2) return;
             Container.set(bytes);
             build.selectedType = Container.selectedType;
             build.inputType = Container.inputType;
@@ -53,6 +56,35 @@ public class SignalTransformer extends UnaryLogicBlock{
         tmpWrites.str(selectedType.getName());
         tmpWrites.b(inputType);
         return tmpWrites.getBytes();
+    }
+
+    @Override
+    public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list){
+        if(req.config instanceof byte[] bytes && bytes.length > 1){
+            Container.set(bytes);
+            byte[] config = {Container.inputType};
+            req.config = config;
+
+            super.drawPlanRegion(req, list);
+            Container.inputType = config[0];
+            req.config = Container.bytes();
+        }else{
+            super.drawPlanRegion(req, list);
+        }
+    }
+    @Override
+    public void flipRotation(BuildPlan req, boolean x){
+        if(req.config instanceof byte[] bytes && bytes.length > 1){
+            Container.set(bytes);
+            byte[] config = {Container.inputType};
+            req.config = config;
+
+            super.flipRotation(req, x);
+            Container.inputType = config[0];
+            req.config = Container.bytes();
+        }else{
+            super.flipRotation(req, x);
+        }
     }
 
     @Override

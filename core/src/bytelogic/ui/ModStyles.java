@@ -1,14 +1,16 @@
 package bytelogic.ui;
 
+import arc.*;
 import arc.graphics.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
+import bytelogic.gen.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
-import bytelogic.gen.*;
+import zelaux.arclib.ui.components.ComboBox.ComboBoxItem.*;
 
-import static mindustry.gen.Tex.*;
 import static bytelogic.gen.BLTex.*;
+import static mindustry.gen.Tex.*;
 
 public class ModStyles{
     private static final Color black = new Color(0f, 0f, 0f, 1f), black9 = new Color(0f, 0f, 0f, 0.9f), black8 = new Color(0f, 0f, 0f, 0.8f), black6 = new Color(0f, 0f, 0f, 0.6f), black5 = new Color(0f, 0f, 0f, 0.5f), black3 = new Color(0f, 0f, 0f, 0.3f), none = new Color(0f, 0f, 0f, 0f);
@@ -16,6 +18,7 @@ public class ModStyles{
     public static ImageButton.ImageButtonStyle buttonSquarei, alphai, buttonPanei;
     public static TextButton.TextButtonStyle buttonEdge3t, buttonPanet, buttonPaneTopt, buttonPaneBottomt;
     public static Button.ButtonStyle buttonColor;
+    public static ComboBoxItemStyle comboBoxd;
 
     public static void load(){
         buttonColor = new Button.ButtonStyle(Styles.defaultb){{
@@ -66,5 +69,12 @@ public class ModStyles{
             up = disabled = pane;
             checked = BLTex.buttonPaneOver;
         }};
+
+        comboBoxd = new ComboBoxItemStyle(){{
+            this.font = Fonts.def;
+            this.buttonStyle = Styles.cleari;
+            this.image = Tex.clear;
+        }};
+        Core.scene.addStyle(ComboBoxItemStyle.class,ModStyles.comboBoxd);
     }
 }

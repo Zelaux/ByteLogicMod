@@ -36,6 +36,8 @@ public abstract class UnaryLogicBlock extends LogicBlock{
     protected static final int rightSideMaskIndex = 3;
     @Annotations.Load("@realName()-side")
     public TextureRegion sideRegion;
+    @Annotations.Load("@realName()-center")
+    public TextureRegion centerRegion;
     protected /*@NonNull*/ UnaryProcessor processor;
 
     public UnaryLogicBlock(String name){
@@ -43,6 +45,9 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         configurable = true;
         this.<Byte, UnaryLogicBuild>config(Byte.class, (build, value) -> {
             build.inputType = value;
+        });
+        this.<byte[], UnaryLogicBuild>config(byte[].class, (build, value) -> {
+            build.inputType = value[0];
         });
         this.<Integer, UnaryLogicBuild>config(Integer.class, (build, value) -> {
             build.inputType = updateInputType(value);
@@ -65,6 +70,9 @@ public abstract class UnaryLogicBlock extends LogicBlock{
     @Override
     public Pixmap generate(Pixmap icon, PixmapProcessor processor){
         icon = super.generate(icon, processor);
+        if (centerRegion.found()){
+            icon.draw(processor.get(centerRegion),true);
+        }
         applyMask(sideRegion,processor);
         return icon;
     }
@@ -89,11 +97,17 @@ public abstract class UnaryLogicBlock extends LogicBlock{
             drawPlanRegion(req, list);
             return;
         }
-        if(!(req.config instanceof Byte value)){
+        if(req.config instanceof Byte value){
+            req.config =new byte[]{value};
+            drawPlanRegion(req, list);
+            return;
+        }
+        if(!(req.config instanceof byte[] valueWrapped)){
             req.config = unarySideState(false, true, false);
             drawPlanRegion(req, list);
             return;
         }
+        byte value = valueWrapped[0];
         TextureRegion back = base;
         Draw.rect(back, req.drawx(), req.drawy(),
             back.width * req.animScale * Draw.scl,
@@ -115,10 +129,16 @@ public abstract class UnaryLogicBlock extends LogicBlock{
             flipRotation(req, x);
             return;
         }
-        if(!(req.config instanceof Byte value)){
+        if(req.config instanceof Byte value){
+            req.config=new byte[]{value};
+            flipRotation(req, x);
+            return;
+        }
+        if(!(req.config instanceof byte[] valueWrapped)){
             super.flipRotation(req, x);
             return;
         }
+        byte value = valueWrapped[0];
         if((req.rotation % 2 == 0) == x){
             req.rotation = Mathf.mod(req.rotation + 2, 4);
         }
@@ -185,6 +205,9 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         public void draw(){
             Draw.rect(base, tile.drawx(), tile.drawy());
             Draw.color(signalColor());
+            if(centerRegion.found()){
+                Draw.rect(centerRegion,x,y,drawrot());
+            }
             for(int i = 1; i < sideMasks.length; i++){
                 if((inputType & sideMasks[i]) == 0) continue;
                 if(i == rightSideMaskIndex) sideRegion.flip(false, true);
@@ -199,7 +222,7 @@ public abstract class UnaryLogicBlock extends LogicBlock{
 
         @Override
         public Object config(){
-            return inputType;
+            return new byte[]{inputType};
         }
 
         @Override

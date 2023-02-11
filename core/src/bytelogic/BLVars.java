@@ -1,25 +1,32 @@
 package bytelogic;
 
 import arc.*;
+import arc.files.*;
+import arc.func.*;
 import arc.struct.*;
 import arc.util.*;
+import bytelogic.content.*;
+import bytelogic.core.*;
+import bytelogic.customArc.*;
+import bytelogic.schematics.*;
 import mindustry.*;
 import mindustry.content.*;
 import mindustry.ctype.*;
 import mindustry.game.*;
 import mma.*;
-import bytelogic.content.*;
-import bytelogic.core.*;
-import bytelogic.customArc.*;
 
-import static mindustry.Vars.headless;
+import static mindustry.Vars.*;
 
 public class BLVars extends ModVars{
+    public static final String byteLogicSchematicExtension = "mbsch";
+    public static final String byteLogicSchematicBaseStart = "bWJzY2g";
     private final static Seq<Runnable> onLoad = new Seq<>();
+    public static Fi byteLogicSchematicDirectory = dataDirectory==null ? null : dataDirectory.child("byte-logic-schematics");
     public static ModSettings settings;
     public static BLUI modUI;
     public static ByteLogicMod mod;
     public static BlLogic logic;
+    public static ByteLogicSchematics byteLogicSchematics;
 
     static{
         new BLVars();
@@ -38,6 +45,7 @@ public class BLVars extends ModVars{
         settings = new ModSettings();
         if(!headless) listener.add(modUI = new BLUI());
         listener.add(logic = new BlLogic());
+        Core.assets.load(byteLogicSchematics = new ByteLogicSchematics());
 
     }
 
@@ -91,6 +99,10 @@ public class BLVars extends ModVars{
 
     public static void modLog(String text, Object... args){
         Log.info("[@] @", modInfo == null ? "test-java" : modInfo.name, Strings.format(text, args));
+    }
+
+    public static <T> T nullOnPack(Prov<T> provider){
+        return packSprites?null:provider.get();
     }
 
     @Override

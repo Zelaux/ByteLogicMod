@@ -8,7 +8,7 @@ import bytelogic.world.meta.*;
 import mindustry.gen.*;
 
 public class FontSignalBlock extends UnaryLogicBlock{
-    protected IntMap<Signal> font = IntMap.of(
+    public static final IntMap<Signal> font = IntMap.of(
         //region letters
         65, signal(4521364556104772L),//A
         66, signal(305158613876622460L),//B
@@ -58,7 +58,7 @@ public class FontSignalBlock extends UnaryLogicBlock{
 
     }
 
-    private Signal signal(long value){
+    private static Signal signal(long value){
         return Signal.valueOf(value);
     }
 

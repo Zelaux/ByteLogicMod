@@ -141,7 +141,7 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
             throw new IllegalArgumentException("processor of " + name + " is null");
         }
         if(operatorName == null){
-            throw new IllegalArgumentException("processor of " + operatorName + " is null");
+            throw new IllegalArgumentException("operatorName of " + name + " is null");
         }
     }
 

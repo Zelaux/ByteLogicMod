@@ -28,7 +28,7 @@ public class ByteLogicImagePacker extends ModImagePacker {
 
     @Override
     protected void runGenerators() {
-        IconRasterizer.main(new String[]{"32","64"});
+        IconGenerator.main(new String[]{"32","64"});
         new ByteLogicGenerators();
     }
 
