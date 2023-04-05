@@ -27,7 +27,7 @@ import static mindustry.Vars.state;
 
 public class GraphicsProcessor extends ByteLogicProcessor{
     public static final TiledStructures tmpStructures = BLVars.nullOnPack(()->new TiledStructures(GraphicsLogicDialog.allGraphicsGates.as()));
-    public int updatePerTick = 1;
+    public int updatePerTick = 2;
     public TextureRegion[] wires;
     @Load(value = "@-top", fallback = "@realName()-top")
     public TextureRegion top;

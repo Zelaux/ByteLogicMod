@@ -21,7 +21,7 @@ public class BLVars extends ModVars{
     public static final String byteLogicSchematicExtension = "mbsch";
     public static final String byteLogicSchematicBaseStart = "bWJzY2g";
     private final static Seq<Runnable> onLoad = new Seq<>();
-    public static Fi byteLogicSchematicDirectory = dataDirectory==null ? null : dataDirectory.child("byte-logic-schematics");
+    public static Fi byteLogicSchematicDirectory = dataDirectory == null ? null : dataDirectory.child("byte-logic-schematics");
     public static ModSettings settings;
     public static BLUI modUI;
     public static ByteLogicMod mod;
@@ -45,7 +45,7 @@ public class BLVars extends ModVars{
         settings = new ModSettings();
         if(!headless) listener.add(modUI = new BLUI());
         listener.add(logic = new BlLogic());
-        Core.assets.load(byteLogicSchematics = new ByteLogicSchematics());
+        if(!headless) Core.assets.load(byteLogicSchematics = new ByteLogicSchematics());
 
     }
 
@@ -102,7 +102,7 @@ public class BLVars extends ModVars{
     }
 
     public static <T> T nullOnPack(Prov<T> provider){
-        return packSprites?null:provider.get();
+        return packSprites ? null : provider.get();
     }
 
     @Override

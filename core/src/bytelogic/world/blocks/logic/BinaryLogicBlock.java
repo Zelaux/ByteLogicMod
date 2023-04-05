@@ -66,7 +66,6 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
 
         });
     }
-
     private static byte[] bytesOfState(boolean flippedInputs, int inputType){
         tmpWrites.reset();
         tmpWrites.bool(flippedInputs);
@@ -118,23 +117,7 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
             blockPreview = new SchematicBlockPreview(
                 this,
                 Schematics.readBase64("bXNjaAF4nF2MwY7CMAxEpw1dpCI4ISS0l/2BHPgexCFpLbDWTaIkPfTrIak4deZgeebZ6KAUds5MhKNlZ+KiM6WsbziMlIbIIbN3AH7EWJKE9v7o8GeXTFr8kwc9+VGzC3PWQcxALy8jRZw3RCQxC66bdJolcxAuB7+bKvHTGdFW/PCPy6YcOYX6D9ijqkdTR9OvA20P1aAabXFzKlm3AlA1qft1JQ9unixFnZdA76/UrlCF/ABgfUyQ")
-            );/*
-            blockShowcase = new BlockShowcase(this, 5, 5, (world, isSwitch) -> {
-
-                world.tile(0, 1).setBlock(inputBlock(isSwitch), Team.sharded, 1);
-                world.tile(0, 2).setBlock(this, Team.sharded, 0);
-                world.tile(0, 3).setBlock(inputBlock(isSwitch), Team.sharded, 3);
-
-                world.tile(1, 2).setBlock(byteLogicBlocks.relay, Team.sharded, 0);
-                world.tile(2, 2).setBlock(byteLogicBlocks.multiplier, Team.sharded, 0);
-                world.tile(2, 2).build.<BinaryLogicBuild>as().inputType = rightFromBackInputType;
-
-                world.tile(2, 3).setBlock(byteLogicBlocks.signalBlock, Team.sharded, 3);
-                world.tile(2, 3).build.<SignalLogicBuild>as().nextSignal.setNumber(-1);
-                world.tile(3, 2).setBlock(byteLogicBlocks.displayBlock, Team.sharded);
-                return new Point2[]{Tmp.p1.set(0, 2)};
-            });*/
-
+            );
         super.init();
         consumesTap = canFlip;
         if(processor == null){

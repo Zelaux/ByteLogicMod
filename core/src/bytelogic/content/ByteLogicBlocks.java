@@ -31,7 +31,7 @@ public class ByteLogicBlocks{
     transformer,
         fontSignal, displayBlock,
 
-    processor;
+    processor,graphicsProcessor;
     public Planet planet;
 
 
@@ -47,7 +47,7 @@ public class ByteLogicBlocks{
                 requirements(blockCategory, bothRequirements.clone());
                 baseName = "processor-base";
             }};
-            processor = new GraphicsProcessor("graphics-processor"){{
+            graphicsProcessor = new GraphicsProcessor("graphics-processor"){{
                 requirements(blockCategory, bothRequirements.clone());
                 baseName = "processor-base";
             }};
