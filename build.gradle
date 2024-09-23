@@ -54,7 +54,7 @@ ext {
     sdkVersion = '30'
     sdkRoot = System.getenv("ANDROID_HOME")
     doExec = { cmd ->
-        def proc = cmd.execute(null, new File("$buildDir/libs"))
+        def proc = cmd.execute(null, new File("$buildDir/libs".replace("ByteLogicMod/ByteLogicMod","ByteLogicMod")))
         proc.waitForProcessOutput(System.out, System.err)
     }
 }
