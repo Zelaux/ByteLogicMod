@@ -299,7 +299,7 @@ task jarAndroid {
                 System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME') ?:
                         { throw new GradleException('Neither `ANDROID_SDK_ROOT` nor `ANDROID_HOME` is set') }
         )
-
+        println file("$sdkRoot/build-tools").list()
         // Find `d8`.
         def d8 = file("$sdkRoot/build-tools/34/d8")
         //dex and desugar files - this requires d8 in your PATH
