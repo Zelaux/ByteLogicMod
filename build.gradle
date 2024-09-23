@@ -51,7 +51,7 @@ mindustryModCore {
 ext {
     //the build number that this mod is made for
     //version of SDK you will be using
-    sdkVersion = '30'
+    sdkVersion = '34'
     sdkRoot = System.getenv("ANDROID_HOME")
     doExec = { cmd ->
         println Arrays.toString(buildDir.list())
