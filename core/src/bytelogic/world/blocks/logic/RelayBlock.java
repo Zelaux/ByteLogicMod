@@ -40,19 +40,6 @@ public class RelayBlock extends AcceptorLogicBlock{
 
     public class RelayBuild extends AcceptorLogicBuild{
 
-/*        @Override
-        public int signal(){
-            int max = 0;
-            for(Building other : proximity()){
-                if(front() == other) continue;
-//                if((!(other instanceof RelayBuild) || other.front() != this) && back() != other) continue;
-                if(other instanceof RelayBuild && other.front() == this) continue;
-                if(!(other instanceof RelayBuild) && (!other.block.rotate || other.front() != this))
-                    max |= getSignal(this, other);
-            }
-            return max;
-        }*/
-
         @Override
         public boolean canOutputSignal(int dir){
             return super.canOutputSignal(dir);

@@ -9,8 +9,8 @@ import arc.util.Strings;
 import bytelogic.annotations.BLAnnotations;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import mma.annotations.ModBaseProcessor;
-import mma.annotations.SupportedAnnotationTypes;
+import mmc.annotations.ModBaseProcessor;
+import mmc.annotations.SupportedAnnotationTypes;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Modifier;
@@ -57,8 +57,8 @@ public class IconsProcessor extends ModBaseProcessor {
             drawables.addField(TextureRegionDrawable.class, fieldName, Modifier.PUBLIC, Modifier.STATIC);
             regions.addField(TextureRegion.class, fieldName, Modifier.PUBLIC, Modifier.STATIC);
 
-            load.addStatement("Drawables.$L = ($T)$T.atlas.drawable(mma.ModVars.fullName($S)) ", fieldName, TextureRegionDrawable.class, Core.class, field.spriteName());
-            load.addStatement("Regions.$L = $T.atlas.find(mma.ModVars.fullName($S))", fieldName, Core.class, field.spriteName());
+            load.addStatement("Drawables.$L = ($T)$T.atlas.drawable(mmc.ModVars.fullName($S)) ", fieldName, TextureRegionDrawable.class, Core.class, field.spriteName());
+            load.addStatement("Regions.$L = $T.atlas.find(mmc.ModVars.fullName($S))", fieldName, Core.class, field.spriteName());
         }
 
         write(TypeSpec.classBuilder(classPrefix() + "Icons")

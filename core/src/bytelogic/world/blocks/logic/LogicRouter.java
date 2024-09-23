@@ -19,9 +19,9 @@ import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
 import mindustry.world.*;
-import mma.annotations.ModAnnotations.*;
-import mma.type.*;
-import mma.type.pixmap.*;
+import mmc.annotations.ModAnnotations.*;
+import mmc.type.*;
+import mmc.type.pixmap.*;
 
 public class LogicRouter extends LogicBlock implements ImageGenerator{
 
@@ -128,7 +128,7 @@ protected boolean ignoreSideChecking=false;
             }
         }
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             for(int i = 0; i < sides.length; i++){
                 if(this.canOutputSignal(i)){
                     nearby(i).<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
@@ -147,8 +147,6 @@ protected boolean ignoreSideChecking=false;
         public void buildConfiguration(Table table){
             table.add();
             float size = 48f;
-//            Color disabledColor = Color.valueOf("f25555");
-//            Color enabledColor = Color.lime;
             ImageButtonStyle buttonStyle = Styles.squareTogglei;
 
             table.button(Icon.up, buttonStyle, () -> {

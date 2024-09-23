@@ -7,7 +7,7 @@ import arc.scene.ui.*;
 import bytelogic.gen.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
-import zelaux.arclib.ui.components.ComboBox.ComboBoxItem.*;
+import arclibrary.ui.components.ComboBox.ComboBoxItem.*;
 
 import static bytelogic.gen.BLTex.*;
 import static mindustry.gen.Tex.*;

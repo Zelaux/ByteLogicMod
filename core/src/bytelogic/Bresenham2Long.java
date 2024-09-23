@@ -48,9 +48,6 @@ public class Bresenham2Long{
      * @param end the end of the line
      * @return the list of points on the line at integer coordinates
      */
-    /*public Seq<Point2> line(Point2 start, Point2 end){
-        return line(start.x, start.y, end.x, end.y);
-    }*/
 
     /**
      * Returns a list of {@link Point2} instances along the given line, at integer coordinates.
@@ -60,11 +57,6 @@ public class Bresenham2Long{
      * @param endY the end y coordinate of the line
      * @return the list of points on the line at integer coordinates
      */
-   /* public Seq<Point2> line(long startX, long startY, long endX, long endY){
-        pool.freeAll(points);
-        points.clear();
-        return line(startX, startY, endX, endY, pool, points);
-    }*/
 
     /**
      * Returns a list of {@link Point2} instances along the given line, at integer coordinates.
@@ -76,49 +68,7 @@ public class Bresenham2Long{
      * @param output the output array, will be cleared in this method
      * @return the list of points on the line at integer coordinates
      */
-    /*public Seq<Point2> line(long startX, long startY, long endX, long endY, Pool<Point2> pool, Seq<Point2> output){
-
-        long w = endX - startX;
-        long h = endY - startY;
-        long dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
-        if(w < 0){
-            dx1 = -1;
-            dx2 = -1;
-        }else if(w > 0){
-            dx1 = 1;
-            dx2 = 1;
-        }
-        if(h < 0)
-            dy1 = -1;
-        else if(h > 0) dy1 = 1;
-        long longest = Math.abs(w);
-        long shortest = Math.abs(h);
-        if(longest <= shortest){
-            longest = Math.abs(h);
-            shortest = Math.abs(w);
-            if(h < 0)
-                dy2 = -1;
-            else if(h > 0) dy2 = 1;
-            dx2 = 0;
-        }
-        long numerator = longest >> 1;
-        for(long i = 0; i <= longest; i++){
-            Point2 point = pool.obtain();
-            point.set(startX, startY);
-            output.add(point);
-            numerator += shortest;
-            if(numerator > longest){
-                numerator -= longest;
-                startX += dx1;
-                startY += dy1;
-            }else{
-                startX += dx2;
-                startY += dy2;
-            }
-        }
-        return output;
-    }*/
-/*
+    /*
     *//**
      * Returns a list of {@link Point2} instances along the given line at integer coordinates, with no diagonals.
      * @param startX the start x coordinate of the line
@@ -128,31 +78,8 @@ public class Bresenham2Long{
      * @param pool the pool from which Point2 instances are fetched
      * @param output the output array, will be cleared in this method
      * @return the list of points on the line at integer coordinates
-     *//*
-    public Seq<Point2> lineNoDiagonal(long startX, long startY, long endX, long endY, Pool<Point2> pool, Seq<Point2> output){
-        long xDist = Math.abs(endX - startX);
-        long yDist = -Math.abs(endY - startY);
-        long xStep = (startX < endX ? +1 : -1);
-        long yStep = (startY < endY ? +1 : -1);
-        long error = xDist + yDist;
-
-        output.add(pool.obtain().set(startX, startY));
-
-        while(startX != endX || startY != endY){
-
-            if(2 * error - yDist > xDist - 2 * error){
-                error += yDist;
-                startX += xStep;
-            }else{
-                error += xDist;
-                startY += yStep;
-            }
-
-            output.add(pool.obtain().set(startX, startY));
-        }
-        return output;
-    }*/
-  public   interface Longc2{
+     */
+    public   interface Longc2{
         void get(long x,long y);
     }
 }

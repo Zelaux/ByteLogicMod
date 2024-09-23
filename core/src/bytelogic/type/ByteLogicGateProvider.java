@@ -5,7 +5,7 @@ import arc.struct.*;
 import bytelogic.type.byteGates.*;
 import bytelogic.type.byteGates.ByteLogicOperators.*;
 import bytelogic.type.graphicsGates.*;
-import mma.ui.tiledStructures.TiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
 
 public class ByteLogicGateProvider{
     public static final ObjectMap<String, ByteLogicGateProvider> providerMap = new ObjectMap<>();

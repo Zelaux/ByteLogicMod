@@ -10,6 +10,7 @@ import arc.struct.*;
 import arc.util.*;
 import arc.util.serialization.*;
 import arc.util.serialization.Json.*;
+import arclibrary.ui.tooltips.*;
 import bytelogic.schematics.*;
 import bytelogic.type.ConnectionSettings.*;
 import bytelogic.type.ConnectionSettings.WireDescriptor.*;
@@ -20,9 +21,8 @@ import bytelogic.ui.dialogs.*;
 import bytelogic.world.blocks.ByteLogicProcessor.*;
 import mindustry.gen.*;
 import mindustry.io.*;
-import mma.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.*;
 import org.jetbrains.annotations.Nullable;
-import zelaux.arclib.ui.tooltips.*;
 
 import static bytelogic.BLVars.byteLogicSchematics;
 
@@ -71,12 +71,6 @@ public class SchematicGate extends ByteLogicGate{
     public Cons2<TiledStructuresDialog, Table> editor(){
         return (tiledStructuresDialog, table) -> {
             table.defaults().size(40f);
-            /*table.button(Icon.copySmall, () -> {
-                ByteLogicSchematic it = ByteLogicSchematics.readBase64(byteLogicSchematics.writeBase64(schematic));
-                SchematicGate gate = new SchematicGate(it);
-                it.parentFile(schematic.parentFile);
-                tiledStructuresDialog.canvas.beginQuery(gate);
-            });*/
             table.button(Icon.uploadSmall, () -> {
                 ByteLogicSchematic it = ByteLogicSchematics.readBase64(byteLogicSchematics.writeBase64(schematic));
                 it.parentFile(schematic.parentFile);
@@ -173,14 +167,14 @@ public class SchematicGate extends ByteLogicGate{
     public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
         tryLoad();
         String inputName = schematic.connectionSettings.inputWires.get(inputIndex).name;
-        return inputName == null ? null : SideTooltips.INSTANCE.create(inputName);
+        return inputName == null ? null : AdvancedTooltips.create(inputName);
     }
 
     @Override
     public @Nullable Tooltip outputConnectorTooltip(int outputIndex){
         tryLoad();
         String outputName = schematic.connectionSettings.outputWires.get(outputIndex).name;
-        return outputName == null ? null : SideTooltips.INSTANCE.create(outputName);
+        return outputName == null ? null : AdvancedTooltips.create(outputName);
     }
 
     @Override

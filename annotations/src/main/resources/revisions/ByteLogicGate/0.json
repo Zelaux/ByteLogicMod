@@ -1,0 +1,1 @@
+{fields:[{name:inputSignals,type:"bytelogic.type.Signal[]",isFinal:true},{name:signals,type:"bytelogic.type.Signal[]",isFinal:true},{name:step,type:boolean}]}

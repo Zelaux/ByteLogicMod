@@ -91,13 +91,13 @@ open class BlockPreview(
 ) {
     @set:JvmName("hasNoSwitchMirror")
     @get:JvmName("hasNoSwitchMirror")
-    var hasNoSwitchMirror = true;
+    var hasNoSwitchMirror = true
     open fun createWorldContext(isSwitch: Boolean): Pair<WorldLogicContext, Array<Point2>> {
         val world = World()
         val context = WorldLogicContext(world)
         val points = ObjectRef<Array<Point2>>()
         context.inContext {
-            world.isGenerating = true;
+            world.isGenerating = true
             world.resize(worldWidth, worldHeight).each(worldFiller(world))
             world.isGenerating = false
             points.element = worldBuilder(world, isSwitch)
@@ -125,7 +125,7 @@ open class BlockPreview(
             }
             val selection = TileSelection(it.x.toInt(), it.y.toInt())
             selection.color.set(Pal.lancerLaser)
-            selection.size = 1;
+            selection.size = 1
             if (isSwitch && it.block() is SwitchBlock) {
                 selection.clickListener = Runnable {
                     worldElement.onNextUpdate {
@@ -143,7 +143,7 @@ open class BlockPreview(
 
         var wasShown = false
         table.table { selectedInfo ->
-            selectedInfo.isTransform = true;
+            selectedInfo.isTransform = true
             selectedInfoTable.element = selectedInfo
             val duration = 10 / Time.toSeconds
             worldElement.tileClickListener = Cons tileClickListener@{ tile: Tile? ->
@@ -156,7 +156,7 @@ open class BlockPreview(
                             Actions.scaleTo(0f, 1f, duration, Interp.pow3Out),
                         )
                     }
-                    wasShown = false;
+                    wasShown = false
                     selection.x = -1
                     selection.enabled = false
                     return@tileClickListener
@@ -177,7 +177,7 @@ open class BlockPreview(
 
                 tile.build.display(selectedInfo.table().get())
                 selectedInfo.row()
-                wasShown = true;
+                wasShown = true
                 if (shouldBuildConfiguration(tile.block())) {
                     tile.build.buildConfiguration(selectedInfo.table().get())
                 }
@@ -206,5 +206,4 @@ class BlockShowcaseData(
     @JvmField val mainTable: Table,
     @JvmField val selectionInfoTable: Table,
     @JvmField val selection: TileSelection,
-) {
-}
+)

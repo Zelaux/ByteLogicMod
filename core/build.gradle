@@ -11,10 +11,12 @@ def childBuildDir = buildDir
 configure(rootProject.project(":core:original")){
     childBuildDir = buildDir
     sourceSets.main.kotlin.srcDirs = ["../src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
-    sourceSets.main.java.srcDirs = ["../src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
+    sourceSets.main.java.srcDirs = ["../src/", "$buildDir/generated/sources/annotationProcessor/java/main", "../build/generated/source/kapt/main"]
     sourceSets.main.resources.srcDirs = ["../resources/"]
 }
-project.childProjects.remove("original")
+//project.childProjects.remove("original")
+rootProject.project(":core:original").tasks.compileJava.onlyIf{ false }
+rootProject.project(":core:original").tasks.compileKotlin.onlyIf{ false }
 println Arrays.toString(project.tasks.findByName("compileJava").dependsOn.toArray())
 println Arrays.toString(project.tasks.findByName("jar").dependsOn.toArray())
 task copySrc{
@@ -38,15 +40,15 @@ task copySrc{
         into(new File(buildDir, "src"))
     }
     def file = new Fi(file("src/bytelogic/mma/InternalCounter.java"))
-    if (!file.exists()){
+    if(!file.exists()){
         file.writeString("package bytelogic.mma;class InternalCounter{ long localField=0L;}")
     }
 
     def string = file.readString()
     def matcher = Pattern.compile("(localField\\s?=\\s?)\\d+(L)").matcher(string)
     matcher.find()
-    file.writeString( matcher.replaceAll(
-            matcher.group(0).replaceAll("[\\d]+",(Long.parseLong(matcher.group(0).replaceAll("\\D",""))+1)+"")
+    file.writeString(matcher.replaceAll(
+            matcher.group(0).replaceAll("[\\d]+", (Long.parseLong(matcher.group(0).replaceAll("\\D", "")) + 1) + "")
     ))
 //    sourceSets.main.java.srcDirs = ["$buildDir/generated/sources/annotationProcessor/java/main"]
 }

@@ -22,7 +22,7 @@ public class GlSetup {
 //            maximized = true;
 //            width = 900;
 //            height = 700;
-            //enable gl3 with command-line argument (slower performance, apparently)
+            //enable gl3 with commcnd-line argument (slower performance, apparently)
            /* if(Structs.contains(arg, "-gl3")){
                 gl30 = true;
             }*/

@@ -14,6 +14,7 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
+import arclibrary.utils.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.guide.*;
@@ -25,11 +26,13 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.world.*;
-import mma.*;
-import mma.graphics.*;
-import mma.io.*;
-import mma.type.*;
-import mma.type.pixmap.*;
+import mmc.*;
+import mmc.graphics.*;
+import mmc.io.*;
+import mmc.type.*;
+import mmc.type.pixmap.*;
+
+import java.io.EOFException;
 
 import static mindustry.Vars.world;
 
@@ -147,39 +150,49 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
             drawPlanRegion(req, list);
             return;
         }
+        //TODO add something like type-checking maybe Object[]{ "MY_CONFIG_TYPE", byteArray }
         tmpReads.setBytes(bytes);
         float scale = req.animScale * Draw.scl;
 
-        boolean flipped = tmpReads.bool();
-        int type = tmpReads.i();
 
 
-        TextureRegion back = base;
-        Draw.rect(back, req.drawx(), req.drawy(),
-            back.width * scale,
-            back.height * scale,
-            0);
-        if(!needImageCompilation){
-            Draw.rect(centerRegion, req.drawx(), req.drawy(),
-                region.width * scale,
-                region.height * scale * Mathf.sign(!flipped),
-                !rotate ? 0 : req.rotation * 90);
-        }
-        if(type == bothSideInputType){
-            Draw.rect(getOutputsRegion(), req.drawx(), req.drawy(),
+        try {
+            boolean flipped = tmpReads.bool();
+            int type = tmpReads.i();
+            TextureRegion back = base;
+            Draw.rect(back, req.drawx(), req.drawy(),
+                back.width * scale,
+                back.height * scale,
+                0);
+            if(!needImageCompilation){
+                Draw.rect(centerRegion, req.drawx(), req.drawy(),
+                    region.width * scale,
+                    region.height * scale * Mathf.sign(!flipped),
+                    !rotate ? 0 : req.rotation * 90);
+            }
+            if(type == bothSideInputType){
+                Draw.rect(getOutputsRegion(), req.drawx(), req.drawy(),
+                    region.width * scale,
+                    region.height * scale,
+                    !rotate ? 0 : req.rotation * 90);
+                return;
+            }
+
+            TextureRegion sideOutputsRegion = getSideOutputsRegion();
+            sideOutputsRegion.flip(false, type == leftFromBackInputType);
+            Draw.rect(sideOutputsRegion, req.drawx(), req.drawy(),
                 region.width * scale,
                 region.height * scale,
                 !rotate ? 0 : req.rotation * 90);
-            return;
+            sideOutputsRegion.flip(false, type == leftFromBackInputType);
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof EOFException){
+                req.config=null;
+                drawPlanRegion(req, list);
+                return;
+            }
+            throw e;
         }
-
-        TextureRegion sideOutputsRegion = getSideOutputsRegion();
-        sideOutputsRegion.flip(false, type == leftFromBackInputType);
-        Draw.rect(sideOutputsRegion, req.drawx(), req.drawy(),
-            region.width * scale,
-            region.height * scale,
-            !rotate ? 0 : req.rotation * 90);
-        sideOutputsRegion.flip(false, type == leftFromBackInputType);
 
     }
 
@@ -254,7 +267,7 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         }
 
         @Override
-        public void updateSignalState(){
+        public void swapingSignalState(){
 
             lastSignal.set(getNextSignal());
             sides[0].setZero();
@@ -264,7 +277,7 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             if(doOutput && canOutputSignal(rotation)){
                 front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }
@@ -295,15 +308,15 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
             float textSize = 0.15f;
             Color color = Pal.accent;
             if(inputType == leftFromBackInputType){
-                ADrawf.drawText(back.worldx(), back.worldy(), textSize, color, "a");//draw on back tile
+                ADrawText.drawText(back.worldx(), back.worldy(), textSize, color, "a");//draw on back tile
             }else{
-                ADrawf.drawText(left.worldx(), left.worldy(), textSize, color, "a");//draw on left tile
+                ADrawText.drawText(left.worldx(), left.worldy(), textSize, color, "a");//draw on left tile
             }
-            ADrawf.drawText(front.worldx(), front.worldy(), textSize, color, !flippedInputs ? "a " + operatorName + " b" : "b " + operatorName + " a");
+            ADrawText.drawText(front.worldx(), front.worldy(), textSize, color, !flippedInputs ? "a " + operatorName + " b" : "b " + operatorName + " a");
             if(inputType == rightFromBackInputType){
-                ADrawf.drawText(back.worldx(), back.worldy(), textSize, color, "b");//draw on back tile
+                ADrawText.drawText(back.worldx(), back.worldy(), textSize, color, "b");//draw on back tile
             }else{
-                ADrawf.drawText(right.worldx(), right.worldy(), textSize, color, "b");//draw on right tile
+                ADrawText.drawText(right.worldx(), right.worldy(), textSize, color, "b");//draw on right tile
             }
         }
 
@@ -358,8 +371,8 @@ public abstract class BinaryLogicBlock extends LogicBlock implements ImageGenera
             super.buildConfiguration(table);
             TextureRegionDrawable[] drawables = {
                 BLIcons.Drawables.binaryInput0_64,
+                BLIcons.Drawables.binaryInput2_64,
                 BLIcons.Drawables.binaryInput1_64,
-                BLIcons.Drawables.binaryInput2_64
             };
 
             table.table(t -> {

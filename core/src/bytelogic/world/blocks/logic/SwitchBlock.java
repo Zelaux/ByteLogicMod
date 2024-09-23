@@ -57,7 +57,7 @@ public class SwitchBlock extends LogicBlock{
         }
 
         @Override
-        public Signal currentSignal(){
+        public Signal displaySignal(){
             return nextSignal;
         }
 
@@ -84,7 +84,7 @@ public class SwitchBlock extends LogicBlock{
         }
 
         @Override
-        public void updateSignalState(){
+        public void swapingSignalState(){
             lastSignal.set(nextSignal);
         }
 
@@ -94,16 +94,11 @@ public class SwitchBlock extends LogicBlock{
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             if(doOutput && canOutputSignal(rotation)){
                 front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }
         }
 
-        /*
-        @Override
-        public int signal(){
-            return nextSignal;
-        }*/
     }
 }

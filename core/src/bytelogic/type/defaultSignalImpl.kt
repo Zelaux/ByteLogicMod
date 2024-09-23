@@ -1,3 +1,5 @@
+@file:Suppress("LocalVariableName")
+
 package bytelogic.type
 
 import arc.graphics.*
@@ -20,7 +22,7 @@ open class DefaultSignalTypeImpl(name: String, icon: () -> Drawable) : SignalTyp
     }
 
     override fun applyControl(`this&signal`: Signal, building: Building) {
-        building.control(LAccess.enabled, `this&signal`.compareWithZero().toDouble(), 0.0, 0.0, 0.0);
+        building.control(LAccess.enabled, `this&signal`.compareWithZero().toDouble(), 0.0, 0.0, 0.0)
     }
 
     override fun color(signal: Signal): Color {

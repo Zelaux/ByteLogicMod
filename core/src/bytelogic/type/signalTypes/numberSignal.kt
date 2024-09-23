@@ -1,4 +1,4 @@
-@file:Suppress("PackageDirectoryMismatch")
+@file:Suppress("PackageDirectoryMismatch", "LocalVariableName")
 
 package bytelogic.type
 
@@ -28,7 +28,7 @@ internal object IntegerSignalType : DefaultSignalTypeImpl(
 
     override fun plus(`this&signal`: Signal, signal: Signal) {
         if (signal.type ==SignalTypes.floatType) {
-            `this&signal`.type = signal.type;
+            `this&signal`.type = signal.type
             `this&signal`.setNumber(`this&signal`.number.toDouble().toRawBits())
             `this&signal`.plus(signal)
         } else
@@ -40,7 +40,7 @@ internal object IntegerSignalType : DefaultSignalTypeImpl(
     override fun minus(`this&signal`: Signal, signal: Signal) {
 //        if (`this&signal`.number in 0L..1L && `this&signal`.type == SignalTypes.numberType) `this&signal`.type = signal.type
         if (signal.type ==SignalTypes.floatType) {
-            `this&signal`.type = signal.type;
+            `this&signal`.type = signal.type
             `this&signal`.setNumber(`this&signal`.number.toDouble().toRawBits())
             signal.type.minus(`this&signal`, signal)
         } else
@@ -51,7 +51,7 @@ internal object IntegerSignalType : DefaultSignalTypeImpl(
     override fun div(`this&signal`: Signal, signal: Signal) {
 //        if (`this&signal`.number in 0L..1L && `this&signal`.type == SignalTypes.numberType) `this&signal`.type = signal.type
         if (signal.type ==SignalTypes.floatType) {
-            `this&signal`.type = signal.type;
+            `this&signal`.type = signal.type
             `this&signal`.setNumber(`this&signal`.number.toDouble().toRawBits())
             `this&signal`.div(signal)
         } else
@@ -62,7 +62,7 @@ internal object IntegerSignalType : DefaultSignalTypeImpl(
     override fun mod(`this&signal`: Signal, signal: Signal) {
 //        if (`this&signal`.number in 0L..1L && `this&signal`.type == SignalTypes.numberType) `this&signal`.type = signal.type
         if (signal.type ==SignalTypes.floatType) {
-            `this&signal`.type = signal.type;
+            `this&signal`.type = signal.type
             `this&signal`.setNumber(`this&signal`.number.toDouble().toRawBits())
             `this&signal`.mod(signal)
         } else
@@ -73,7 +73,7 @@ internal object IntegerSignalType : DefaultSignalTypeImpl(
     override fun times(`this&signal`: Signal, signal: Signal) {
         if (`this&signal`.number in 0L..1L && `this&signal`.type == SignalTypes.numberType) `this&signal`.type = signal.type
         if (signal.type == SignalTypes.floatType) {
-            `this&signal`.type = signal.type;
+            `this&signal`.type = signal.type
             `this&signal`.setNumber(`this&signal`.number.toDouble().toRawBits())
             `this&signal`.times(signal)
         } else

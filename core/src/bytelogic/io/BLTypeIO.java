@@ -2,12 +2,13 @@ package bytelogic.io;
 
 import arc.graphics.*;
 import arc.util.io.*;
+import arclibrary.utils.io.*;
 import bytelogic.schematics.*;
 import bytelogic.type.*;
 import mindustry.io.*;
-import mma.annotations.*;
-import mma.io.*;
-import mma.ui.tiledStructures.*;
+import mmc.annotations.*;
+import mmc.io.*;
+import mmc.ui.tiledStructures.*;
 
 import java.io.*;
 
@@ -38,7 +39,7 @@ public class BLTypeIO extends ModTypeIO{
     public static void writeSignal(Writes write, Signal signal){
         signal.write(write);
     }
-    public static final ByteWrites  tmpWrites = new ByteWrites();
+    public static final ByteWrites tmpWrites = new ByteWrites();
     public static final ByteReads tmpReads = new ByteReads();
     private static final Signal tmpSignal=new Signal();
     public static Signal readSignal(Reads read, Signal signal){
@@ -59,11 +60,6 @@ public class BLTypeIO extends ModTypeIO{
         executor.write(write);
     }
 
-    /*    public static TiledStructures readTiledStructures(Reads read){
-            String string = read.str();
-            System.out.println("String: "+string);
-            return JsonIO.read(TiledStructures.class, string);
-        }*/
     public static TiledStructures readTiledStructures(Reads read, TiledStructures target){
         String string = read.str();
 //        System.out.println("String: " + string);

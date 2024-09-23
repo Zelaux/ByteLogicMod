@@ -1,4 +1,5 @@
-@file:Suppress("PackageDirectoryMismatch")
+@file:Suppress("PackageDirectoryMismatch", "LocalVariableName"
+)
 
 package bytelogic.type
 
@@ -14,7 +15,7 @@ internal object ColorSignalType : DefaultSignalTypeImpl("color-type", { Icon.pic
 
     override fun applyControl(`this&signal`: Signal, building: Building) {
         val color = color(`this&signal`)
-        building.control(LAccess.color, color.toDoubleBits(), 0.0, 0.0, 0.0);
+        building.control(LAccess.color, color.toDoubleBits(), 0.0, 0.0, 0.0)
     }
 
     override fun barColor(signal: Signal): Color {
@@ -74,10 +75,10 @@ internal object ColorSignalType : DefaultSignalTypeImpl("color-type", { Icon.pic
         }
         val b = signal.color()
         val a = Tmp.c2.set(color(`this&signal`))
-        a.r /= b.r;
-        a.g /= b.g;
-        a.b /= b.b;
-        a.a /= b.a;
+        a.r /= b.r
+        a.g /= b.g
+        a.b /= b.b
+        a.a /= b.a
         `this&signal`.setNumber(
             a.rgba()
         )

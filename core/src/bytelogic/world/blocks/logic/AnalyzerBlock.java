@@ -22,7 +22,7 @@ import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.ui.*;
 import mindustry.world.blocks.*;
-import mma.*;
+import mmc.*;
 
 import static mindustry.Vars.*;
 
@@ -112,12 +112,15 @@ public class AnalyzerBlock extends LogicBlock{
                         content = Vars.content.liquid(selection);
                     }
                     region = content == null ? Icon.none.getRegion() : content.fullIcon;
+                    break;
                 }
                 case modePowerBalance -> {
                     region = Icon.power.getRegion();
+                    break;
                 }
                 case modePowerBattery -> {
                     region = Core.atlas.find(ModVars.fullName("battery-icon-32"));
+                    break;
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + mode);
             }
@@ -155,14 +158,14 @@ public class AnalyzerBlock extends LogicBlock{
         }
 
         @Override
-        public void updateSignalState(){
+        public void swapingSignalState(){
 
             Signal.valueOf(nextSignal, calculateNextSignal());
-            super.updateSignalState();
+            super.swapingSignalState();
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             if(doOutput && canOutputSignal(rotation)){
                 front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }

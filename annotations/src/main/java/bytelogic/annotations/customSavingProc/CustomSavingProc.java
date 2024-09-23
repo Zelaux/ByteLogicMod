@@ -19,8 +19,8 @@ import com.github.javaparser.ast.visitor.*;
 import com.sun.source.tree.*;
 import com.sun.source.util.*;
 import mindustry.annotations.util.*;
-import mma.annotations.SupportedAnnotationTypes;
-import mma.annotations.*;
+import mmc.annotations.SupportedAnnotationTypes;
+import mmc.annotations.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.Modifier;
@@ -37,6 +37,7 @@ public class CustomSavingProc extends ModBaseProcessor{
     @Override
     public void process(RoundEnvironment env) throws Exception{
         super.process(env);
+        StaticJavaParser.getConfiguration().setLanguageLevel(LanguageLevel.JAVA_17);
 
 
         Seq<Stype> types = asTypes(env.getRootElements());
@@ -101,7 +102,7 @@ public class CustomSavingProc extends ModBaseProcessor{
         String writeMethodName = root.writeMethodLink.getSimpleName().toString();
         String versionMethodName = root.versionMethodLink.getSimpleName().toString();
 
-        StaticJavaParser.getConfiguration().setLanguageLevel(LanguageLevel.JAVA_16);
+        StaticJavaParser.getConfiguration().setLanguageLevel(LanguageLevel.JAVA_17);
         leaves.removeAll(leaf -> {
             if(leaf == root) return true;
 

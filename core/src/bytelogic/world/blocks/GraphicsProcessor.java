@@ -16,9 +16,9 @@ import mindustry.io.*;
 import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.blocks.logic.LogicDisplay.*;
-import mma.type.pixmap.*;
-import mma.ui.tiledStructures.*;
-import mma.ui.tiledStructures.TiledStructures.*;
+import mmc.type.pixmap.*;
+import mmc.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
 import org.jetbrains.annotations.*;
 
 import java.util.*;
@@ -132,7 +132,7 @@ public class GraphicsProcessor extends ByteLogicProcessor{
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             if(!hasDisplays) return;
             buildingUpdate = true;
             for(int i = 0; i < updatePerTick; i++){
@@ -145,7 +145,7 @@ public class GraphicsProcessor extends ByteLogicProcessor{
         }
 
         @Override
-        public void updateSignalState(){
+        public void swapingSignalState(){
             for(int i = 0; i < nextSignalInputCache.length; i++){
                 signalInputCache[i].set(nextSignalInputCache[i]);
                 nextSignalInputCache[i].setZero();

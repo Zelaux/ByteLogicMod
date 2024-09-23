@@ -13,11 +13,12 @@ import bytelogic.world.blocks.ByteLogicProcessor.*;
 import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.world.blocks.logic.*;
-import mma.ui.tiledStructures.*;
-import mma.ui.tiledStructures.TiledStructures.*;
-import mma.utils.*;
+import mmc.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
+import mmc.utils.*;
+import mmc.utils.strings.ModStrings;
 import org.jetbrains.annotations.Nullable;
-import zelaux.arclib.ui.tooltips.*;
+import arclibrary.ui.tooltips.*;
 
 import java.lang.reflect.*;
 
@@ -119,7 +120,7 @@ public class GraphicsOperators{
         @Nullable
         public final Tooltip outputConnectorTooltip(int outputIndex){
             if(outputIndex != 0) return null;
-            return SideTooltips.getInstance().create("@enabled");
+            return arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
         }
 
         @Override
@@ -144,7 +145,7 @@ public class GraphicsOperators{
 
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
-            if(inputIndex == 0) return SideTooltips.getInstance().create("@enabled");
+            if(inputIndex == 0) return arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
             return null;
         }
 
@@ -165,8 +166,8 @@ public class GraphicsOperators{
 
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
-            if(inputIndex == 0) return SideTooltips.getInstance().create("@enabled");
-            if(inputIndex == 1) return SideTooltips.getInstance().create("@color");
+            if(inputIndex == 0) return arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+            if(inputIndex == 1) return arclibrary.ui.tooltips.AdvancedTooltips.create("@color");
             return null;
         }
 
@@ -193,8 +194,8 @@ public class GraphicsOperators{
 
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
-            if(inputIndex == 0) return SideTooltips.getInstance().create("@enabled");
-            if(inputIndex == 1) return SideTooltips.getInstance().create("@color");
+            if(inputIndex == 0) return arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+            if(inputIndex == 1) return arclibrary.ui.tooltips.AdvancedTooltips.create("@color");
             return null;
         }
 
@@ -221,8 +222,8 @@ public class GraphicsOperators{
 
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
-            if(inputIndex == 0) return SideTooltips.getInstance().create("@enabled");
-            if(inputIndex == 1) return SideTooltips.getInstance().create("@stroke");
+            if(inputIndex == 0) return arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+            if(inputIndex == 1) return arclibrary.ui.tooltips.AdvancedTooltips.create("@stroke");
             return null;
         }
 
@@ -244,11 +245,11 @@ public class GraphicsOperators{
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
             return switch(inputIndex - 1){
-                case -1 -> SideTooltips.getInstance().create("@enabled");
-                case 0 -> SideTooltips.getInstance().create("x");
-                case 1 -> SideTooltips.getInstance().create("y");
-                case 2 -> SideTooltips.getInstance().create("x2");
-                case 3 -> SideTooltips.getInstance().create("y2");
+                case -1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+                case 0 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x");
+                case 1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y");
+                case 2 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x2");
+                case 3 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y2");
                 default -> null;
             };
         }
@@ -274,11 +275,11 @@ public class GraphicsOperators{
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
             return switch(inputIndex - 1){
-                case -1 -> SideTooltips.getInstance().create("@enabled");
-                case 0 -> SideTooltips.getInstance().create("x");
-                case 1 -> SideTooltips.getInstance().create("y");
-                case 2 -> SideTooltips.getInstance().create("@width");
-                case 3 -> SideTooltips.getInstance().create("@height");
+                case -1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+                case 0 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x");
+                case 1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y");
+                case 2 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@width");
+                case 3 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@height");
                 default -> null;
             };
         }
@@ -305,11 +306,11 @@ public class GraphicsOperators{
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
             return switch(inputIndex - 1){
-                case -1 -> SideTooltips.getInstance().create("@enabled");
-                case 0 -> SideTooltips.getInstance().create("x");
-                case 1 -> SideTooltips.getInstance().create("y");
-                case 2 -> SideTooltips.getInstance().create("@width");
-                case 3 -> SideTooltips.getInstance().create("@height");
+                case -1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+                case 0 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x");
+                case 1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y");
+                case 2 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@width");
+                case 3 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@height");
                 default -> null;
             };
         }
@@ -336,12 +337,12 @@ public class GraphicsOperators{
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
             return switch(inputIndex - 1){
-                case -1 -> SideTooltips.getInstance().create("@enabled");
-                case 0 -> SideTooltips.getInstance().create("x");
-                case 1 -> SideTooltips.getInstance().create("y");
-                case 2 -> SideTooltips.getInstance().create("@sides");
-                case 3 -> SideTooltips.getInstance().create("@radius");
-                case 4 -> SideTooltips.getInstance().create("@rotation");
+                case -1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+                case 0 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x");
+                case 1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y");
+                case 2 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@sides");
+                case 3 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@radius");
+                case 4 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@rotation");
                 default -> null;
             };
         }
@@ -371,12 +372,12 @@ public class GraphicsOperators{
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
             return switch(inputIndex - 1){
-                case -1 -> SideTooltips.getInstance().create("@enabled");
-                case 0 -> SideTooltips.getInstance().create("x");
-                case 1 -> SideTooltips.getInstance().create("y");
-                case 2 -> SideTooltips.getInstance().create("@sides");
-                case 3 -> SideTooltips.getInstance().create("@radius");
-                case 4 -> SideTooltips.getInstance().create("@rotation");
+                case -1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+                case 0 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x");
+                case 1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y");
+                case 2 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@sides");
+                case 3 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@radius");
+                case 4 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@rotation");
                 default -> null;
             };
         }
@@ -406,13 +407,13 @@ public class GraphicsOperators{
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
             return switch(inputIndex - 1){
-                case -1 -> SideTooltips.getInstance().create("@enabled");
-                case 0 -> SideTooltips.getInstance().create("x");
-                case 1 -> SideTooltips.getInstance().create("y");
-                case 2 -> SideTooltips.getInstance().create("x2");
-                case 3 -> SideTooltips.getInstance().create("y2");
-                case 4 -> SideTooltips.getInstance().create("x3");
-                case 5 -> SideTooltips.getInstance().create("y3");
+                case -1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+                case 0 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x");
+                case 1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y");
+                case 2 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x2");
+                case 3 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y2");
+                case 4 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x3");
+                case 5 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y3");
                 default -> null;
             };
         }
@@ -442,12 +443,12 @@ public class GraphicsOperators{
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
             return switch(inputIndex - 1){
-                case -1 -> SideTooltips.getInstance().create("@enabled");
-                case 0 -> SideTooltips.getInstance().create("x");
-                case 1 -> SideTooltips.getInstance().create("y");
-                case 2 -> SideTooltips.getInstance().create("@image");
-                case 3 -> SideTooltips.getInstance().create("@size");
-                case 4 -> SideTooltips.getInstance().create("@rotation");
+                case -1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@enabled");
+                case 0 -> arclibrary.ui.tooltips.AdvancedTooltips.create("x");
+                case 1 -> arclibrary.ui.tooltips.AdvancedTooltips.create("y");
+                case 2 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@image");
+                case 3 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@size");
+                case 4 -> arclibrary.ui.tooltips.AdvancedTooltips.create("@rotation");
                 default -> null;
             };
         }

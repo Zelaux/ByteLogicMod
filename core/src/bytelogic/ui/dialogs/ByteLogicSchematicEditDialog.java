@@ -14,6 +14,7 @@ import arc.scene.ui.layout.*;
 import arc.scene.utils.*;
 import arc.struct.*;
 import arc.util.*;
+import arclibrary.ui.defaults.*;
 import bytelogic.*;
 import bytelogic.schematics.*;
 import bytelogic.type.*;
@@ -24,19 +25,19 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
-import mma.ui.tiledStructures.*;
-import mma.ui.tiledStructures.TiledStructures.*;
-import mma.ui.tiledStructures.TiledStructuresCanvas.*;
-import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
-import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
+import mmc.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructuresCanvas.*;
+import mmc.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
+import mmc.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.*;
-import zelaux.arclib.ui.listeners.*;
-import zelaux.arclib.ui.tooltips.*;
-import zelaux.arclib.ui.utils.*;
+import arclibrary.ui.listeners.*;
+import arclibrary.ui.tooltips.*;
+import arclibrary.ui.utils.*;
 
 import static mindustry.Vars.mobile;
-import static mma.ui.tiledStructures.TiledStructuresCanvas.*;
+import static mmc.ui.tiledStructures.TiledStructuresCanvas.*;
 
 public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
 
@@ -274,7 +275,7 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
                         queryX(pos), queryY(pos)
                     );
 //                queryX = queryX(pos);
-                    //noinspection IntegerDivisionInFloatingPointContext
+                    ////noinspection IntegerDivisionInFloatingPointContext
 //                queryY = queryY(pos);
 
                     // In mobile, placing the query is done in a separate button.
@@ -439,9 +440,19 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
                         wires.remove(wireDescriptor);
                         runnable.element.run();
                     });
-                    SideTooltips.mutableSideTooltip(table, Align.topRight, element, tooltipText);
+                    Cons<Table> builder = it ->
+                        it.background(DefaultBackground.black6())
+                            .margin(4)
+                            .label(() -> tooltipText.element)
+                            .visible(() -> tooltipText.element != null);
+                    AdvancedTooltips.tooltipSide(table.add(element), Align.topRight, builder);
                 }else{
-                    SideTooltips.mutableSideTooltip(table, Align.topRight, element, tooltipText);
+                    Cons<Table> builder = it ->
+                        it.background(DefaultBackground.black6())
+                            .margin(4)
+                            .label(() -> tooltipText.element)
+                            .visible(() -> tooltipText.element != null);
+                    AdvancedTooltips.tooltipSide(table.add(element), Align.topRight, builder);
                     table.button(Icon.editSmall, Styles.cleari, () -> WireDescriptorEditDialog.showDialog(wireDescriptor));
                     table.button(Icon.trashSmall, Styles.cleari, () -> {
                         wires.remove(wireDescriptor);
@@ -492,8 +503,6 @@ public class ByteLogicSchematicEditDialog extends TiledStructuresDialog{
             Vec2
                 mouse = connecting.localToAscendantCoordinates(this, Tmp.v1.set(connecting.pointX, connecting.pointY)).add(x, y),
                 anchor = connecting.localToAscendantCoordinates(this, Tmp.v2.set(connecting.getWidth() / 2f, connecting.getHeight() / 2f)).add(x, y);
-//            canvas.parentToLocalCoordinates(Tmp.v3.set(mouse));
-//            canvas.tilemap.parentToLocalCoordinates(Tmp.v3);
             Tmp.v3.set(mouse);
             if(hit(Tmp.v3.x, Tmp.v3.y, true) instanceof Connector connector && connector.findParent != connecting.isInput){
                 mouse.set(connector.getWidth() / 2f, connector.getHeight() / 2f);

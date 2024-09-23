@@ -6,7 +6,7 @@ import arc.util.*;
 import bytelogic.*;
 import bytelogic.type.*;
 import mindustry.mod.Mods.*;
-import mma.ui.tiledStructures.TiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
 
 public class ByteLogicSchematic implements Comparable<ByteLogicSchematic>{
     public static ByteLogicTiledStructures tmpStructures = new ByteLogicTiledStructures(new Seq<>());

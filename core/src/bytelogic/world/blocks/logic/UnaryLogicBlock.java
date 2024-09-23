@@ -20,7 +20,7 @@ import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
 import mindustry.world.*;
-import mma.type.pixmap.*;
+import mmc.type.pixmap.*;
 
 public abstract class UnaryLogicBlock extends LogicBlock{
 
@@ -166,12 +166,20 @@ public abstract class UnaryLogicBlock extends LogicBlock{
                 Button.ButtonStyle style = new Button.ButtonStyle(Styles.togglet);
                 for(int i = 1; i < 4; i++){
                     int staticI = i;
-                    float tailOffset = switch(i){
-                        case backSideMaskIndex -> 0;
-                        case leftSideMaskIndex -> -90;
-                        case rightSideMaskIndex -> 90;
-                        default -> throw new RuntimeException("Impossible value");
-                    };
+                    float tailOffset;
+                    switch(i){
+                        case backSideMaskIndex:
+                            tailOffset = 0;
+                            break;
+                        case leftSideMaskIndex:
+                            tailOffset = -90;
+                            break;
+                        case rightSideMaskIndex:
+                            tailOffset = 90;
+                            break;
+                        default:
+                            throw new RuntimeException("Impossible value");
+                    }
                     int sideMask = sideMasks[staticI];
                     t.button(button -> {
                         button.setStyle(style);
@@ -183,7 +191,7 @@ public abstract class UnaryLogicBlock extends LogicBlock{
                         }).size(32f);
                     }, () -> {
                         byte newValue = (byte)(inputType & ~sideMask | ((inputType & sideMask) != 0 ? 0 : sideMask));
-                        if((newValue & combinedSideMask) == 0) return;
+//                        if((newValue & combinedSideMask) == 0) return;
                         configureInputType(newValue);
                     }).checked(it -> (inputType & sideMask) != 0).size(48f);
 
@@ -233,14 +241,14 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         }
 
         @Override
-        public void updateSignalState(){
+        public void swapingSignalState(){
             lastSignal.set(processor.process(nextSignal));
             nextSignal.setZero();
 
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             if(doOutput && canOutputSignal((byte)rotation)){
                 front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }
@@ -286,11 +294,6 @@ public abstract class UnaryLogicBlock extends LogicBlock{
         public short customVersion(){
             return 1;
         }
-        /*
-        @Override
-        public int signal(){
-            return processor.process(sback());
-        }*/
     }
 
 }

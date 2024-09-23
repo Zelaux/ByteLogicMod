@@ -3,7 +3,7 @@ package bytelogic.ui.dialogs;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
-import mma.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.*;
 
 public class ByteLogicGateCanvas extends TiledStructuresCanvas{
     public ByteLogicGateCanvas(TiledStructuresDialog tiledStructuresDialog){

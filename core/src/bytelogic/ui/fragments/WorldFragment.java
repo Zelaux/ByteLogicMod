@@ -83,8 +83,6 @@ public class WorldFragment extends Element{
     @Override
     public void draw(){
 
-//        Draw.color(Color.green);
-//        Fill.crect(x, y, width, height);
         Core.app.post(this::drawWorldInBuffer);
 
         Tmp.tr1.set(buffer.getTexture());
@@ -136,9 +134,6 @@ public class WorldFragment extends Element{
 
             worldDrawListeners.each(Runnable::run);
             //draw blocks
-            /*worldContext.world.tiles.eachTile(tile -> {
-                tile.block().drawBase(tile);
-            });*/
         });
 
 

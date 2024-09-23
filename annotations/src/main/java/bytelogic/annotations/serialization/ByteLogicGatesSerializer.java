@@ -10,9 +10,9 @@ import com.github.javaparser.ast.body.*;
 import com.squareup.javapoet.*;
 import mindustry.annotations.*;
 import mindustry.annotations.util.*;
-import mma.annotations.SupportedAnnotationTypes;
-import mma.annotations.*;
-import mma.annotations.remote.*;
+import mmc.annotations.SupportedAnnotationTypes;
+import mmc.annotations.*;
+import mmc.annotations.remote.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.Modifier;
@@ -41,7 +41,7 @@ public class ByteLogicGatesSerializer extends ModBaseProcessor{
             if(beginSize == allTypes.size) break;
         }
 
-        System.out.println(allTypes.toString("\n"));
+//        System.out.println(allTypes.toString("\n"));
         Stype rootClass = allTypes.find(it -> it.fullName().equals(pathByteLogicGate));
 
         Leaf root = new Leaf(rootClass);
@@ -59,7 +59,7 @@ public class ByteLogicGatesSerializer extends ModBaseProcessor{
 //            CustomSaveBuilding
             }
         }
-        printTree(root, 0);
+//        printTree(root, 0);
         Seq<Stype> requiredTypes = Seq.with(root.element);
 
         root.visitTree(value -> requiredTypes.addUnique(value.element));

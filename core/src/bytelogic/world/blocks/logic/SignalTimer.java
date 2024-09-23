@@ -11,6 +11,7 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
+import arclibrary.utils.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
 import bytelogic.ui.*;
@@ -20,7 +21,7 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.world.*;
-import mma.io.*;
+import mmc.io.*;
 import org.jetbrains.annotations.*;
 
 public class SignalTimer extends UnaryLogicBlock{
@@ -92,10 +93,6 @@ public class SignalTimer extends UnaryLogicBlock{
                 multiBar.updateParts();
             });
             return multiBar;
-            /*return new Bar(() -> {
-                return "";
-//                return Core.bundle.format("signal-timer.signals", build.currentDelay);
-            }, () -> Pal.items, () -> 1f);*/
         });
     }
 
@@ -211,7 +208,9 @@ public class SignalTimer extends UnaryLogicBlock{
         @Override
         public void buildConfiguration(Table table){
 //            super.buildConfiguration(table);
+            //noinspection CommentedOutCode
             table.table(Tex.pane, t -> {
+
                 t.table(it -> {
                     Boolf<TextButton> zeroChecker = any -> currentDelay == 1;
                     Boolf<TextButton> maxChecker = any -> currentDelay == maxDelay;
@@ -272,7 +271,7 @@ public class SignalTimer extends UnaryLogicBlock{
         }
 
         @Override
-        public void updateSignalState(){
+        public void swapingSignalState(){
             if(signalsQueue.length == 0){
                 lastSignal.set(nextSignal);
             }else{
@@ -291,12 +290,6 @@ public class SignalTimer extends UnaryLogicBlock{
         @Override
         public void write(Writes write){
             super.write(write);
-            /*write.i(tickCounter);
-            write.i(currentDelay);
-            for (int i : signalsQueue) {
-                write.i(i);
-            }
-            write.i(inputType);*/
         }
 
         @Override

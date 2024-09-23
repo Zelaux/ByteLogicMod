@@ -12,8 +12,8 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
-import mma.ui.tiledStructures.*;
-import zelaux.arclib.ui.utils.*;
+import mmc.ui.tiledStructures.*;
+import arclibrary.ui.utils.*;
 
 public class GraphicsLogicDialog extends BaseTiledStructuresDialog<ByteLogicGate>{
     public static final Seq<Prov<ByteLogicGate>> allGraphicsGates;

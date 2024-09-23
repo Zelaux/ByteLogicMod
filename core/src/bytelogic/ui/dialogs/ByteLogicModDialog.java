@@ -20,13 +20,13 @@ import mindustry.graphics.*;
 import mindustry.mod.Mods.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
-import mma.*;
+import mmc.*;
 
 import java.lang.reflect.*;
 import java.util.*;
 
 import static mindustry.Vars.*;
-import static mma.ModVars.*;
+import static mmc.ModVars.*;
 
 public class ByteLogicModDialog extends BaseDialog{
     public static final float oneFrameTime = 5f;

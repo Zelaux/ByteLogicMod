@@ -7,7 +7,7 @@ import arc.util.io.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
 import mindustry.io.*;
-import mma.type.pixmap.*;
+import mmc.type.pixmap.*;
 
 public class DisplayBlock extends AcceptorLogicBlock{
 
@@ -55,7 +55,7 @@ public class DisplayBlock extends AcceptorLogicBlock{
             float dw = 8f / 6f, dh = 8f / 6f, xs = dw, ys = dh;
 
             long w = canvasSize, h = canvasSize;
-            long signal = currentSignal().number();
+            long signal = displaySignal().number();
 //            int jjj = 2 * ;
 
             Draw.color(drawColor);

@@ -25,11 +25,11 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.io.*;
 import mindustry.ui.*;
-import mma.ui.tiledStructures.*;
-import mma.ui.tiledStructures.TiledStructures.*;
-import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
-import zelaux.arclib.ui.components.*;
-import zelaux.arclib.ui.utils.*;
+import mmc.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
+import arclibrary.ui.components.*;
+import arclibrary.ui.utils.*;
 
 import java.lang.annotation.*;
 import java.util.*;

@@ -11,26 +11,26 @@ open class GuideTabParent(override val pageName: String, override var pageButton
     override val pageBuilder: (Table) -> Unit = this::buildPage
     val children: Seq<GuideTab> = Seq()
     @JvmField
-    var selectedChild: Int = 0;
+    var selectedChild: Int = 0
     private fun buildPage(pageTable: Table) {
-        pageTable.clearChildren();
+        pageTable.clearChildren()
         var rebuilder = {}
         pageTable.pane { buttons ->
             buttons.background = Tex.pane
             for ((i, child) in children.withIndex()) {
                 buttons.button(child.pageButtonBuilder) {
                     val scrollX = (buttons.parent as ScrollPane).scrollX
-                    selectedChild=i;
+                    selectedChild=i
                     rebuilder()
 //                    buildPage(pageTable, i)
-                    (pageTable.children[0] as ScrollPane).scrollX = scrollX;
+                    (pageTable.children[0] as ScrollPane).scrollX = scrollX
                 }.fillX()
-                buttons.row();
+                buttons.row()
             }/*
             buttons.fill { x, y, width, height ->
                 Fill.crect(x,y,width,height)
             }*/
-            buttons.add().grow();
+            buttons.add().grow()
         }.growY().minWidth(128f * 1.5f).fillX()
 //        pageTable.add().fill()
         pageTable.table {

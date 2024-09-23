@@ -1,4 +1,4 @@
-@file:Suppress("PackageDirectoryMismatch")
+@file:Suppress("PackageDirectoryMismatch", "LocalVariableName")
 
 package bytelogic.type
 
@@ -25,7 +25,7 @@ object ContentSignalType : DefaultSignalTypeImpl("content-type", { TextureRegion
     @JvmField
     val instance = ContentSignalType
     override fun applyControl(`this&signal`: Signal, building: Building) {
-        building.control(LAccess.config, getContent(`this&signal`), 0.0, 0.0, 0.0);
+        building.control(LAccess.config, getContent(`this&signal`), 0.0, 0.0, 0.0)
     }
 
     override fun toString(signal: Signal): String {

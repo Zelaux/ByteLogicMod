@@ -8,5 +8,4 @@ class GuideTabImpl(
     override val pageName: String,
     override val pageBuilder: (Table) -> Unit,
     override val pageButtonBuilder: Cons<Button>,
-) : GuideTab {
-}
+) : GuideTab

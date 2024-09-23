@@ -70,10 +70,6 @@ public class MenuButtons {
                 submenu = (Table) container.getCells().find(find.get("submenu")).get();
             } else {
                 return;
-             /*   container = (Table) widgetGroup.getChildren().find(el -> "menu container".equals(el.name));
-                Func<String, Boolf<Cell>> find = (name) -> (cell -> cell.get() != null && name.equals(cell.get().name));
-                t = (Table) container.getCells().find(find.get("buttons")).get();
-                submenu = (Table) container.getCells().find(find.get("submenu")).get();*/
             }
             buttonsDesktop(t, menuButtons);
         } catch (Exception exception) {

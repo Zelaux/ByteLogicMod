@@ -38,7 +38,7 @@ private boolean logProblems=true;
     public static void main(String... args) {
         Fi fi = Fi.get("debug/compJava");
         String name =
-//                "CommanderComp"
+//                "CommcnderComp"
 //                "EntityComp"
 //                "PayloadComp"
                 "UnitComp"

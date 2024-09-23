@@ -6,8 +6,8 @@ import arc.util.*;
 import arc.util.io.*;
 import bytelogic.type.byteGates.ByteLogicOperators.*;
 import mindustry.io.*;
-import mma.ui.tiledStructures.*;
-import mma.ui.tiledStructures.TiledStructures.TiledStructure.*;
+import mmc.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.TiledStructure.*;
 
 public class ByteLogicTiledStructures extends TiledStructures{
     public ByteLogicTiledStructures(Seq<Prov<? extends ByteLogicGate>> allObjectiveTypes){

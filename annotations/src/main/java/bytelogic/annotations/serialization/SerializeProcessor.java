@@ -13,9 +13,9 @@ import com.squareup.javapoet.*;
 import com.squareup.javapoet.TypeSpec.*;
 import mindustry.annotations.util.*;
 import mindustry.annotations.util.TypeIOResolver.*;
-import mma.annotations.SupportedAnnotationTypes;
-import mma.annotations.*;
-import mma.annotations.remote.*;
+import mmc.annotations.SupportedAnnotationTypes;
+import mmc.annotations.*;
+import mmc.annotations.remote.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;

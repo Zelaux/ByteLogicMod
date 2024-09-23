@@ -42,7 +42,7 @@ public class ControllerBlock extends UnaryLogicBlock{
 
             Building facing = front();
             if(facing != null){
-                Signal signal = currentSignal();
+                Signal signal = displaySignal();
                 if(signal.type != SignalTypes.numberType && !facing.enabled){
                     facing.control(LAccess.enabled, 1, 0, 0, 0);
                 }

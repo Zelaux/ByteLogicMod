@@ -4,7 +4,7 @@ import bytelogic.BLVars;
 import bytelogic.gen.*;
 import mindustry.ctype.Content;
 import mindustry.ctype.MappableContent;
-import mma.tools.ModImagePacker;
+import mmc.tools.ModImagePacker;
 //import testmod.gen.TMContentRegions;
 
 public class ByteLogicImagePacker extends ModImagePacker {

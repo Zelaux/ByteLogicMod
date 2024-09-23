@@ -9,14 +9,16 @@ import bytelogic.schematics.*;
 import bytelogic.type.byteGates.*;
 import bytelogic.ui.dialogs.*;
 import mindustry.graphics.*;
-import mma.ui.tiledStructures.*;
-import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
+import mmc.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
 
 import static bytelogic.BLVars.byteLogicSchematics;
-import static mma.ui.tiledStructures.TiledStructuresCanvas.unitSize;
+import static mmc.ui.tiledStructures.TiledStructuresCanvas.unitSize;
 
 public class SmallByteLogicSchematicPreview extends Table{
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ByteLogicSchematic schematic;
+    @SuppressWarnings("FieldCanBeLocal")
     private final SchematicGate schematicGate;
     public float scaling = 16f;
     public float thickness = 4f;
@@ -83,11 +85,5 @@ public class SmallByteLogicSchematicPreview extends Table{
     @Override
     public void draw(){
         super.draw();
-//        canvas.localToAscendantCoordinates(this, Tmp.v1.setZero());
-//        canvas.localToAscendantCoordinates(this, Tmp.v2.set(canvas.getWidth(), canvas.getHeight()));
-        /*if(clipBegin(Tmp.v1.x, Tmp.v1.y, Tmp.v2.x - Tmp.v1.x, Tmp.v2.y - Tmp.v1.y)){
-
-            clipEnd();
-        }*/
     }
 }

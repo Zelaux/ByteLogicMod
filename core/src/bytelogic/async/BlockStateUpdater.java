@@ -22,31 +22,24 @@ public class BlockStateUpdater implements AsyncProcess {
 
     @Override
     public void process() {
-       /* if (timer>=1f){
-            timer-=1f;
 
-            for(ByteLogicBuildingc build : BLGroups.byteLogicBuild){
-                build.beforeUpdateSignalState();
+        while (timer >= 1f) {
+            for (ByteLogicBuildingc build : BLGroups.byteLogicBuild) {
+                build.transportSignalState();
             }
-        }*/
-
+            for (ByteLogicBuildingc build : BLGroups.byteLogicBuild) {
+                build.swapingSignalState();
+            }
+            timer -= 1f;
+        }
     }
 
     @Override
     public void end() {
 
-        while (timer >= 1f) {
-            for (ByteLogicBuildingc build : BLGroups.byteLogicBuild) {
-                build.beforeUpdateSignalState();
-            }
-            for (ByteLogicBuildingc build : BLGroups.byteLogicBuild) {
-                build.updateSignalState();
-            }
-            timer -= 1f;
+        for (ByteLogicBuildingc build : BLGroups.byteLogicBuild) {
+            build.updateDisplaySignalState();
         }
-    /*    for(ByteLogicBuildingc build : BLGroups.byteLogicBuild){
-            build.updateSignalState();
-        }*/
-//        AsyncProcess.super.end();
+        //        AsyncProcess.super.end();
     }
 }

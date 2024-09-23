@@ -1,9 +1,11 @@
 package bytelogic.type
 
-import arc.graphics.*
-import arc.util.io.*
-import mindustry.gen.*
-import mma.io.*
+import arc.graphics.Color
+import arc.util.io.Reads
+import arc.util.io.Writes
+import arclibrary.utils.io.ByteReads
+import arclibrary.utils.io.ByteWrites
+import mindustry.gen.Building
 
 
 typealias NUMBER_TYPE = Long
@@ -56,7 +58,7 @@ open class Signal {
 
     fun setNumber(number: NUMBER_TYPE) {
 
-        this.number = number;
+        this.number = number
     }
 
     fun barColor(): Color {
@@ -80,7 +82,7 @@ open class Signal {
     }
 
     fun fromBytes(bytes: ByteArray) {
-        tmpReads.setBytes(bytes);
+        tmpReads.setBytes(bytes)
         read(tmpReads)
     }
 
@@ -121,7 +123,7 @@ open class Signal {
     }
 
     fun compareTo(other: Signal): Long {
-        return number - other.number;
+        return number - other.number
     }
 
     fun and(signal: Signal) {
@@ -149,8 +151,8 @@ open class Signal {
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is Signal) return false;
-        return other.number == number && type.id == other.type.id;
+        if (other !is Signal) return false
+        return other.number == number && type.id == other.type.id
     }
 
     fun applyControl(building: Building) {
@@ -158,6 +160,12 @@ open class Signal {
     }
 
     fun absolute() {
-        type.absolute(this);
+        type.absolute(this)
+    }
+
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + number.hashCode()
+        return result
     }
 }

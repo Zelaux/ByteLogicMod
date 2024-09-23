@@ -1,5 +1,6 @@
 package bytelogic.ui.elements;
 
+import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
@@ -9,20 +10,21 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import arclibrary.ui.defaults.*;
+import arclibrary.ui.tooltips.*;
+import arclibrary.utils.refs.*;
 import bytelogic.schematics.*;
 import bytelogic.type.ConnectionSettings.*;
 import bytelogic.type.ConnectionSettings.WireDescriptor.*;
 import bytelogic.ui.dialogs.*;
-import kotlin.jvm.internal.Ref.*;
 import mindustry.graphics.*;
-import mma.ui.tiledStructures.*;
-import mma.ui.tiledStructures.TiledStructures.*;
-import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
-import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
+import mmc.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
+import mmc.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
 import org.jetbrains.annotations.*;
-import zelaux.arclib.ui.tooltips.*;
 
-import static mma.ui.tiledStructures.TiledStructuresCanvas.unitSize;
+import static mmc.ui.tiledStructures.TiledStructuresCanvas.unitSize;
 
 public class ByteLogicSchematicPreview extends Table{
     private final Seq<MockConnector> mockInputs = new Seq<>();
@@ -128,8 +130,13 @@ public class ByteLogicSchematicPreview extends Table{
 
             MockConnector element = new MockConnector(!isInput, i, ConnectorStyle.defaultStyle());
             collectors.add(element);
-            ObjectRef<String> tooltipText = new ObjectRef<>();
-            SideTooltips.mutableSideTooltip(table, Align.topRight, element, tooltipText);
+            Ref.ObjectRef<String> tooltipText = new Ref.ObjectRef<>();
+            Cons<Table> builder = it ->
+                it.background(DefaultBackground.black6())
+                    .margin(4)
+                    .label(() -> tooltipText.element)
+                    .visible(() -> tooltipText.element != null);
+            AdvancedTooltips.tooltipSide(table.add(element), Align.topRight, builder);
             element.update(() -> {
                 tooltipText.element = wireDescriptor.name;
             });

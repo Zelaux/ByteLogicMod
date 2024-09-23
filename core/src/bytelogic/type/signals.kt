@@ -1,3 +1,5 @@
+@file:Suppress("LocalVariableName")
+
 package bytelogic.type
 
 import arc.graphics.*
@@ -28,8 +30,8 @@ abstract class SignalType(val name: String, iconInitializer: () -> Drawable) {
     abstract fun color(signal: Signal): Color
 
     fun set(`this$signal`: Signal, signal: Signal) {
-        `this$signal`.type = signal.type;
-        `this$signal`.setNumber(signal.number);
+        `this$signal`.type = signal.type
+        `this$signal`.setNumber(signal.number)
     }
 
     abstract fun setZero(abstractSignal: Signal)
@@ -66,7 +68,7 @@ abstract class SignalType(val name: String, iconInitializer: () -> Drawable) {
             }
         }
 
-        @kotlin.jvm.JvmField
+        @JvmField
         var all = emptyArray<SignalType>()
     }
 }

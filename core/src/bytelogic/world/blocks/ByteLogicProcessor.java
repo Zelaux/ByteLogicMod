@@ -6,6 +6,7 @@ import arc.math.geom.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
+import arclibrary.utils.io.*;
 import bytelogic.*;
 import bytelogic.gen.*;
 import bytelogic.io.*;
@@ -19,9 +20,9 @@ import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.ui.*;
 import mindustry.world.*;
-import mma.*;
-import mma.io.*;
-import mma.ui.tiledStructures.TiledStructures.*;
+import mmc.*;
+import mmc.io.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
 import org.jetbrains.annotations.*;
 
 import java.util.*;
@@ -153,7 +154,7 @@ public class ByteLogicProcessor extends LogicBlock{
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             for(int i = 0; i < edges.length; i++){
                 Tile nearby = tile.nearby(edges[i]);
                 if(nearby != null && nearby.build instanceof ByteLogicBuildingc buildingc){
@@ -171,7 +172,7 @@ public class ByteLogicProcessor extends LogicBlock{
         }
 
         @Override
-        public void updateSignalState(){
+        public void swapingSignalState(){
             for(int i = 0; i < nextSignalInputCache.length; i++){
                 signalInputCache[i].set(nextSignalInputCache[i]);
                 nextSignalInputCache[i].setZero();
@@ -189,10 +190,6 @@ public class ByteLogicProcessor extends LogicBlock{
                     Tile nearby = tile.nearby(it);
                     return nearby != null && nearby.build == otherBuilding;
                 });
-//                int trns = size / 2 + 1;
-//                int i = Structs.indexOf(edges, it -> nearby(it.x * trns, it.y * trns) == otherBuilding);
-//                if (i)
-//                byte sideId = relativeTo(otherBuilding.<Building>as());
                 if(edge != -1){
                     nextSignalInputCache[edge].set(signal);
                 }

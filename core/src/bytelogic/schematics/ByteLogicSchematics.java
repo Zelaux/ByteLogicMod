@@ -20,7 +20,7 @@ import mindustry.entities.units.*;
 import mindustry.game.*;
 import mindustry.game.EventType.*;
 import mindustry.io.*;
-import mma.ui.tiledStructures.TiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
 
 import java.io.*;
 import java.util.zip.*;

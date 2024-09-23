@@ -41,13 +41,17 @@ public class SignalBlock extends LogicBlock{
         }
 
         @Override
-        public Signal currentSignal(){
+        public Signal displaySignal(){
             return nextSignal;
         }
 
         public void configureNumber(long number){
             Signal.valueOf(tmpSignal, number);
-            configure(tmpSignal.asBytes());
+            configureSignal(tmpSignal);
+        }
+
+        public void configureSignal(Signal signal) {
+            configure(signal.asBytes());
         }
 
         @Override
@@ -69,7 +73,7 @@ public class SignalBlock extends LogicBlock{
                 ui.picker.show(tmpColor, true, out -> {
                     tmpSignal.setNumber(out.rgba());
                     tmpSignal.type = SignalTypes.colorType;
-                    configure(tmpSignal.asBytes());
+                    configureSignal(tmpSignal);
                 });
             }).size(40f);
         }
@@ -82,21 +86,16 @@ public class SignalBlock extends LogicBlock{
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             if(doOutput && canOutputSignal(rotation)){
                 front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
             }
         }
 
         @Override
-        public void updateSignalState(){
+        public void swapingSignalState(){
             lastSignal.set(nextSignal);
         }
-        /*
-        @Override
-        public int signal(){
-            return nextSignal;
-        }*/
 
         @Override
         public byte[] config(){

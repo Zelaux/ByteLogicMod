@@ -13,7 +13,7 @@ import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.world.*;
-import mma.graphics.*;
+import mmc.graphics.*;
 import org.jetbrains.annotations.*;
 
 import static mindustry.Vars.tilesize;
@@ -77,8 +77,6 @@ public class LogicNet{
             }
             Tile tile = Vars.world.tile(x, y);
             Draw.color(Pal.accent,1f);
-//            Draw.color(number % 2 == 0 ? Pal.removeBack : Pal.heal, (i + .5f) / buildCache.size);
-//            Fill.rect(tile.worldx(), tile.worldy(), tilesize, tilesize);
 
             for(int j = 0; j < sideMasks.length; j++){
                 if((signalDirections & sideMasks[j]) == 0) continue;
@@ -86,7 +84,7 @@ public class LogicNet{
                 float scale = tilesize / 2f;
                 Draw.rect(Regions.nextBlockArrow32, tile.worldx() + offset.x * scale, tile.worldy() + offset.y * scale, j * 90 + 180);
             }
-            ADrawf.drawText(tile.worldx()-tilesize/4f, tile.worldy()-tilesize/4f,0.125f, numberToString.get(number));
+            ADrawText.drawText(tile.worldx()-tilesize/4f, tile.worldy()-tilesize/4f,0.125f, numberToString.get(number));
         }
     }
 

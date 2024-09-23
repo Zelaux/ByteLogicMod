@@ -10,7 +10,7 @@ import mindustry.content.*;
 import mindustry.io.*;
 import mindustry.type.*;
 import mindustry.world.*;
-import mma.*;
+import mmc.*;
 
 import java.lang.reflect.*;
 

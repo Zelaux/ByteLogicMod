@@ -28,7 +28,7 @@ public class AcceptorLogicBlock extends LogicBlock{
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
 
             for(int i = 0; i < 4; i++){
                 if(canOutputSignal((byte)i)){

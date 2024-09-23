@@ -5,6 +5,7 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
+import arclibrary.utils.io.*;
 import bytelogic.*;
 import bytelogic.gen.*;
 import bytelogic.type.*;
@@ -15,7 +16,7 @@ import mindustry.entities.units.*;
 import mindustry.game.*;
 import mindustry.ui.*;
 import mindustry.world.*;
-import mma.io.*;
+import mmc.io.*;
 import org.jetbrains.annotations.*;
 
 public class SignalTransformer extends UnaryLogicBlock{
@@ -25,15 +26,6 @@ public class SignalTransformer extends UnaryLogicBlock{
 
     public SignalTransformer(String name){
         super(name);
-        /*this.<byte[], SignalTransformerBuild>config(byte[].class, (build, bytes) -> {
-            build.selectedTypeSignal.fromBytes(bytes);
-        });*/
-     /*   this.<Integer, SignalTransformerBuild>config(Integer.class, (build, id) -> {
-            SignalType type = SignalType.all[id];
-            if(type == SignalTypes.nilType)
-                type = SignalTypes.numberType;
-            build.selectedType = type;
-        });*/
         lastConfig = null;
         this.<byte[], SignalTransformerBuild>config(byte[].class, (build, bytes) -> {
             if(bytes.length < 2) return;
@@ -179,7 +171,7 @@ public class SignalTransformer extends UnaryLogicBlock{
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             if(doOutput && canOutputSignal((byte)rotation)){
                 lastSignal.type = selectedType;
                 front().<ByteLogicBuildingc>as().acceptSignal(this, lastSignal);
@@ -187,7 +179,7 @@ public class SignalTransformer extends UnaryLogicBlock{
         }
 
         @Override
-        public void updateSignalState(){
+        public void swapingSignalState(){
             lastSignal.set(nextSignal);
             lastSignal.type = selectedType;
             nextSignal.setZero();

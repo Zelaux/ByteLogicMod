@@ -23,7 +23,7 @@ public class CanvasEditDialog extends BaseDialog{
 
     public CanvasEditDialog(SignalLogicBuild build){
         super("@block.editsignal.as-image");
-        getter = () -> build.currentSignal().number();
+        getter = () -> build.displaySignal().number();
         setter = value -> build.configureNumber(value);
         setup();
     }

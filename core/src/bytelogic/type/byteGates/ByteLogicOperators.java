@@ -13,6 +13,9 @@ import arc.util.*;
 import arc.util.io.*;
 import arc.util.serialization.*;
 import arc.util.serialization.Json.*;
+import arclibrary.ui.components.*;
+import arclibrary.ui.components.ComboBox.*;
+import arclibrary.ui.tooltips.*;
 import bytelogic.*;
 import bytelogic.annotations.BLAnnotations.*;
 import bytelogic.gen.*;
@@ -22,22 +25,21 @@ import bytelogic.world.blocks.ByteLogicProcessor.*;
 import bytelogic.world.blocks.logic.*;
 import mindustry.gen.*;
 import mindustry.io.*;
-import mma.ui.tiledStructures.*;
-import mma.ui.tiledStructures.TiledStructures.*;
-import mma.ui.tiledStructures.TiledStructuresDialog.*;
-import mma.utils.*;
+import mmc.ui.tiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructures.*;
+import mmc.ui.tiledStructures.TiledStructuresDialog.*;
+import mmc.utils.strings.ModStrings;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.*;
-import zelaux.arclib.ui.components.*;
-import zelaux.arclib.ui.components.ComboBox.*;
-import zelaux.arclib.ui.tooltips.*;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 
 import static mindustry.Vars.*;
 
+@SuppressWarnings("RedundantMethodOverride")
 public class ByteLogicOperators{
+    @SuppressWarnings("rawtypes")
     static Prov<? extends TiledStructure>[] providers;
 
     static{
@@ -45,6 +47,7 @@ public class ByteLogicOperators{
         if(!BLVars.packSprites){
             Seq<Json> jsons = Seq.with(JsonIO.json, Reflect.get(JsonIO.class, "jsonBase"));
             SignalTypes.nilType.getId();
+            //noinspection rawtypes
             Serializer signalTypeSerializer = new Serializer<SignalType>(){
                 @Override
                 public void write(Json json, SignalType object, Class knownType){
@@ -58,13 +61,16 @@ public class ByteLogicOperators{
             };
             for(Json json : jsons){
                 if(json.getSerializer(SignalType.class) == null){
+                    //noinspection unchecked
                     json.setSerializer(SignalType.class, signalTypeSerializer);
                 }
                 for(SignalType type : SignalType.all){
 
                     Class<? extends SignalType> aClass = type.getClass();
-                    if(aClass.isAnonymousClass()) aClass = (Class<? extends SignalType>)aClass.getSuperclass();
+                    if(aClass.isAnonymousClass()) //noinspection unchecked
+                        aClass = (Class<? extends SignalType>)aClass.getSuperclass();
                     if(json.getSerializer(aClass) == null){
+                        //noinspection unchecked
                         json.setSerializer(aClass, signalTypeSerializer);
                     }
                 }
@@ -99,7 +105,10 @@ public class ByteLogicOperators{
     }
 
     public static <T extends ByteLogicGate> void addProvider(Class<T> type, Prov<T> prov){
+        //noinspection rawtypes
         Prov<? extends TiledStructure>[] prevProviders = providers;
+
+        //noinspection unchecked
         providers = new Prov[prevProviders.length + 1];
         System.arraycopy(prevProviders, 0, providers, 0, prevProviders.length);
         providers[prevProviders.length] = prov;
@@ -133,8 +142,9 @@ public class ByteLogicOperators{
 
     @GenerateByteLogicGatesSerializer
     public static abstract class ByteLogicGate extends TiledStructure<ByteLogicGate> implements TiledStructureWithGroup{
-        protected transient static final Cons2<TiledStructuresDialog, Table> unsetEditor = (a, b) -> {
+        protected static final Cons2<TiledStructuresDialog, Table> unsetEditor = (a, b) -> {
         };
+        @SuppressWarnings("unchecked")
         public transient final Class<? extends ByteLogicGate> clazz = getClass().isAnonymousClass() ? (Class<? extends ByteLogicGate>)getClass().getSuperclass() : getClass();
         protected transient final Signal tmpSignal = new Signal();
         @CodeEdit
@@ -308,6 +318,7 @@ public class ByteLogicOperators{
             return alwaysQualified() || super.qualified();
         }
 
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         public boolean canUseInGraphics(){
             return true;
         }
@@ -328,7 +339,7 @@ public class ByteLogicOperators{
             afterRead();
         }
     }
-
+    @SuppressWarnings("unused")
     public static abstract class SignalProviderGate extends ByteLogicGate{
         protected transient final Signal lastSignal = new Signal();
 
@@ -362,8 +373,6 @@ public class ByteLogicOperators{
                         tmpColor.set((int)number);
                         ui.picker.show(tmpColor, true, out -> {
                             set.get((long)out.rgba());
-//                            tmpSignal.type = SignalTypes.colorType;
-//                            configure(tmpSignal.asBytes());
                         });
                     }).size(40f);
                 });
@@ -403,7 +412,7 @@ public class ByteLogicOperators{
         }
 
     }
-
+    @SuppressWarnings("unused")
     public static abstract class UnaryGate extends ByteLogicGate{
         public final String operationLetter;
 
@@ -419,15 +428,15 @@ public class ByteLogicOperators{
         @Nullable
         @Override
         public Tooltip inputConnectorTooltip(int inputIndex){
-            return SideTooltips.getInstance().create("a");
+            return AdvancedTooltips.create("a");
         }
 
         @Nullable
         @Override
         public Tooltip outputConnectorTooltip(int inputIndex){
             if(operationLetter.startsWith("@"))
-                return SideTooltips.getInstance().create(Core.bundle.format(operationLetter, "a"));
-            return SideTooltips.getInstance().create(operationLetter + "a");
+                return AdvancedTooltips.create(Core.bundle.format(operationLetter, "a"));
+            return AdvancedTooltips.create(operationLetter + "a");
         }
 
         @Override
@@ -456,7 +465,7 @@ public class ByteLogicOperators{
         public void updateSignals(){
             signals[0].set(process(inputSignals[0]));
         }
-
+        @SuppressWarnings("unused")
         public static class RelayGate extends UnaryGate{
             public RelayGate(){
                 super("");
@@ -468,6 +477,7 @@ public class ByteLogicOperators{
             }
         }
 
+        @SuppressWarnings("unused")
         public static class NotGate extends UnaryGate{
             public NotGate(){
                 super("!");
@@ -478,7 +488,7 @@ public class ByteLogicOperators{
                 return Signal.valueOf(value, value.compareWithZero() == 0 ? 1 : 0);
             }
         }
-
+        @SuppressWarnings("unused")
         public static class FontGate extends UnaryGate{
             private final transient static Signal def = Signal.valueOf(0);
 
@@ -492,7 +502,7 @@ public class ByteLogicOperators{
             }
         }
 
-
+        @SuppressWarnings("unused")
         public static class DelayerGate extends UnaryGate{
             public transient Seq<Signal> signalsQueue = Seq.with(new Signal());
             public int currentDelay = 1;
@@ -544,7 +554,7 @@ public class ByteLogicOperators{
                 }
             }
         }
-
+        @SuppressWarnings("unused")
         public static class TransformerGate extends UnaryGate{
             static{
                 TiledStructuresDialog.setGlobalInterpreter(SIGNAL_TYPE.class, int.class, (instance, cont, name, type, field, remover, indexer, get, set) -> {
@@ -589,7 +599,7 @@ public class ByteLogicOperators{
             @Override
             public Tooltip inputConnectorTooltip(int inputIndex){
                 if(inputIndex == 0) return null;
-                return SideTooltips.getInstance().create("typeId");
+                return arclibrary.ui.tooltips.AdvancedTooltips.create("typeId");
             }
 
             @Override
@@ -619,7 +629,7 @@ public class ByteLogicOperators{
             public @interface SIGNAL_TYPE{
 
             }
-        }
+        }@SuppressWarnings("unused")
         public static class TypeOfGate extends UnaryGate{
 
 
@@ -640,7 +650,7 @@ public class ByteLogicOperators{
             @Nullable
             @Override
             public Tooltip outputConnectorTooltip(int inputIndex){
-                return SideTooltips.getInstance().create("typeId");
+                return arclibrary.ui.tooltips.AdvancedTooltips.create("typeId");
             }
             @Override
             Signal process(Signal value){
@@ -652,7 +662,7 @@ public class ByteLogicOperators{
                 return value;
             }
         }
-
+        @SuppressWarnings("unused")
         public static abstract class FloatOperationGate extends UnaryGate{
             protected FloatOperationGate(String operationLetter){
                 super(operationLetter);
@@ -676,7 +686,7 @@ public class ByteLogicOperators{
                     return value;
                 }
             }
-
+            @SuppressWarnings("unused")
             public static class RoundGate extends FloatOperationGate{
                 public RoundGate(){
                     super("@round");
@@ -699,7 +709,7 @@ public class ByteLogicOperators{
                     return Signal.valueOf(value, longValue);
                 }
             }
-
+            @SuppressWarnings("unused")
             public static class CeilGate extends FloatOperationGate{
                 public CeilGate(){
                     super("@round");
@@ -722,7 +732,7 @@ public class ByteLogicOperators{
                     return Signal.valueOf(value, longValue);
                 }
             }
-
+            @SuppressWarnings("unused")
             public static class FloorGate extends FloatOperationGate{
                 public FloorGate(){
                     super("@floor");
@@ -739,7 +749,7 @@ public class ByteLogicOperators{
         }
 
     }
-
+    @SuppressWarnings("unused")
     public static abstract class BinaryGate extends ByteLogicGate{
         public final String operationLetter;
         protected transient final Signal[] tmpValues = {new Signal(), new Signal()};
@@ -756,13 +766,13 @@ public class ByteLogicOperators{
         @Nullable
         @Override
         public Tooltip inputConnectorTooltip(int inputIndex){
-            return SideTooltips.getInstance().create(inputIndex == 0 ? "a" : "b");
+            return arclibrary.ui.tooltips.AdvancedTooltips.create(inputIndex == 0 ? "a" : "b");
         }
 
         @Nullable
         @Override
         public Tooltip outputConnectorTooltip(int outputIndex){
-            return SideTooltips.getInstance().create("a " + operationLetter + " b");
+            return arclibrary.ui.tooltips.AdvancedTooltips.create("a " + operationLetter + " b");
         }
 
         abstract Signal process(Signal a, Signal b);
@@ -940,14 +950,14 @@ public class ByteLogicOperators{
         }
 
     }
-
+    @SuppressWarnings("unused")
     public static abstract class LinkedGate extends ByteLogicGate implements ConfigGroupStructure{
         public transient @Nullable ByteLogicProcessorBuild link;
         @ShortName("position")
         public int clockWisePosition;
 
         @Override
-        public void setLink(ByteLogicProcessorBuild build){
+        public void setLink(@Nullable ByteLogicProcessorBuild build){
             this.link = build;
         }
 
@@ -1039,7 +1049,7 @@ public class ByteLogicOperators{
 
         }
     }
-
+    @SuppressWarnings("unused")
     public static abstract class BitOperationGate extends ByteLogicGate{
         @Override
         public int objWidth(){
@@ -1064,8 +1074,8 @@ public class ByteLogicOperators{
         public static class SetBitGate extends BitOperationGate{
             @Override
             public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
-                if(inputIndex == 1) return SideTooltips.getInstance().create("@byte-logic.bitIndex");
-                if(inputIndex == 2) return SideTooltips.getInstance().create("@byte-logic.bitValue");
+                if(inputIndex == 1) return arclibrary.ui.tooltips.AdvancedTooltips.create("@byte-logic.bitIndex");
+                if(inputIndex == 2) return arclibrary.ui.tooltips.AdvancedTooltips.create("@byte-logic.bitValue");
                 return null;
             }
 
@@ -1094,7 +1104,7 @@ public class ByteLogicOperators{
         public static class GetBitGate extends BitOperationGate{
             @Override
             public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
-                if(inputIndex == 1) return SideTooltips.getInstance().create("@byte-logic.bitIndex");
+                if(inputIndex == 1) return arclibrary.ui.tooltips.AdvancedTooltips.create("@byte-logic.bitIndex");
                 return null;
             }
 
@@ -1156,20 +1166,20 @@ public class ByteLogicOperators{
             }
         }
     }
-
+    @SuppressWarnings("unused")
     public static abstract class MathGate extends ByteLogicGate{
         public transient ConnectionSettings connections;//not null
 
         @Override
         public @Nullable Tooltip inputConnectorTooltip(int inputIndex){
             String inputName = connections.inputWires.get(inputIndex).name;
-            return inputName == null ? null : SideTooltips.INSTANCE.create(inputName);
+            return inputName == null ? null : AdvancedTooltips.create(inputName);
         }
 
         @Override
         public @Nullable Tooltip outputConnectorTooltip(int outputIndex){
             String outputName = connections.outputWires.get(outputIndex).name;
-            return outputName == null ? null : SideTooltips.INSTANCE.create(outputName);
+            return outputName == null ? null : AdvancedTooltips.create(outputName);
         }
 
         @Override

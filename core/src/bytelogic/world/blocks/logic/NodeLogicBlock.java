@@ -17,10 +17,10 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.input.*;
 import mindustry.world.*;
-import mma.type.pixmap.*;
+import mmc.type.pixmap.*;
 
 import static mindustry.Vars.*;
-import static mma.ModVars.fullName;
+import static mmc.ModVars.fullName;
 
 public class NodeLogicBlock extends LogicRouter{
     private static int lastPlaced = Pos.invalid;
@@ -155,7 +155,7 @@ public class NodeLogicBlock extends LogicRouter{
         }
 
         @Override
-        public void beforeUpdateSignalState(){
+        public void transportSignalState(){
             Building link = world.build(this.link);
             if(linkValid(this, link)){
                 NodeLogicBuild other = link.as();

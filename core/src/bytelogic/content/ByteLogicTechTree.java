@@ -3,21 +3,25 @@ package bytelogic.content;
 //import mindustry.content.*;
 
 import arc.struct.*;
+import bytelogic.world.blocks.ByteLogicProcessor;
+import bytelogic.world.blocks.logic.LogicBlock;
 import mindustry.content.*;
 import mindustry.ctype.*;
 import mindustry.game.*;
-import mma.utils.*;
+import mmc.utils.*;
+import mmc.utils.techtree.TechTreeContext;
 
 import static mindustry.content.TechTree.node;
 
-public class ByteLogicTechTree{
+public class ByteLogicTechTree {
 
-    public static void load(){
-        initTechTree(Blocks.siliconArcFurnace,ByteLogicBlocks.erekirBlocks);
-        initTechTree(Blocks.mechanicalDrill,ByteLogicBlocks.serpuloBlock);
+    public static void load() {
+        initTechTree(Blocks.siliconArcFurnace, ByteLogicBlocks.erekirBlocks);
+        initTechTree(Blocks.mechanicalDrill, ByteLogicBlocks.serpuloBlock);
     }
-    public static void initTechTree(UnlockableContent context, ByteLogicBlocks blocks){
-        TechTreeContext.contextNode(context,()->{
+
+    public static void initTechTree(UnlockableContent context, ByteLogicBlocks blocks) {
+        TechTreeContext.contextNode(context, () -> {
             node(blocks.relay, () -> {
                 node(blocks.signalTimer);
                 node(blocks.switchBlock, () -> {
@@ -36,8 +40,8 @@ public class ByteLogicTechTree{
                 node(blocks.comparator, () -> {
                     node(blocks.equalizer);
                     node(blocks.xorGate, Seq.with(new Objectives.Research(blocks.orGate),
-                    new Objectives.Research(blocks.andGate),
-                    new Objectives.Research(blocks.notGate)), () -> {
+                            new Objectives.Research(blocks.andGate),
+                            new Objectives.Research(blocks.notGate)), () -> {
                     });
                 });
                 node(blocks.notGate);
@@ -57,6 +61,17 @@ public class ByteLogicTechTree{
                 });
 
             });
+            Seq<Objectives.Objective> objectives = new Seq<>();
+            if (blocks.processor != null) {
+                node(blocks.processor, objectives, () -> {
+                });
+                for (LogicBlock block : blocks.blocks) {
+                    if (!(block instanceof ByteLogicProcessor)) {
+                        System.out.println(block);
+                        objectives.add(new Objectives.Research(block));
+                    }
+                }
+            }
         });
     }
 }

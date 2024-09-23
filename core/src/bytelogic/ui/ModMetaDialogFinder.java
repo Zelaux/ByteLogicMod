@@ -11,7 +11,7 @@ import mindustry.ui.dialogs.*;
 import java.util.*;
 
 import static mindustry.Vars.headless;
-import static mma.ModVars.modInfo;
+import static mmc.ModVars.modInfo;
 
 public class ModMetaDialogFinder{
     private static Dialog currentModInfoDialog = null;

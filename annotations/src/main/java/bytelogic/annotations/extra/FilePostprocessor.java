@@ -12,8 +12,8 @@ import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.nodeTypes.*;
 import com.sun.source.util.*;
 import mindustry.annotations.util.*;
-import mma.annotations.SupportedAnnotationTypes;
-import mma.annotations.*;
+import mmc.annotations.SupportedAnnotationTypes;
+import mmc.annotations.*;
 
 import javax.annotation.processing.*;
 import java.util.*;
@@ -23,14 +23,31 @@ import java.util.stream.*;
 public class FilePostprocessor extends ModBaseProcessor{
     @Override
     public void process(RoundEnvironment env) throws Exception{
-        StaticJavaParser.getConfiguration().setLanguageLevel(LanguageLevel.JAVA_16);
+        StaticJavaParser.getConfiguration().setLanguageLevel(LanguageLevel.JAVA_17);
         ObjectMap<String, CompilationUnit> toRemove = new ObjectMap<>();
+        boolean errors = false;
         for(Selement element : elements(RemoveFromCompilation.class)){
             TreePath treePath = trees.getPath(element.e);
 //            System.out.println(element.fullName());
             Fi path = Fi.get(treePath.getCompilationUnit().getSourceFile().getName());
             if(toRemove.containsKey(path.absolutePath())) continue;
-            toRemove.put(path.absolutePath(), StaticJavaParser.parse(path.readString()));
+            try{
+                toRemove.put(path.absolutePath(), StaticJavaParser.parse(path.readString()));
+            }catch(ParseProblemException e){
+                List<Problem> problems = e.getProblems();
+                String[] strings = new String[problems.size()];
+                for(int i = 0; i < problems.size(); i++){
+                    Problem problem = problems.get(i);
+                    strings[i] = problem.getVerboseMessage();
+                }
+                err(path.absolutePath().replace("core\\build\\src","core\\src") + "\n" + String.join("\n",strings), element.e);
+                errors = true;
+            }
+        }
+        if(errors){
+            RuntimeException foundErrors = new RuntimeException("Found errors");
+            foundErrors.setStackTrace(new StackTraceElement[0]);
+            throw foundErrors;
         }
         for(Entry<String, CompilationUnit> entry : toRemove){
             Fi file = Fi.get(entry.key);

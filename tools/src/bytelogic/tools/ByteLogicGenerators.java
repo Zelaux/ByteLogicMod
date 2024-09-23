@@ -7,8 +7,8 @@ import arc.struct.*;
 import bytelogic.gen.*;
 import bytelogic.world.blocks.logic.*;
 import mindustry.*;
-import mma.tools.*;
-import mma.type.pixmap.*;
+import mmc.tools.*;
+import mmc.type.pixmap.*;
 import org.w3c.dom.*;
 
 import javax.imageio.*;
@@ -20,7 +20,7 @@ import java.nio.*;
 import java.util.*;
 
 import static bytelogic.BLVars.fullName;
-import static mma.tools.gen.MindustryImagePacker.*;
+import static mmc.tools.gen.MindustryImagePacker.*;
 
 public class ByteLogicGenerators extends ModGenerators{
     @Override

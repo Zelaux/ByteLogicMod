@@ -63,10 +63,10 @@ public class WorldElement extends Table{
         });
         worldFragment.onWorldUpdate(() -> {
             for(ByteLogicBuildingc build : BLGroups.byteLogicBuild){
-                build.beforeUpdateSignalState();
+                build.transportSignalState();
             }
             for(ByteLogicBuildingc build : BLGroups.byteLogicBuild){
-                build.updateSignalState();
+                build.swapingSignalState();
             }
 
             updateWaiters.each(Function0::invoke);

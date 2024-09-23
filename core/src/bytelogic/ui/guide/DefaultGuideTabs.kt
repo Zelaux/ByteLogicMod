@@ -1,18 +1,17 @@
 package bytelogic.ui.guide
 
-import arc.*
-import arc.math.*
-import arc.scene.actions.*
-import arc.scene.ui.layout.*
-import arc.util.*
-import bytelogic.content.*
-import bytelogic.ui.guide.signalTypes.*
-import mindustry.*
-import mindustry.content.*
-import mindustry.ctype.*
-import mindustry.gen.*
+import arc.Core
+import arc.math.Interp
+import arc.scene.actions.Actions
+import arc.scene.ui.layout.Table
+import arc.util.Align
+import bytelogic.ui.guide.signalTypes.ContentSignalTab
+import mindustry.Vars
+import mindustry.content.Blocks
+import mindustry.ctype.ContentType
+import mindustry.gen.Building
 
-fun ContentType.localizedName() = "@content.$name.name";
+fun ContentType.localizedName() = "@content.$name.name"
 
 object DefaultGuideTabs {
     @JvmField

@@ -16,8 +16,8 @@ import mindustry.*;
 import mindustry.ctype.*;
 import mindustry.game.EventType.*;
 import mindustry.world.*;
-import mma.*;
-import mma.annotations.*;
+import mmc.*;
+import mmc.annotations.*;
 
 import java.io.*;
 
@@ -28,12 +28,13 @@ import static mindustry.Vars.headless;
 public class ByteLogicMod extends MMAMod{
     private static boolean registered = false;
 
+    @SuppressWarnings("CommentedOutCode")
     public ByteLogicMod(){
         super();
         registerMain();
         registered = true;
         disableBlockOutline = true;
-      /*  try{
+      /* TODO remove try{
             OptimizedByteArrayOutputStream out = new OptimizedByteArrayOutputStream(1024);
             out.reset();
             out.write(ByteLogicSchematics.header);
@@ -46,7 +47,7 @@ public class ByteLogicMod extends MMAMod{
 //        TMEntityMapping.init();
 //        TMCall.registerPackets();
         BLVars.load();
-//        TMLogicIO.init();
+        BLLogicIO.init();
         modLog("Creating end");
     }
 
