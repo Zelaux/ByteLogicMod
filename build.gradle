@@ -55,7 +55,7 @@ ext {
     sdkRoot = System.getenv("ANDROID_HOME")
     doExec = { cmd ->
         println Arrays.toString(buildDir.list())
-        def proc = cmd.execute(null, new File("$buildDir/libs".replace("ByteLogicMod/ByteLogicMod","ByteLogicMod")))
+        def proc = cmd.execute(null, new File(buildDir as File,"libs"))
         proc.waitForProcessOutput(System.out, System.err)
     }
 }
