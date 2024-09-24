@@ -8,7 +8,6 @@ import bytelogic.world.blocks.logic.LogicBlock;
 import mindustry.content.*;
 import mindustry.ctype.*;
 import mindustry.game.*;
-import mmc.utils.*;
 import mmc.utils.techtree.TechTreeContext;
 
 import static mindustry.content.TechTree.node;
@@ -65,7 +64,7 @@ public class ByteLogicTechTree {
             if (blocks.processor != null) {
                 node(blocks.processor, objectives, () -> {
                 });
-                for (LogicBlock block : blocks.blocks) {
+                for (LogicBlock block : blocks.blockList) {
                     if (!(block instanceof ByteLogicProcessor)) {
                         System.out.println(block);
                         objectives.add(new Objectives.Research(block));

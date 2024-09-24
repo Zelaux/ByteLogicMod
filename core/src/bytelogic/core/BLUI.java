@@ -63,9 +63,9 @@ public class BLUI extends mmc.core.ModUI implements Disposable, ApplicationListe
                         Block tBlock = t.block;
                         if(tBlock instanceof LogicBlock block && block.byteLogicBlocks != null){
                             ByteLogicBlocks current = block.byteLogicBlocks;
-                            int index = current.blocks.indexOf(block);
-                            if(index >= 0 && index < currentPlanetBlocks.blocks.size){
-                                tBlock = currentPlanetBlocks.blocks.get(index);
+                            int index = current.blockList.indexOf(block);
+                            if(index >= 0 && index < currentPlanetBlocks.blockList.size){
+                                tBlock = currentPlanetBlocks.blockList.get(index);
                             }
                         }
                         return new BuildPlan(t.x + x - schem.width / 2, t.y + y - schem.height / 2, t.rotation, tBlock, t.config).original(t.x, t.y, schem.width, schem.height);
