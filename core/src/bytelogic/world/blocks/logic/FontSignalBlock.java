@@ -46,7 +46,7 @@ public class FontSignalBlock extends UnaryLogicBlock{
         53, signal(8936272492310316088L),//5
         54, signal(4324585958417900604L),//6
         55, signal(8953226703640989712L),//7
-        56, signal(8953226703640989712L),//8
+        56, signal(4054440572994470968L),//8
         57, signal(4333628582092873788L)//9
         //endregion
     );
