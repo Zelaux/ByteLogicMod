@@ -102,12 +102,12 @@ public abstract class UnaryLogicBlock extends LogicBlock{
             drawPlanRegion(req, list);
             return;
         }
-        if(!(req.config instanceof byte[] valueWrapped)){
+        if(!(req.config instanceof byte[] valueWrapped) || valueWrapped.length==0){
             req.config = unarySideState(false, true, false);
             drawPlanRegion(req, list);
             return;
         }
-        byte value = valueWrapped[0];
+        byte value = (byte) Math.max(valueWrapped[0],1);
         TextureRegion back = base;
         Draw.rect(back, req.drawx(), req.drawy(),
             back.width * req.animScale * Draw.scl,

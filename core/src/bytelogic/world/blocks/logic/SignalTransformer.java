@@ -16,8 +16,9 @@ import mindustry.entities.units.*;
 import mindustry.game.*;
 import mindustry.ui.*;
 import mindustry.world.*;
-import mmc.io.*;
 import org.jetbrains.annotations.*;
+
+import java.io.EOFException;
 
 public class SignalTransformer extends UnaryLogicBlock{
     protected static final Signal tmpSignal = new Signal();
@@ -52,8 +53,8 @@ public class SignalTransformer extends UnaryLogicBlock{
 
     @Override
     public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list){
-        if(req.config instanceof byte[] bytes && bytes.length > 1){
-            Container.set(bytes);
+        if(req.config instanceof byte[] bytes && bytes.length > 1 && Container.set(bytes)){
+
             byte[] config = {Container.inputType};
             req.config = config;
 
@@ -118,23 +119,29 @@ public class SignalTransformer extends UnaryLogicBlock{
         static SignalType selectedType;
         static byte inputType;
 
-        static void set(byte[] bytes){
-            tmpRead.setBytes(bytes);
-            String name = tmpRead.str();
-            int version = 0;
-            if(name.matches("(V_)[\\d]+")){
-                version = Integer.parseInt(name.substring("V_".length()));
-                name = tmpRead.str();
+        static boolean set(byte[] bytes){
+            try {
+                tmpRead.setBytes(bytes);
+                String name = tmpRead.str();
+                int version = 0;
+                if(name.matches("(V_)[\\d]+")){
+                    version = Integer.parseInt(name.substring("V_".length()));
+                    name = tmpRead.str();
+                }
+                selectedType = SignalType.findByName(name);
+                if(selectedType == SignalTypes.nilType){
+                    selectedType = SignalTypes.numberType;
+                }
+                if(version == 0){
+                    inputType = updateInputType(tmpRead.i());
+                }else{
+                    inputType = tmpRead.b();
+                }
+            } catch (RuntimeException e) {
+                if(e.getCause() instanceof EOFException) return false;
+                throw e;
             }
-            selectedType = SignalType.findByName(name);
-            if(selectedType == SignalTypes.nilType){
-                selectedType = SignalTypes.numberType;
-            }
-            if(version == 0){
-                inputType = updateInputType(tmpRead.i());
-            }else{
-                inputType = tmpRead.b();
-            }
+            return true;
         }
 
         public static byte[] bytes(){

@@ -24,6 +24,8 @@ import mindustry.world.*;
 import mmc.io.*;
 import org.jetbrains.annotations.*;
 
+import java.io.EOFException;
+
 public class SignalTimer extends UnaryLogicBlock{
     protected static final ByteReads tmpRead = new ByteReads();
     protected static final ByteWrites tmpWrite = new ByteWrites();
@@ -103,17 +105,10 @@ public class SignalTimer extends UnaryLogicBlock{
             drawPlanRegion(req, list);
             return;
         }
-        if(!(req.config instanceof byte[] bytes)){
+        if(!(req.config instanceof byte[] bytes) || !Container.set(bytes)){
             req.config = stateToBytes(1, unarySideState(false, true, false));
             drawPlanRegion(req, list);
             return;
-        }
-        try{
-            Container.set(bytes);
-        }catch(Exception e){
-            byte[] stateToBytes = stateToBytes(1, unarySideState(false, true, false));
-            req.config = stateToBytes;
-            Container.set(stateToBytes);
         }
 
         TextureRegion back = base;
@@ -174,15 +169,21 @@ public class SignalTimer extends UnaryLogicBlock{
         static int delay;
         static byte inputType;
 
-        static void set(byte[] bytes){
-            tmpRead.setBytes(bytes);
-            int version = tmpRead.i();
-            delay = tmpRead.i();
-            if(version == 0){
-                inputType = updateInputType(tmpRead.i());
-            }else{
-                inputType = tmpRead.b();
+        static boolean set(byte[] bytes){
+            try {
+                tmpRead.setBytes(bytes);
+                int version = tmpRead.i();
+                delay = tmpRead.i();
+                if(version == 0){
+                    inputType = updateInputType(tmpRead.i());
+                }else{
+                    inputType = tmpRead.b();
+                }
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof EOFException)return false;
+                throw e;
             }
+            return true;
         }
 
         public static byte[] bytes(){
