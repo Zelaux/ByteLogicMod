@@ -16,6 +16,7 @@ import bytelogic.type.byteGates.ByteLogicOperators.*;
 import bytelogic.ui.dialogs.*;
 import bytelogic.world.blocks.logic.*;
 import mindustry.annotations.Annotations.*;
+import mindustry.entities.units.BuildPlan;
 import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.ui.*;
@@ -38,6 +39,15 @@ public class ByteLogicProcessor extends LogicBlock{
     public TextureRegion outputWire;
     public Point2[] edges;
     public Point2[] innerEdges;
+
+    @Override
+    public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list) {
+        TextureRegion back = base;
+        Draw.rect(back, req.drawx(), req.drawy(),
+            back.width * req.animScale * Draw.scl,
+            back.height * req.animScale * Draw.scl,
+            0);
+    }
 
     public ByteLogicProcessor(String name){
         super(name);
